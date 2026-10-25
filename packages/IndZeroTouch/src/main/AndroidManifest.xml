@@ -57,5 +57,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Voice Orb Floating Window Overlay Service (TYPE_APPLICATION_OVERLAY) -->
+        <service
+            android:name="indos.zerotouch.ui.IndOrbOverlayService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="indos.zerotouch.action.SHOW_ORB" />
+                <action android:name="indos.zerotouch.action.HIDE_ORB" />
+                <action android:name="indos.zerotouch.action.SET_ORB_STATE" />
+                <action android:name="indos.zerotouch.action.SET_ORB_AMPLITUDE" />
+            </intent-filter>
+        </service>
+
     </application>
 </manifest>

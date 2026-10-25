@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint7"
-MODULE_VERSION_CODE="10007"
+MODULE_VERSION="v1.0.1-sprint8"
+MODULE_VERSION_CODE="10008"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -35,6 +35,7 @@ RUN_MMAP_BENCH=false
 RUN_GBNF_TEST=false
 RUN_EXEC_TEST=false
 RUN_WAKE_TEST=false
+RUN_ASR_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -50,6 +51,7 @@ Options:
     -g, --gbnf-test   Execute Sprint 5 DoD Deterministic GBNF Sampler & Prompt Test (200/200 100% valid JSON)
     -e, --exec-test   Execute Sprint 6 DoD Core OS System Intent Execution Test (Wi-Fi, BT, Torch, Apps, Calls <500 ms)
     -w, --wake-test   Execute Sprint 7 DoD Wake-Word & ECAPA-TDNN Biometric Voice Gate Test (>95% wake, <2% FAR)
+    -a, --asr-test    Execute Sprint 8 DoD Streaming Indic/Hinglish ASR + Voice Orb Test (<200 ms latency, offline TTS)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -97,6 +99,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -w|--wake-test)
             RUN_WAKE_TEST=true
+            shift
+            ;;
+        -a|--asr-test)
+            RUN_ASR_TEST=true
             shift
             ;;
         -s|--serial)
@@ -333,6 +339,32 @@ if [[ "${RUN_WAKE_TEST}" == "true" ]]; then
     echo "[+] Sprint 7 DoD Wake-Word & ECAPA-TDNN Biometric Voice Gate Test completed."
 fi
 
+if [[ "${RUN_ASR_TEST}" == "true" ]]; then
+    echo "[*] Step 13: Executing Sprint 8 DoD Streaming Indic/Hinglish ASR + Voice Orb Test (<200 ms)..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Displaying Voice Orb overlay (LISTENING state)..."
+    "${ADB_CMD[@]}" shell am startservice -a indos.zerotouch.action.SHOW_ORB -n in.indos.zerotouch/indos.zerotouch.ui.IndOrbOverlayService --es extra_orb_state "LISTENING" || true
+    sleep 1
+    
+    echo "[*] Transitioning Voice Orb to PROCESSING state..."
+    "${ADB_CMD[@]}" shell am startservice -a indos.zerotouch.action.SET_ORB_STATE -n in.indos.zerotouch/indos.zerotouch.ui.IndOrbOverlayService --es extra_orb_state "PROCESSING" || true
+    sleep 1
+    
+    echo "[*] Transitioning Voice Orb to SPEAKING state (Spoken TTS confirmation)..."
+    "${ADB_CMD[@]}" shell am startservice -a indos.zerotouch.action.SET_ORB_STATE -n in.indos.zerotouch/indos.zerotouch.ui.IndOrbOverlayService --es extra_orb_state "SPEAKING" || true
+    sleep 2
+    
+    echo "[*] Dismissing Voice Orb overlay..."
+    "${ADB_CMD[@]}" shell am startservice -a indos.zerotouch.action.HIDE_ORB -n in.indos.zerotouch/indos.zerotouch.ui.IndOrbOverlayService || true
+    
+    echo "[*] Awaiting ASR & TTS telemetry (listening to logcat -s StreamingAsrEngine SileroVadDetector OfflineTtsEngine VoiceCoordinator IND_BENCHMARK)..."
+    "${ADB_CMD[@]}" logcat -d -s StreamingAsrEngine SileroVadDetector OfflineTtsEngine VoiceCoordinator IND_BENCHMARK
+    echo "[+] Sprint 8 DoD Streaming Indic/Hinglish ASR + Voice Orb Test completed."
+fi
+
 echo "[+] Deployment completed successfully."
+
 
 
