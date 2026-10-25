@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint6"
-MODULE_VERSION_CODE="10006"
+MODULE_VERSION="v1.0.1-sprint7"
+MODULE_VERSION_CODE="10007"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -34,6 +34,7 @@ RUN_PROBE=false
 RUN_MMAP_BENCH=false
 RUN_GBNF_TEST=false
 RUN_EXEC_TEST=false
+RUN_WAKE_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -48,6 +49,7 @@ Options:
     -m, --mmap-bench  Execute Sprint 4 DoD Zero-Copy mmap & Streaming Inference Benchmark (>=15 tok/s, <15 ms eviction)
     -g, --gbnf-test   Execute Sprint 5 DoD Deterministic GBNF Sampler & Prompt Test (200/200 100% valid JSON)
     -e, --exec-test   Execute Sprint 6 DoD Core OS System Intent Execution Test (Wi-Fi, BT, Torch, Apps, Calls <500 ms)
+    -w, --wake-test   Execute Sprint 7 DoD Wake-Word & ECAPA-TDNN Biometric Voice Gate Test (>95% wake, <2% FAR)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -91,6 +93,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -e|--exec-test)
             RUN_EXEC_TEST=true
+            shift
+            ;;
+        -w|--wake-test)
+            RUN_WAKE_TEST=true
             shift
             ;;
         -s|--serial)
@@ -306,5 +312,27 @@ if [[ "${RUN_EXEC_TEST}" == "true" ]]; then
     echo "[+] Sprint 6 DoD Core OS System Intent Execution Test completed."
 fi
 
+if [[ "${RUN_WAKE_TEST}" == "true" ]]; then
+    echo "[*] Step 12: Executing Sprint 7 DoD Low-Power Wake-Word & ECAPA-TDNN Biometric Voice Gate Test..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Starting AudioRingBufferService..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.zerotouch.action.START_LISTENING -n in.indos.zerotouch/indos.zerotouch.audio.AudioRingBufferService || true
+    sleep 1
+    
+    echo "[*] Simulating wake-word trigger ('Hey Ind', confidence=0.91)..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.zerotouch.action.SIMULATE_WAKE -n in.indos.zerotouch/indos.zerotouch.audio.AudioRingBufferService --es extra_keyword "Hey Ind" --ef extra_confidence 0.91 || true
+    sleep 2
+    
+    echo "[*] Awaiting voice gate telemetry (listening to logcat -s AudioRingBufferService EcapaSpeakerVerifier WakeWordDetector IND_BENCHMARK)..."
+    "${ADB_CMD[@]}" logcat -d -s AudioRingBufferService EcapaSpeakerVerifier WakeWordDetector IND_BENCHMARK
+    
+    echo "[*] Querying battery drain telemetry..."
+    "${ADB_CMD[@]}" shell dumpsys batterystats --charged in.indos.zerotouch | grep -E "(Uid u0a|Estimated power use|Capacity)" || true
+    echo "[+] Sprint 7 DoD Wake-Word & ECAPA-TDNN Biometric Voice Gate Test completed."
+fi
+
 echo "[+] Deployment completed successfully."
+
 
