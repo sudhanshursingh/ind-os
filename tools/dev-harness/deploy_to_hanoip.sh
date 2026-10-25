@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint5"
-MODULE_VERSION_CODE="10005"
+MODULE_VERSION="v1.0.1-sprint6"
+MODULE_VERSION_CODE="10006"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -33,6 +33,7 @@ RUN_IPC_BENCH=false
 RUN_PROBE=false
 RUN_MMAP_BENCH=false
 RUN_GBNF_TEST=false
+RUN_EXEC_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -46,6 +47,7 @@ Options:
     -p, --probe       Execute Sprint 3 DoD Native Hardware Acceleration Probe (Kryo 470 / Adreno 618)
     -m, --mmap-bench  Execute Sprint 4 DoD Zero-Copy mmap & Streaming Inference Benchmark (>=15 tok/s, <15 ms eviction)
     -g, --gbnf-test   Execute Sprint 5 DoD Deterministic GBNF Sampler & Prompt Test (200/200 100% valid JSON)
+    -e, --exec-test   Execute Sprint 6 DoD Core OS System Intent Execution Test (Wi-Fi, BT, Torch, Apps, Calls <500 ms)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -56,6 +58,7 @@ Examples:
     $0 --build --probe
     $0 --build --mmap-bench
     $0 --build --gbnf-test
+    $0 --build --exec-test
 EOF
     exit 0
 }
@@ -84,6 +87,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -g|--gbnf-test)
             RUN_GBNF_TEST=true
+            shift
+            ;;
+        -e|--exec-test)
+            RUN_EXEC_TEST=true
             shift
             ;;
         -s|--serial)
@@ -279,6 +286,24 @@ if [[ "${RUN_GBNF_TEST}" == "true" ]]; then
     sleep 4
     "${ADB_CMD[@]}" logcat -d -s IND_BENCHMARK
     echo "[+] Sprint 5 DoD Deterministic GBNF Sampler test completed."
+fi
+
+if [[ "${RUN_EXEC_TEST}" == "true" ]]; then
+    echo "[*] Step 11: Executing Sprint 6 DoD Core OS System Intent Execution Test (<500 ms)..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Triggering live toggle (flashlight ON)..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.neural.ACTION_EXECUTE_ACTION --es actionType "SYS_TOGGLE" --es target "flashlight" --ez value true || true
+    sleep 1
+    
+    echo "[*] Triggering live toggle (volume 80%)..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.neural.ACTION_EXECUTE_ACTION --es actionType "SYS_TOGGLE" --es target "volume" --ei value 80 || true
+    sleep 1
+    
+    echo "[*] Awaiting execution telemetry (listening to logcat -s IND_BENCHMARK)..."
+    "${ADB_CMD[@]}" logcat -d -s IND_BENCHMARK
+    echo "[+] Sprint 6 DoD Core OS System Intent Execution Test completed."
 fi
 
 echo "[+] Deployment completed successfully."

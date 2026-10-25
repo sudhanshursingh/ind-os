@@ -23,6 +23,7 @@ class IndAIService : Service() {
     }
 
     private lateinit var memoryPressureWatchdog: MemoryPressureWatchdog
+    private lateinit var actionExecutor: SystemActionExecutor
     private val pager = ModelLifecyclePager.instance
 
     override fun onCreate() {
@@ -31,6 +32,9 @@ class IndAIService : Service() {
         memoryPressureWatchdog = MemoryPressureWatchdog(applicationContext)
         registerComponentCallbacks(memoryPressureWatchdog)
         Log.i(TAG, "MemoryPressureWatchdog registered with ComponentCallbacks2.")
+
+        actionExecutor = SystemActionExecutor(applicationContext)
+        Log.i(TAG, "SystemActionExecutor initialized for privileged OS intent execution.")
 
         // Native C++ NDK Pipeline & Hardware Acceleration Probe (Sprint 3 & 4)
         val isNative = NativeBridge.isNativeLoaded()
@@ -56,6 +60,13 @@ class IndAIService : Service() {
                 Log.i(TAG, "Triggering Sprint 4 DoD Inference & Eviction Benchmark on demand...")
                 val benchReport = NativeBridge.runSprint4Benchmark(64)
                 Log.i("IND_BENCHMARK", "[IND_BENCHMARK] Sprint 4 Benchmark Result: $benchReport")
+            }
+            "indos.neural.ACTION_EXECUTE_ACTION" -> {
+                val actionType = intent.getStringExtra("actionType") ?: "SYS_TOGGLE"
+                val target = intent.getStringExtra("target") ?: "flashlight"
+                val value = intent.getBooleanExtra("value", true)
+                Log.i(TAG, "Executing on-demand system action: $actionType -> $target (value=$value)")
+                actionExecutor.executeAction(actionType, target, mapOf("value" to value))
             }
         }
         return START_NOT_STICKY
@@ -157,6 +168,9 @@ class IndAIService : Service() {
 
                         override fun onNativeComplete(actionJson: String) {
                             try {
+                                Log.i(TAG, "onNativeComplete: Executing compiled actions -> $actionJson")
+                                val execResults = actionExecutor.executeActionJson(actionJson)
+                                Log.i(TAG, "onNativeComplete: Completed ${execResults.size} actions.")
                                 callback?.onActionResolved(actionJson)
                             } catch (e: RemoteException) {
                                 Log.e(TAG, "RemoteException resolving action to client", e)

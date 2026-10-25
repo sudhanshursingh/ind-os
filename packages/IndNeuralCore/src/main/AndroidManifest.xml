@@ -29,6 +29,7 @@
                 <action android:name="indos.neural.ipc.IIndAIManager" />
                 <action android:name="indos.neural.ACTION_RUN_PROBE" />
                 <action android:name="indos.neural.ACTION_RUN_BENCHMARK" />
+                <action android:name="indos.neural.ACTION_EXECUTE_ACTION" />
             </intent-filter>
         </service>
 
