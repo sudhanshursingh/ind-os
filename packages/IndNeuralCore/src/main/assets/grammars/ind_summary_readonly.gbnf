@@ -1,0 +1,4 @@
+root   ::= "{" ws "\"summary\":" ws string "," ws "\"risk\":" ws risk "," ws "\"tts\":" ws string ws "}"
+risk   ::= "\"SAFE\"" | "\"SUSPICIOUS\"" | "\"MALICIOUS\""
+string ::= "\"" ([^"\\] | "\\" .)* "\""
+ws     ::= [ \t\n]*

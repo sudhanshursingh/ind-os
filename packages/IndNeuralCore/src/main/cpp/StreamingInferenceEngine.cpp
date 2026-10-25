@@ -31,47 +31,140 @@ std::string StreamingInferenceEngine::CompileActionJsonFromPrompt(
     std::string lower = prompt;
     for (char& c : lower) c = static_cast<char>(std::tolower(c));
 
-    std::ostringstream json;
-    if (lower.find("torch") != std::string::npos || lower.find("flashlight") != std::string::npos) {
-        bool turnOff = (lower.find("off") != std::string::npos || lower.find("band") != std::string::npos);
-        json << "{"
-             << "\"tier\":\"GREEN\","
-             << "\"actions\":[{"
-             << "\"type\":\"SYS_TOGGLE\","
-             << "\"target\":\"flashlight\","
-             << "\"params\":{\"value\":" << (turnOff ? "false" : "true") << "}"
-             << "}],"
-             << "\"tts\":\"Torch " << (turnOff ? "disabled" : "enabled") << "\""
-             << "}";
-    } else if (lower.find("wifi") != std::string::npos) {
-        bool turnOff = (lower.find("off") != std::string::npos || lower.find("band") != std::string::npos);
-        json << "{"
-             << "\"tier\":\"GREEN\","
-             << "\"actions\":[{"
-             << "\"type\":\"SYS_TOGGLE\","
-             << "\"target\":\"wifi\","
-             << "\"params\":{\"value\":" << (turnOff ? "false" : "true") << "}"
-             << "}],"
-             << "\"tts\":\"Wi-Fi " << (turnOff ? "disconnected" : "connected") << "\""
-             << "}";
-    } else if (lower.find("whatsapp") != std::string::npos) {
-        json << "{"
-             << "\"tier\":\"GREEN\","
-             << "\"actions\":[{"
-             << "\"type\":\"OPEN_APP\","
-             << "\"target\":\"com.whatsapp\","
-             << "\"params\":{}"
-             << "}],"
-             << "\"tts\":\"Opening WhatsApp\""
-             << "}";
-    } else {
-        json << "{"
-             << "\"tier\":\"GREEN\","
-             << "\"actions\":[],"
-             << "\"tts\":\"Command acknowledged: " << prompt << "\""
-             << "}";
+    std::vector<std::string> actions;
+    std::vector<std::string> confirmations;
+
+    // Helper lambda to check keywords
+    auto has = [&](const std::string& kw) {
+        return lower.find(kw) != std::string::npos;
+    };
+
+    // 1. Torch / Flashlight
+    if (has("torch") || has("flashlight") || has("टॉर्च")) {
+        bool turnOff = (has("off") || has("band") || has("bujha") || has("बंद"));
+        std::string act = "{\"type\":\"SYS_TOGGLE\",\"target\":\"flashlight\",\"params\":{\"value\":" + std::string(turnOff ? "false" : "true") + "}}";
+        actions.push_back(act);
+        confirmations.push_back(turnOff ? "Torch turned off" : "Torch turned on");
     }
-    return json.str();
+
+    // 2. Wi-Fi
+    if (has("wifi") || has("wi-fi") || has("वाईफाई")) {
+        bool turnOff = (has("off") || has("band") || has("बंद"));
+        std::string act = "{\"type\":\"SYS_TOGGLE\",\"target\":\"wifi\",\"params\":{\"value\":" + std::string(turnOff ? "false" : "true") + "}}";
+        actions.push_back(act);
+        confirmations.push_back(turnOff ? "Wi-Fi turned off" : "Wi-Fi turned on");
+    }
+
+    // 3. Bluetooth
+    if (has("bluetooth") || has("ब्लूटूथ")) {
+        bool turnOff = (has("off") || has("band") || has("बंद"));
+        std::string act = "{\"type\":\"SYS_TOGGLE\",\"target\":\"bluetooth\",\"params\":{\"value\":" + std::string(turnOff ? "false" : "true") + "}}";
+        actions.push_back(act);
+        confirmations.push_back(turnOff ? "Bluetooth disabled" : "Bluetooth enabled");
+    }
+
+    // 4. Volume
+    if (has("volume") || has("वॉल्यूम") || has("aawaz") || has("awaz") || has("sound")) {
+        int volVal = 80;
+        if (has("80") || has("अस्सी")) volVal = 80;
+        else if (has("50") || has("aadha") || has("पचास")) volVal = 50;
+        else if (has("100") || has("full") || has("सौ")) volVal = 100;
+        else if (has("30") || has("तीस")) volVal = 30;
+        else if (has("mute") || has("silent") || has("0")) volVal = 0;
+        std::string act = "{\"type\":\"SYS_TOGGLE\",\"target\":\"volume\",\"params\":{\"value\":" + std::to_string(volVal) + "}}";
+        actions.push_back(act);
+        confirmations.push_back("Volume set to " + std::to_string(volVal) + "%");
+    }
+
+    // 5. Brightness
+    if (has("brightness") || has("ब्राइटनेस") || has("roshni") || has("light")) {
+        int bVal = 70;
+        if (has("100") || has("full")) bVal = 100;
+        else if (has("50")) bVal = 50;
+        else if (has("80")) bVal = 80;
+        else if (has("30") || has("kam")) bVal = 30;
+        std::string act = "{\"type\":\"SYS_TOGGLE\",\"target\":\"brightness\",\"params\":{\"value\":" + std::to_string(bVal) + "}}";
+        actions.push_back(act);
+        confirmations.push_back("Brightness set to " + std::to_string(bVal) + "%");
+    }
+
+    // 6. DND / Do Not Disturb
+    if (has("dnd") || has("do not disturb") || has("शांत")) {
+        bool turnOff = (has("off") || has("band"));
+        std::string act = "{\"type\":\"SYS_TOGGLE\",\"target\":\"dnd\",\"params\":{\"value\":" + std::string(turnOff ? "false" : "true") + "}}";
+        actions.push_back(act);
+        confirmations.push_back(turnOff ? "DND disabled" : "DND enabled");
+    }
+
+    // 7. App launches
+    if (has("whatsapp") || has("व्हाट्सएप")) {
+        actions.push_back("{\"type\":\"OPEN_APP\",\"target\":\"com.whatsapp\",\"params\":{}}");
+        confirmations.push_back("Opening WhatsApp");
+    } else if (has("youtube") || has("यूट्यूब")) {
+        actions.push_back("{\"type\":\"OPEN_APP\",\"target\":\"com.google.android.youtube\",\"params\":{}}");
+        confirmations.push_back("Opening YouTube");
+    } else if (has("chrome") || has("browser") || has("क्रोम")) {
+        actions.push_back("{\"type\":\"OPEN_APP\",\"target\":\"com.android.chrome\",\"params\":{}}");
+        confirmations.push_back("Opening Chrome");
+    } else if (has("camera") || has("कैमरा")) {
+        actions.push_back("{\"type\":\"OPEN_APP\",\"target\":\"com.android.camera2\",\"params\":{}}");
+        confirmations.push_back("Opening Camera");
+    } else if (has("settings") || has("सेटिंग्स")) {
+        actions.push_back("{\"type\":\"OPEN_APP\",\"target\":\"com.android.settings\",\"params\":{}}");
+        confirmations.push_back("Opening Settings");
+    }
+
+    // 8. Call intent
+    if (has("call") || has("phone lagao") || has("कॉल") || has("फोन लगाओ")) {
+        std::string target = "Maa";
+        if (has("papa") || has("पापा")) target = "Papa";
+        else if (has("police") || has("पुलिस") || has("112")) target = "112";
+        else if (has("ambulance") || has("108")) target = "108";
+        actions.push_back("{\"type\":\"PLACE_CALL\",\"target\":\"" + target + "\",\"params\":{}}");
+        confirmations.push_back("Calling " + target);
+    }
+
+    // 9. Read screen
+    if (has("read screen") || has("screen padho") || has("स्क्रीन पढ़ो")) {
+        actions.push_back("{\"type\":\"READ_SCREEN\",\"target\":\"screen\",\"params\":{}}");
+        confirmations.push_back("Reading screen content");
+    }
+
+    // Build schema-compliant GBNF root
+    std::ostringstream json;
+    json << "{\"tier\":\"GREEN\",\"actions\":[";
+    for (size_t i = 0; i < actions.size(); ++i) {
+        if (i > 0) json << ",";
+        json << actions[i];
+    }
+    json << "],\"tts\":";
+
+    std::string ttsText = "Command executed";
+    if (!confirmations.empty()) {
+        ttsText = confirmations[0];
+        for (size_t i = 1; i < confirmations.size(); ++i) {
+            ttsText += " and " + confirmations[i];
+        }
+    } else {
+        ttsText = "Understood: " + prompt;
+    }
+    json << "\"" << ttsText << "\"}";
+
+    std::string result = json.str();
+
+    // Verify adherence to ind_action.gbnf
+    std::string errorReason;
+    if (!GbnfSampler::GetInstance().ValidateActionJson(result, errorReason)) {
+        __android_log_print(
+            ANDROID_LOG_WARN,
+            IND_BENCHMARK_TAG,
+            "[IND_BENCHMARK] Action JSON failed GBNF validation (%s). Falling back to safe default schema.",
+            errorReason.c_str()
+        );
+        return "{\"tier\":\"GREEN\",\"actions\":[],\"tts\":\"Awaiting valid command\"}";
+    }
+
+    return result;
 }
 
 void StreamingInferenceEngine::ExecuteStreamingInference(

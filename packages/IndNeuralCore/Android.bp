@@ -13,6 +13,7 @@ cc_library_shared {
         "src/main/cpp/NativeHardwareProbe.cpp",
         "src/main/cpp/MmapModelPager.cpp",
         "src/main/cpp/StreamingInferenceEngine.cpp",
+        "src/main/cpp/GbnfSampler.cpp",
     ],
 
     local_include_dirs: [

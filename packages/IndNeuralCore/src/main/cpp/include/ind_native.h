@@ -14,6 +14,7 @@
 
 #include "MmapModelPager.h"
 #include "StreamingInferenceEngine.h"
+#include "GbnfSampler.h"
 
 namespace indos {
 namespace native {

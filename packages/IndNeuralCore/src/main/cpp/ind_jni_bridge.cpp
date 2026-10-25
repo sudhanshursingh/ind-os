@@ -160,4 +160,38 @@ Java_indos_neural_NativeBridge_runSprint4Benchmark(JNIEnv* env, jobject /* this 
     return env->NewStringUTF(report.c_str());
 }
 
+JNIEXPORT jstring JNICALL
+Java_indos_neural_NativeBridge_validateGbnfGrammar(JNIEnv* env, jobject /* this */, jstring jsonStr) {
+    const char* str = env->GetStringUTFChars(jsonStr, nullptr);
+    std::string input(str ? str : "");
+    env->ReleaseStringUTFChars(jsonStr, str);
+
+    std::string errReason;
+    bool valid = GbnfSampler::GetInstance().ValidateActionJson(input, errReason);
+    if (valid) {
+        return env->NewStringUTF("");
+    } else {
+        return env->NewStringUTF(errReason.c_str());
+    }
+}
+
+JNIEXPORT jstring JNICALL
+Java_indos_neural_NativeBridge_compileActionJson(JNIEnv* env, jobject /* this */, jstring promptStr, jstring screenGraphStr) {
+    const char* pStr = env->GetStringUTFChars(promptStr, nullptr);
+    std::string prompt(pStr ? pStr : "");
+    env->ReleaseStringUTFChars(promptStr, pStr);
+
+    std::string screenGraph = "";
+    if (screenGraphStr != nullptr) {
+        const char* sgStr = env->GetStringUTFChars(screenGraphStr, nullptr);
+        if (sgStr) {
+            screenGraph = sgStr;
+            env->ReleaseStringUTFChars(screenGraphStr, sgStr);
+        }
+    }
+
+    std::string result = StreamingInferenceEngine::GetInstance().CompileActionJsonFromPrompt(prompt, screenGraph);
+    return env->NewStringUTF(result.c_str());
+}
+
 } // extern "C"

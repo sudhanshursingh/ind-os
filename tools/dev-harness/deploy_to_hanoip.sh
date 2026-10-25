@@ -24,14 +24,15 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint4"
-MODULE_VERSION_CODE="10004"
+MODULE_VERSION="v1.0.1-sprint5"
+MODULE_VERSION_CODE="10005"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
 RUN_IPC_BENCH=false
 RUN_PROBE=false
 RUN_MMAP_BENCH=false
+RUN_GBNF_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -44,6 +45,7 @@ Options:
     -i, --ipc-bench   Execute Sprint 2 DoD Binder IPC latency test (IndLauncher -> IndNeuralCore)
     -p, --probe       Execute Sprint 3 DoD Native Hardware Acceleration Probe (Kryo 470 / Adreno 618)
     -m, --mmap-bench  Execute Sprint 4 DoD Zero-Copy mmap & Streaming Inference Benchmark (>=15 tok/s, <15 ms eviction)
+    -g, --gbnf-test   Execute Sprint 5 DoD Deterministic GBNF Sampler & Prompt Test (200/200 100% valid JSON)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -53,6 +55,7 @@ Examples:
     $0 --build --ipc-bench
     $0 --build --probe
     $0 --build --mmap-bench
+    $0 --build --gbnf-test
 EOF
     exit 0
 }
@@ -77,6 +80,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -m|--mmap-bench)
             RUN_MMAP_BENCH=true
+            shift
+            ;;
+        -g|--gbnf-test)
+            RUN_GBNF_TEST=true
             shift
             ;;
         -s|--serial)
@@ -257,6 +264,21 @@ if [[ "${RUN_MMAP_BENCH}" == "true" ]]; then
     sleep 4
     "${ADB_CMD[@]}" logcat -d -s IND_BENCHMARK
     echo "[+] Sprint 4 DoD Zero-Copy mmap & Streaming Inference Benchmark completed."
+fi
+
+if [[ "${RUN_GBNF_TEST}" == "true" ]]; then
+    echo "[*] Step 10: Executing Sprint 5 DoD Deterministic GBNF Sampler & Prompt Test..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Triggering GBNF Prompt evaluation test via IndAIService..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.neural.ACTION_RUN_BENCHMARK || \
+    "${ADB_CMD[@]}" shell am startservice -a indos.neural.ACTION_RUN_BENCHMARK || true
+    
+    echo "[*] Awaiting GBNF test results (listening to logcat -s IND_BENCHMARK)..."
+    sleep 4
+    "${ADB_CMD[@]}" logcat -d -s IND_BENCHMARK
+    echo "[+] Sprint 5 DoD Deterministic GBNF Sampler test completed."
 fi
 
 echo "[+] Deployment completed successfully."

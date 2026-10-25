@@ -52,6 +52,7 @@ set(IND_AI_SOURCES
     NativeHardwareProbe.cpp
     MmapModelPager.cpp
     StreamingInferenceEngine.cpp
+    GbnfSampler.cpp
 )
 
 add_library(

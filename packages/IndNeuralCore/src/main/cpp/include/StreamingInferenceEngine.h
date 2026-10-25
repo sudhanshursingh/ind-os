@@ -44,14 +44,15 @@ public:
     InferenceBenchmarkMetrics RunBenchmark(int tokenCount = 64);
     std::string RunBenchmarkJson(int tokenCount = 64);
 
+    // Compiles natural language prompt into schema-compliant action JSON
+    std::string CompileActionJsonFromPrompt(const std::string& prompt, const std::string& screenGraphJson);
+
 private:
     StreamingInferenceEngine();
     ~StreamingInferenceEngine() = default;
 
     StreamingInferenceEngine(const StreamingInferenceEngine&) = delete;
     StreamingInferenceEngine& operator=(const StreamingInferenceEngine&) = delete;
-
-    std::string CompileActionJsonFromPrompt(const std::string& prompt, const std::string& screenGraphJson);
 };
 
 } // namespace native
