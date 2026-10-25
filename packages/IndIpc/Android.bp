@@ -1,0 +1,29 @@
+// ==============================================================================
+// Ind OS — Soong Build Specification for IndIpc
+// BIBLE v1.0.1 (Amendment A-001)
+// ==============================================================================
+
+aidl_interface {
+    name: "ind_ai_ipc",
+    unstable: true,
+    local_include_dir: "src/main/aidl",
+    srcs: [
+        "src/main/aidl/indos/neural/ipc/IIndAIManager.aidl",
+        "src/main/aidl/indos/neural/ipc/IIndStreamCallback.aidl",
+    ],
+    backend: {
+        java: {
+            enabled: true,
+            platform_apis: true,
+        },
+        cpp: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+        },
+        rust: {
+            enabled: false,
+        },
+    },
+}

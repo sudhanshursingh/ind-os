@@ -1,0 +1,31 @@
+# ==============================================================================
+# Ind OS — Native AI Inference Daemon SELinux Policy
+# Subsystem: ind-neural-core / Layer 3 Air-Gapped Daemon
+# Target Domain: u:r:ind_ai_daemon:s0
+# ==============================================================================
+
+type ind_ai_daemon, domain, coredomain;
+type ind_ai_daemon_exec, exec_type, file_type, system_file_type;
+type ind_model_file, file_type, data_file_type, core_data_file_type;
+
+init_daemon_domain(ind_ai_daemon)
+
+# Binder IPC communication with System Server and Client Apps
+binder_use(ind_ai_daemon)
+binder_call(ind_ai_daemon, system_server)
+binder_service(ind_ai_daemon)
+
+# Access to mmap-backed GGUF / ONNX quantized models
+allow ind_ai_daemon ind_model_file:dir r_dir_perms;
+allow ind_ai_daemon ind_model_file:file { read open getattr map };
+
+# Adreno GPU access (Vulkan compute pipeline)
+allow ind_ai_daemon gpu_device:chr_file rw_file_perms;
+allow ind_ai_daemon ion_device:chr_file rw_file_perms;
+
+# Pipe and ashmem allocations for zero-copy buffers
+allow ind_ai_daemon ashmem_device:chr_file rw_file_perms;
+
+# CRITICAL SECURITY INVARIANT: forbid ALL network sockets
+# Ensures the on-device AI runtime has 0 network access at the kernel level
+neverallow ind_ai_daemon domain:{ tcp_socket udp_socket rawip_socket netlink_route_socket } *;

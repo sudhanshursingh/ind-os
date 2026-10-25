@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <remote name="github" fetch="https://github.com" />
+    <remote name="lineage" fetch="https://github.com/LineageOS" />
+
+    <default revision="lineage-22.1" remote="lineage" sync-j="4" />
+
+    <!-- Ind OS Core Packages & Overlays -->
+    <project path="packages/apps/IndNeuralCore" name="sudhanshursingh/ind-neural-core" remote="github" revision="main" />
+    <project path="packages/apps/IndZeroTouch" name="sudhanshursingh/ind-zero-touch" remote="github" revision="main" />
+    <project path="packages/apps/IndSurakshaShield" name="sudhanshursingh/ind-suraksha-shield" remote="github" revision="main" />
+    <project path="packages/apps/IndLauncher" name="sudhanshursingh/ind-launcher" remote="github" revision="main" />
+    <project path="vendor/ind" name="sudhanshursingh/ind-vendor" remote="github" revision="main" />
+
+    <!-- Moto G60 (hanoip) Device Tree & Kernel -->
+    <project path="device/motorola/hanoip" name="LineageOS/android_device_motorola_hanoip" remote="lineage" />
+    <project path="device/motorola/sm6150-common" name="LineageOS/android_device_motorola_sm6150-common" remote="lineage" />
+    <project path="kernel/motorola/sm6150" name="LineageOS/android_kernel_motorola_sm6150" remote="lineage" />
+</manifest>

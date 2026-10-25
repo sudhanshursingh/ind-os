@@ -1,0 +1,7 @@
+# ==============================================================================
+# Ind OS — File Context Labels for Privileged Executables & Models
+# ==============================================================================
+
+/system/bin/indaid                     u:object_r:ind_ai_daemon_exec:s0
+/system_ext/bin/indaid                 u:object_r:ind_ai_daemon_exec:s0
+/data/ind/models(/.*)?                 u:object_r:ind_model_file:s0

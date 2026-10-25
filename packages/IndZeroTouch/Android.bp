@@ -1,0 +1,28 @@
+// ==============================================================================
+// Ind OS — Soong Build Specification for IndZeroTouch
+// BIBLE v1.0.1 (Amendment A-001)
+// ==============================================================================
+
+android_app {
+    name: "IndZeroTouch",
+    certificate: "platform",
+    privileged: true,
+    system_ext_specific: true,
+    platform_apis: true,
+
+    srcs: [
+        "src/main/java/**/*.java",
+        "src/main/java/**/*.kt",
+    ],
+
+    static_libs: [
+        "ind_ai_ipc",
+        "androidx.core_core",
+        "androidx.appcompat_appcompat",
+        "com.google.android.material_material",
+    ],
+
+    optimize: {
+        enabled: false,
+    },
+}
