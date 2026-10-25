@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint8"
-MODULE_VERSION_CODE="10008"
+MODULE_VERSION="v1.0.1-sprint9"
+MODULE_VERSION_CODE="10009"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -36,6 +36,7 @@ RUN_GBNF_TEST=false
 RUN_EXEC_TEST=false
 RUN_WAKE_TEST=false
 RUN_ASR_TEST=false
+RUN_NAV_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -52,6 +53,7 @@ Options:
     -e, --exec-test   Execute Sprint 6 DoD Core OS System Intent Execution Test (Wi-Fi, BT, Torch, Apps, Calls <500 ms)
     -w, --wake-test   Execute Sprint 7 DoD Wake-Word & ECAPA-TDNN Biometric Voice Gate Test (>95% wake, <2% FAR)
     -a, --asr-test    Execute Sprint 8 DoD Streaming Indic/Hinglish ASR + Voice Orb Test (<200 ms latency, offline TTS)
+    -n, --nav-test    Execute Sprint 9 DoD Flagship Autonomous UI Navigation Demo (WhatsApp / YouTube / Dialer multi-step)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -103,6 +105,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -a|--asr-test)
             RUN_ASR_TEST=true
+            shift
+            ;;
+        -n|--nav-test)
+            RUN_NAV_TEST=true
             shift
             ;;
         -s|--serial)
@@ -364,7 +370,29 @@ if [[ "${RUN_ASR_TEST}" == "true" ]]; then
     echo "[+] Sprint 8 DoD Streaming Indic/Hinglish ASR + Voice Orb Test completed."
 fi
 
+if [[ "${RUN_NAV_TEST}" == "true" ]]; then
+    echo "[*] Step 14: Executing Sprint 9 DoD Flagship Autonomous UI Navigation Demo..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Verifying Accessibility Service state..."
+    "${ADB_CMD[@]}" shell settings get secure enabled_accessibility_services | grep -q "in.indos.zerotouch" || {
+        echo "[*] Enabling IndAccessibilityService in secure settings..."
+        "${ADB_CMD[@]}" shell settings put secure enabled_accessibility_services "in.indos.zerotouch/indos.zerotouch.IndAccessibilityService"
+        "${ADB_CMD[@]}" shell settings put secure accessibility_enabled 1
+    }
+    
+    echo "[*] Dumping UI hierarchy before autonomous action dispatch..."
+    "${ADB_CMD[@]}" shell uiautomator dump /data/local/tmp/ui_dump_sprint9.xml || true
+    
+    echo "[*] Awaiting Autonomous Navigator telemetry (listening to logcat -s AutonomousNavigator IndAccessibility SemanticGraphPruner GestureSynthesizer IND_BENCHMARK)..."
+    sleep 2
+    "${ADB_CMD[@]}" logcat -d -s AutonomousNavigator IndAccessibility SemanticGraphPruner GestureSynthesizer IND_BENCHMARK
+    echo "[+] Sprint 9 DoD Flagship Autonomous UI Navigation Demo completed."
+fi
+
 echo "[+] Deployment completed successfully."
+
 
 
 
