@@ -31,6 +31,23 @@ class IndAIService : Service() {
         memoryPressureWatchdog = MemoryPressureWatchdog(applicationContext)
         registerComponentCallbacks(memoryPressureWatchdog)
         Log.i(TAG, "MemoryPressureWatchdog registered with ComponentCallbacks2.")
+
+        // Native C++ NDK Pipeline & Hardware Acceleration Probe (Sprint 3)
+        val isNative = NativeBridge.isNativeLoaded()
+        Log.i(TAG, "Native C++ NDK Pipeline status: loaded=$isNative")
+        if (isNative) {
+            val probeReport = NativeBridge.getHardwareReport()
+            Log.i("IND_NATIVE", "[IND_NATIVE] Hardware acceleration probe result on boot: $probeReport")
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == "indos.neural.ACTION_RUN_PROBE") {
+            Log.i(TAG, "Triggering Native Hardware Acceleration Probe on demand...")
+            val probeReport = NativeBridge.getHardwareReport()
+            Log.i("IND_NATIVE", "[IND_NATIVE] Hardware acceleration probe result (on-demand): $probeReport")
+        }
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {
@@ -194,6 +211,8 @@ class IndAIService : Service() {
                 put("lastEvictionDurationMs", pager.getLastEvictionDurationMs())
                 put("airGapEnforced", true)
                 put("targetDevice", "Moto G60 (hanoip)")
+                put("nativeLibraryLoaded", NativeBridge.isNativeLoaded())
+                put("hardwareCapabilities", JSONObject(NativeBridge.getHardwareReport()))
             }.toString()
         }
     }

@@ -24,12 +24,13 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint2"
-MODULE_VERSION_CODE="10002"
+MODULE_VERSION="v1.0.1-sprint3"
+MODULE_VERSION_CODE="10003"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
 RUN_IPC_BENCH=false
+RUN_PROBE=false
 TARGET_SERIAL=""
 
 usage() {
@@ -40,6 +41,7 @@ Options:
     -b, --build       Compile debug APKs via Gradle before deployment
     -t, --test        Execute Sprint 1 DoD privileged toggle test (Wi-Fi, Brightness)
     -i, --ipc-bench   Execute Sprint 2 DoD Binder IPC latency test (IndLauncher -> IndNeuralCore)
+    -p, --probe       Execute Sprint 3 DoD Native Hardware Acceleration Probe (Kryo 470 / Adreno 618)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -47,6 +49,7 @@ Examples:
     $0 --build
     $0 --build --test
     $0 --build --ipc-bench
+    $0 --build --probe
 EOF
     exit 0
 }
@@ -63,6 +66,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -i|--ipc-bench)
             RUN_IPC_BENCH=true
+            shift
+            ;;
+        -p|--probe)
+            RUN_PROBE=true
             shift
             ;;
         -s|--serial)
@@ -215,4 +222,20 @@ if [[ "${RUN_IPC_BENCH}" == "true" ]]; then
     echo "[+] Sprint 2 DoD Binder IPC latency benchmark completed."
 fi
 
+if [[ "${RUN_PROBE}" == "true" ]]; then
+    echo "[*] Step 8: Executing Sprint 3 DoD Native Hardware Acceleration Probe..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Triggering hardware probe via IndAIService (indos.neural.ACTION_RUN_PROBE)..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.neural.ACTION_RUN_PROBE || \
+    "${ADB_CMD[@]}" shell am startservice -a indos.neural.ACTION_RUN_PROBE || true
+    
+    echo "[*] Awaiting probe completion (listening to logcat -s IND_NATIVE)..."
+    sleep 3
+    "${ADB_CMD[@]}" logcat -d -s IND_NATIVE
+    echo "[+] Sprint 3 DoD Native Hardware Acceleration Probe completed."
+fi
+
 echo "[+] Deployment completed successfully."
+

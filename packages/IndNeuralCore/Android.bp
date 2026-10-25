@@ -1,7 +1,36 @@
 // ==============================================================================
-// Ind OS — Soong Build Specification for IndNeuralCore
-// BIBLE v1.0.1 (Amendment A-001)
+// Ind OS — Soong Build Specification for IndNeuralCore & libind_ai
+// BIBLE v1.0.1
+// Reference Silicon: Snapdragon 732G (SM7150-AC / Kryo 470 / Adreno 618)
 // ==============================================================================
+
+cc_library_shared {
+    name: "libind_ai",
+    system_ext_specific: true,
+
+    srcs: [
+        "src/main/cpp/ind_jni_bridge.cpp",
+        "src/main/cpp/NativeHardwareProbe.cpp",
+    ],
+
+    local_include_dirs: [
+        "src/main/cpp/include",
+    ],
+
+    cflags: [
+        "-std=c++17",
+        "-O3",
+        "-Wall",
+        "-march=armv8.2-a+dotprod+fp16",
+        "-DGGML_VULKAN=1",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libandroid",
+        "libvulkan",
+    ],
+}
 
 android_app {
     name: "IndNeuralCore",
@@ -13,6 +42,10 @@ android_app {
     srcs: [
         "src/main/java/**/*.java",
         "src/main/java/**/*.kt",
+    ],
+
+    jni_libs: [
+        "libind_ai",
     ],
 
     static_libs: [

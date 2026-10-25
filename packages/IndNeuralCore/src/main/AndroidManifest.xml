@@ -27,6 +27,7 @@
             android:process="indos.neural.daemon">
             <intent-filter>
                 <action android:name="indos.neural.ipc.IIndAIManager" />
+                <action android:name="indos.neural.ACTION_RUN_PROBE" />
             </intent-filter>
         </service>
 
