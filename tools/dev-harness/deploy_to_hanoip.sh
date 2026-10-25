@@ -24,11 +24,12 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.0-sprint1"
-MODULE_VERSION_CODE="10000"
+MODULE_VERSION="v1.0.1-sprint2"
+MODULE_VERSION_CODE="10002"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
+RUN_IPC_BENCH=false
 TARGET_SERIAL=""
 
 usage() {
@@ -37,13 +38,15 @@ Usage: $(basename "$0") [OPTIONS]
 
 Options:
     -b, --build       Compile debug APKs via Gradle before deployment
-    -t, --test        Execute DoD privileged toggle test (Wi-Fi, Bluetooth, Brightness)
+    -t, --test        Execute Sprint 1 DoD privileged toggle test (Wi-Fi, Brightness)
+    -i, --ipc-bench   Execute Sprint 2 DoD Binder IPC latency test (IndLauncher -> IndNeuralCore)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
 Examples:
     $0 --build
     $0 --build --test
+    $0 --build --ipc-bench
 EOF
     exit 0
 }
@@ -56,6 +59,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--test)
             RUN_TEST=true
+            shift
+            ;;
+        -i|--ipc-bench)
+            RUN_IPC_BENCH=true
             shift
             ;;
         -s|--serial)
@@ -136,7 +143,7 @@ else
 fi
 
 # Package apps into staging
-PACKAGES=("IndNeuralCore" "IndZeroTouch" "IndSurakshaShield" "IndLauncher")
+PACKAGES=("IndNeuralCore" "IndZeroTouch" "IndSurakshaShield" "IndLauncher" "IndDiagnosticClient")
 for PKG in "${PACKAGES[@]}"; do
     TARGET_DIR="${WORK_DIR}/system/system_ext/priv-app/${PKG}"
     mkdir -p "${TARGET_DIR}"
@@ -191,6 +198,21 @@ if [[ "${RUN_TEST}" == "true" ]]; then
     echo "[*] screen_brightness: ${BRIGHTNESS}"
     
     echo "[+] Sprint 1 DoD verification finished on device."
+fi
+
+if [[ "${RUN_IPC_BENCH}" == "true" ]]; then
+    echo "[*] Step 7: Executing Sprint 2 DoD Binder IPC Latency Benchmark..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Triggering 1,000 round-trip calls (IndLauncher -> IndNeuralCore)..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.launcher.ACTION_RUN_BENCHMARK || \
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.diagnostic.ACTION_RUN_BENCHMARK || true
+    
+    echo "[*] Awaiting benchmark completion (listening to logcat -s IND_IPC_BENCH)..."
+    sleep 3
+    "${ADB_CMD[@]}" logcat -d -s IND_IPC_BENCH
+    echo "[+] Sprint 2 DoD Binder IPC latency benchmark completed."
 fi
 
 echo "[+] Deployment completed successfully."

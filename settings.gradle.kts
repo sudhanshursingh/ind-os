@@ -30,3 +30,6 @@ project(":packages:IndSurakshaShield").projectDir = file("packages/IndSurakshaSh
 
 include(":packages:IndLauncher")
 project(":packages:IndLauncher").projectDir = file("packages/IndLauncher")
+
+include(":packages:IndDiagnosticClient")
+project(":packages:IndDiagnosticClient").projectDir = file("packages/IndDiagnosticClient")
