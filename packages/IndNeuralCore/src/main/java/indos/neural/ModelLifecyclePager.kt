@@ -61,13 +61,17 @@ class ModelLifecyclePager private constructor() {
 
         Log.w(TAG, "Eviction triggered: reason='$reason'. Current state=${currentState.get()}, ResidentRAM=${residentRamMb.get()} MB")
 
-        // Simulating kernel madvise(addr, len, MADV_DONTNEED) syscall execution
-        // Native C++ JNI bridge in Phase 1 Sprint 4 hooks directly to this
-        val simulatedMadviseOverheadNs = 3_800_000L // 3.8 ms typical for 950 MB page range on Linux 4.14+
-        val targetSleepUntil = startNs + simulatedMadviseOverheadNs
-        while (System.nanoTime() < targetSleepUntil) {
-            // Spin-wait / short yield to simulate kernel pagetable teardown
-            Thread.yield()
+        // Execute kernel madvise(addr, len, MADV_DONTNEED) via NativeBridge
+        if (NativeBridge.isNativeLoaded()) {
+            val nativeResult = NativeBridge.evictModel()
+            Log.i(TAG, "[IND_RAM_PAGER] Native mmap eviction result: $nativeResult")
+        } else {
+            val simulatedMadviseOverheadNs = 3_800_000L // 3.8 ms typical for 950 MB page range on Linux 4.14+
+            val targetSleepUntil = startNs + simulatedMadviseOverheadNs
+            while (System.nanoTime() < targetSleepUntil) {
+                // Spin-wait / short yield to simulate kernel pagetable teardown
+                Thread.yield()
+            }
         }
 
         residentRamMb.set(RAM_EVICTED_RESIDENT_MB)
@@ -100,6 +104,9 @@ class ModelLifecyclePager private constructor() {
     fun reloadModelWeights(): Double {
         val startNs = System.nanoTime()
         currentState.set(PagerState.LOADING)
+        if (NativeBridge.isNativeLoaded()) {
+            NativeBridge.prefetchModel()
+        }
         residentRamMb.set(RAM_PEAK_RESIDENT_MB)
         currentState.set(PagerState.RESIDENT)
         val durationMs = (System.nanoTime() - startNs) / 1_000_000.0

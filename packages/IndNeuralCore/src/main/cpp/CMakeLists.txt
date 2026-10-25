@@ -50,6 +50,8 @@ include_directories(
 set(IND_AI_SOURCES
     ind_jni_bridge.cpp
     NativeHardwareProbe.cpp
+    MmapModelPager.cpp
+    StreamingInferenceEngine.cpp
 )
 
 add_library(

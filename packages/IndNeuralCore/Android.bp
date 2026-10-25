@@ -11,6 +11,8 @@ cc_library_shared {
     srcs: [
         "src/main/cpp/ind_jni_bridge.cpp",
         "src/main/cpp/NativeHardwareProbe.cpp",
+        "src/main/cpp/MmapModelPager.cpp",
+        "src/main/cpp/StreamingInferenceEngine.cpp",
     ],
 
     local_include_dirs: [

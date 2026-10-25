@@ -12,6 +12,9 @@
 
 #define IND_NATIVE_TAG "IND_NATIVE"
 
+#include "MmapModelPager.h"
+#include "StreamingInferenceEngine.h"
+
 namespace indos {
 namespace native {
 

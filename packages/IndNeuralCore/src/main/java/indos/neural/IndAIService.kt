@@ -32,20 +32,31 @@ class IndAIService : Service() {
         registerComponentCallbacks(memoryPressureWatchdog)
         Log.i(TAG, "MemoryPressureWatchdog registered with ComponentCallbacks2.")
 
-        // Native C++ NDK Pipeline & Hardware Acceleration Probe (Sprint 3)
+        // Native C++ NDK Pipeline & Hardware Acceleration Probe (Sprint 3 & 4)
         val isNative = NativeBridge.isNativeLoaded()
         Log.i(TAG, "Native C++ NDK Pipeline status: loaded=$isNative")
         if (isNative) {
             val probeReport = NativeBridge.getHardwareReport()
             Log.i("IND_NATIVE", "[IND_NATIVE] Hardware acceleration probe result on boot: $probeReport")
+            
+            // Sprint 4: Zero-copy mmap model loader
+            val modelLoaded = NativeBridge.loadModel("/data/ind/models/Qwen2.5-1.5B-Instruct-Q4_K_M.gguf")
+            Log.i("IND_BENCHMARK", "[IND_BENCHMARK] Zero-copy mmap model loading on boot: success=$modelLoaded, telemetry=${NativeBridge.getMmapStatus()}")
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == "indos.neural.ACTION_RUN_PROBE") {
-            Log.i(TAG, "Triggering Native Hardware Acceleration Probe on demand...")
-            val probeReport = NativeBridge.getHardwareReport()
-            Log.i("IND_NATIVE", "[IND_NATIVE] Hardware acceleration probe result (on-demand): $probeReport")
+        when (intent?.action) {
+            "indos.neural.ACTION_RUN_PROBE" -> {
+                Log.i(TAG, "Triggering Native Hardware Acceleration Probe on demand...")
+                val probeReport = NativeBridge.getHardwareReport()
+                Log.i("IND_NATIVE", "[IND_NATIVE] Hardware acceleration probe result (on-demand): $probeReport")
+            }
+            "indos.neural.ACTION_RUN_BENCHMARK" -> {
+                Log.i(TAG, "Triggering Sprint 4 DoD Inference & Eviction Benchmark on demand...")
+                val benchReport = NativeBridge.runSprint4Benchmark(64)
+                Log.i("IND_BENCHMARK", "[IND_BENCHMARK] Sprint 4 Benchmark Result: $benchReport")
+            }
         }
         return START_NOT_STICKY
     }
@@ -129,59 +140,38 @@ class IndAIService : Service() {
             callback: IIndStreamCallback?
         ) {
             val command = userUtterance ?: ""
-            Log.d(TAG, "executeZeroTouchCommand: '$command'")
+            Log.d(TAG, "executeZeroTouchCommand (Streaming JNI): '$command'")
 
             try {
-                // Stream initial parsing token to client
-                callback?.onToken("Processing: $command")
-
-                // Deterministic GBNF compilation
-                val lower = command.lowercase()
-                val response = JSONObject()
-                val actionsArray = JSONArray()
-
-                when {
-                    lower.contains("torch") || lower.contains("flashlight") -> {
-                        response.put("tier", "GREEN")
-                        val act = JSONObject().apply {
-                            put("type", "SYS_TOGGLE")
-                            put("target", "flashlight")
-                            put("params", JSONObject().put("value", !lower.contains("band")))
+                NativeBridge.streamInference(
+                    command,
+                    screenGraphJson,
+                    object : NativeStreamListener {
+                        override fun onNativeToken(token: String) {
+                            try {
+                                callback?.onToken(token)
+                            } catch (e: RemoteException) {
+                                Log.e(TAG, "RemoteException streaming token to client", e)
+                            }
                         }
-                        actionsArray.put(act)
-                        response.put("tts", "Torch toggled")
-                    }
-                    lower.contains("wifi") -> {
-                        response.put("tier", "GREEN")
-                        val act = JSONObject().apply {
-                            put("type", "SYS_TOGGLE")
-                            put("target", "wifi")
-                            put("params", JSONObject().put("value", !lower.contains("off")))
-                        }
-                        actionsArray.put(act)
-                        response.put("tts", "Wi-Fi updated")
-                    }
-                    lower.contains("whatsapp") -> {
-                        response.put("tier", "GREEN")
-                        val act = JSONObject().apply {
-                            put("type", "OPEN_APP")
-                            put("target", "com.whatsapp")
-                            put("params", JSONObject())
-                        }
-                        actionsArray.put(act)
-                        response.put("tts", "Opening WhatsApp")
-                    }
-                    else -> {
-                        response.put("tier", "GREEN")
-                        response.put("tts", "Command acknowledged: $command")
-                    }
-                }
 
-                response.put("actions", actionsArray)
-                callback?.onActionResolved(response.toString())
+                        override fun onNativeComplete(actionJson: String) {
+                            try {
+                                callback?.onActionResolved(actionJson)
+                            } catch (e: RemoteException) {
+                                Log.e(TAG, "RemoteException resolving action to client", e)
+                            }
+                        }
 
-            } catch (e: RemoteException) {
-                Log.e(TAG, "Remote exception during stream callback", e)
+                        override fun onNativeError(errorCode: Int, message: String) {
+                            try {
+                                callback?.onError(errorCode, message)
+                            } catch (e: RemoteException) {
+                                Log.e(TAG, "RemoteException sending error to client", e)
+                            }
+                        }
+                    }
+                )
             } catch (t: Throwable) {
                 Log.e(TAG, "Error executing zero touch command", t)
                 try {
@@ -213,6 +203,7 @@ class IndAIService : Service() {
                 put("targetDevice", "Moto G60 (hanoip)")
                 put("nativeLibraryLoaded", NativeBridge.isNativeLoaded())
                 put("hardwareCapabilities", JSONObject(NativeBridge.getHardwareReport()))
+                put("mmapTelemetry", JSONObject(NativeBridge.getMmapStatus()))
             }.toString()
         }
     }

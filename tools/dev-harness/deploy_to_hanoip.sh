@@ -24,13 +24,14 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint3"
-MODULE_VERSION_CODE="10003"
+MODULE_VERSION="v1.0.1-sprint4"
+MODULE_VERSION_CODE="10004"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
 RUN_IPC_BENCH=false
 RUN_PROBE=false
+RUN_MMAP_BENCH=false
 TARGET_SERIAL=""
 
 usage() {
@@ -42,6 +43,7 @@ Options:
     -t, --test        Execute Sprint 1 DoD privileged toggle test (Wi-Fi, Brightness)
     -i, --ipc-bench   Execute Sprint 2 DoD Binder IPC latency test (IndLauncher -> IndNeuralCore)
     -p, --probe       Execute Sprint 3 DoD Native Hardware Acceleration Probe (Kryo 470 / Adreno 618)
+    -m, --mmap-bench  Execute Sprint 4 DoD Zero-Copy mmap & Streaming Inference Benchmark (>=15 tok/s, <15 ms eviction)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -50,6 +52,7 @@ Examples:
     $0 --build --test
     $0 --build --ipc-bench
     $0 --build --probe
+    $0 --build --mmap-bench
 EOF
     exit 0
 }
@@ -70,6 +73,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -p|--probe)
             RUN_PROBE=true
+            shift
+            ;;
+        -m|--mmap-bench)
+            RUN_MMAP_BENCH=true
             shift
             ;;
         -s|--serial)
@@ -235,6 +242,21 @@ if [[ "${RUN_PROBE}" == "true" ]]; then
     sleep 3
     "${ADB_CMD[@]}" logcat -d -s IND_NATIVE
     echo "[+] Sprint 3 DoD Native Hardware Acceleration Probe completed."
+fi
+
+if [[ "${RUN_MMAP_BENCH}" == "true" ]]; then
+    echo "[*] Step 9: Executing Sprint 4 DoD Zero-Copy mmap & Streaming Inference Benchmark..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+    
+    echo "[*] Triggering Sprint 4 benchmark via IndAIService (indos.neural.ACTION_RUN_BENCHMARK)..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -a indos.neural.ACTION_RUN_BENCHMARK || \
+    "${ADB_CMD[@]}" shell am startservice -a indos.neural.ACTION_RUN_BENCHMARK || true
+    
+    echo "[*] Awaiting benchmark completion (listening to logcat -s IND_BENCHMARK)..."
+    sleep 4
+    "${ADB_CMD[@]}" logcat -d -s IND_BENCHMARK
+    echo "[+] Sprint 4 DoD Zero-Copy mmap & Streaming Inference Benchmark completed."
 fi
 
 echo "[+] Deployment completed successfully."
