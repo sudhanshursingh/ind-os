@@ -1,0 +1,38 @@
+{
+  "sprint": "SP-14",
+  "title": "Kernel Object Model",
+  "timestamp": 1793031434,
+  "status": "PASS",
+  "deliverables": {
+    "docs/architecture/object-model-spec.md": {
+      "bytes": 5991,
+      "sha256": "864d44851a18ee3fdbe503008de7fb0a3c3f155e5cd6b62a22179cedf9bfa1e8"
+    },
+    "kernel/src/object/mod.rs": {
+      "bytes": 764,
+      "sha256": "4044893be39d301325eef24ca0838e483f189c89194a609e5ce6c07380dac01a"
+    },
+    "kernel/src/object/types.rs": {
+      "bytes": 2924,
+      "sha256": "6a5a50e671c2ae35889e99aec32874360c4a357d1ad338c80b918da68115b54b"
+    },
+    "kernel/src/object/id.rs": {
+      "bytes": 1460,
+      "sha256": "ebdea566cc472f45304bac331aeb0e3981d815f87299e214c48120205ec690c6"
+    },
+    "kernel/src/object/table.rs": {
+      "bytes": 8470,
+      "sha256": "7f5903d7b500ec7811951c0e05a8ed1931dc5254da783e8983dc61d94ad2db1f"
+    },
+    "docs/evidence/golden-boot-sp14.log": {
+      "bytes": 19358,
+      "sha256": "3292992edd3ae18b04937c9fca0171115af7a8f0b8cfa43051ed2a65842c2854"
+    }
+  },
+  "invariants": {
+    "INV-OBJ-001": "Generational slot index tracking prevents ABA and Use-After-Free aliasing (stale handle lookup rejected with EBADF)",
+    "INV-OBJ-002": "Reference count soundness verified (objects reclaimed and generation incremented upon ref_count reaching zero)",
+    "INV-OBJ-003": "Strong type isolation verified (mismatched object type lookups rejected with EINVAL)",
+    "INV-OBJ-004": "Deterministic bounded capacity verified (pre-allocated KObjectTable with 128 fixed slots)"
+  }
+}
