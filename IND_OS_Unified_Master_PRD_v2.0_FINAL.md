@@ -731,5 +731,7 @@ An AI-native operating system is not one where the assistant is smarter. It is o
 | ID | Version | Date | Decision | Rationale |
 | :--- | :--- | :--- | :--- | :--- |
 | **U-001** | v1.0.1-BIBLE + FS v1.0 → **v2.0 FINAL** | 2026-10-26 | Unified both predecessor PRDs into one governing document. MVP track closed as shipped and moved to maintenance; kernel track begins at Sprint 19. All FS-D1–FS-D12 decisions locked; MVP D1–D10 dispositions final per §3.1. | Single source of truth; eliminates the two-document ambiguity; sprints continue seamlessly from the completed 18. |
+| **A-002** | v2.0.0 → **v2.1.0** (SBA-001) | 2026-10-26 | **Split-Brain Architecture adopted (SBA-001).** Kernel = Policy Plane (verified selectors only). TEE = Inference Plane (full AI runtime). Capability microkernel = enforcement boundary. Intent ABI frozen at v1.0. Information-flow labels mandatory. No model weights in kernel space, ever. | Synthesises AKTS (sub-µs policy switching), FlexServe/TZ-LLM (TEE inference viability), Agentic-seL4 (capability containment), and LUMOS (semantic state) into a single enforceable architecture. Resolves the "AI in kernel vs. AI outside kernel" debate: the answer is both, in different planes, with a verified boundary. |
 
 *Document ends. The MVP is shipped. The kernel work begins — Sprint 19.*
+
