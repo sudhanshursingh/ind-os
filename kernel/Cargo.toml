@@ -1,23 +1,14 @@
 [package]
-name = "indk"
+name = "indk-core"
 version = "0.1.0"
 edition = "2021"
 authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
-description = "Ind OS Microkernel (IndK) for ARM64 Bare-Metal"
+description = "Ind OS Microkernel Core (indk-core) for ARM64 Bare-Metal (REQ-ARCH-101)"
 license = "GPL-2.0-only"
+
+[[bin]]
+name = "indk"
+path = "src/main.rs"
 
 [dependencies]
 # Zero external crates: from scratch (Rule N-01)
-
-[profile.dev]
-panic = "abort"
-opt-level = 1
-debug = true
-overflow-checks = true
-
-[profile.release]
-panic = "abort"
-opt-level = 3
-lto = true
-codegen-units = 1
-overflow-checks = true

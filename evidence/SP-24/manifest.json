@@ -1,7 +1,7 @@
 {
   "sprint": "SP-24",
   "title": "VFS Core (vnode Layer, Mount Table, Path Resolution, Capability-Mediated File Handles, IndFS Design)",
-  "timestamp": "2026-10-26T20:49:38Z",
+  "timestamp": "2026-10-26T21:06:46Z",
   "requirements": {
     "REQ-KRN-106": "Capability-Mediated File Handles from Day One"
   },

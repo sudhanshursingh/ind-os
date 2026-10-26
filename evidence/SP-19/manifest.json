@@ -1,7 +1,7 @@
 {
   "sprint": "SP-19",
   "title": "Policy Engine v1 (ENF: Declarative Rule Language, Default-Deny, Deterministic Precedence, Dual-Check Capability Access)",
-  "timestamp": "2026-10-26T20:49:38Z",
+  "timestamp": "2026-10-26T21:06:46Z",
   "invariants": {
     "INV-ENF-001": "Default-Deny Security Model (absence of allow yields deterministic denial)",
     "INV-ENF-002": "Deterministic Precedence & Versioned Rule Resolution (deny overrides allow, priority ordering)",

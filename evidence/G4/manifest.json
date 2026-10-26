@@ -1,0 +1,19 @@
+{
+  "gate": "G4",
+  "files": {
+    "docs/evidence/gate-g4-audit-report.md": "16d39c9dd872d2b6181719c621837bba53179f1bc505b730908dc015d470dc8a",
+    "docs/evidence/performance-baselines-sp31.md": "a4dc3111bd4768abbf5c87d62bef9be2411d5267485ef80fd90e7472765457b5",
+    "docs/architecture/hal-interface.md": "1275b90f8a15e6a60ea94ae7f9a54376d72a8a811d2902e170b6be348364a7ec",
+    "docs/architecture/def-001-002-sunset-review.md": "7457b1ff67200d36c3a8c34824a0a5ba939e04a48aed3c095ca3188ed2ad1e47",
+    "docs/evidence/golden-boot-sp31.log": "55f1c37de82779c90922acc74382f31af33d77ee7b15737eaa8db51a9601c93f",
+    "docs/evidence/SP-24-validation.md": "bf6a6a3724a7e33ec1ec7348324eccda477c45f27d622047eb2d702fb06308bb",
+    "docs/evidence/SP-25-validation.md": "ab243af2e4688d5259ce67240bc226e73f9db410c73fb6c4a33bf1c25b0f1618",
+    "docs/evidence/SP-26-validation.md": "10c23185245b76fd36976a9ba5cc528c80a005e22d8fea003807ed5e864f5683",
+    "docs/evidence/SP-27-validation.md": "71289b7b386bfadf060d15db298762b3135c2f0ef9891a66a2a5e208d1e1bf7d",
+    "docs/evidence/SP-28-validation.md": "f363fea1cb23f8397347039ea680b72fa0ca14a4e1addfd9f67de634e3562d77",
+    "docs/evidence/SP-29-validation.md": "c29e70f4d245116b1ebd7ef5f2137fc332fcddd972eb30ec567e416bcbb08680",
+    "docs/evidence/SP-30-validation.md": "99d1dd9951fcb8d3c80af6d342faee65cc00b9e186b3f9fb0e0a51a0b6843efd",
+    "docs/evidence/SP-31-validation.md": "4d6b37b30387be10d384aeef6dd5bfe5a27daad3797d6bfad6fa56f7b84318ec",
+    "evidence/G4/test_result.json": "77be77cf221c9ce3bdaf518580e109969ecf14c3ee688a10c0cb8e7b06f79749"
+  }
+}

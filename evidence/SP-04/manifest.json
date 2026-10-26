@@ -2,26 +2,26 @@
   "sprint": "SP-04",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Boot Entry & Exception Vectors",
-  "timestamp_utc": "2026-10-26T20:49:26Z",
+  "timestamp_utc": "2026-10-26T21:06:34Z",
   "invariants_verified": [
     "INV-BOOT-001",
     "INV-BOOT-002",
     "INV-BOOT-003",
     "INV-BOOT-004"
   ],
-  "vector_table_address": "0x400bf000",
+  "vector_table_address": "0x400c1800",
   "artifacts": {
     "docs/evidence/golden-boot-sp04.log": "07235b99ba940db989442f210da7cf20fcb1144c06fbb272c09998235b9acfe2",
-    "evidence/SP-04/serial.log": "ac63136be8a5e757bd49de9e7c0f37b6a7d92b788d622fdd1f7598788a1d7c0c",
-    "kernel/Cargo.toml": "f49d43e452e5bfe14e8cd61dc096f85140be621f1173c601f2576f5267d14738",
+    "evidence/SP-04/serial.log": "8c8b91db7e237124d984670e92f2858281cf7322fe2cadf95554fe0a86843d24",
+    "kernel/Cargo.toml": "f07029a29cf477a5eb541c0713b949907c3c0a866c226f0e3cc0f4860b217f86",
     "kernel/linker.ld": "87aab4f17b0939ed02bad8c25df0008120bb3682f502d5969573b917a8b73da4",
     "kernel/src/arch/aarch64/boot.s": "5f3cc3141ff45091d5a4d078ed40b3f3e7cb023bdd6637e4c8e75842f412965d",
     "kernel/src/arch/aarch64/exceptions.s": "20315700bf24b76e17efb1265588dba5be614996447af3eb1e5a252a702f05f5",
     "kernel/src/arch/aarch64/mod.rs": "cd8b4a34bd83c2f8f8c30951b6c02e8f648b5279f6ba3871fc5df834c5516c5a",
     "kernel/src/arch/mod.rs": "1b4746b74f2d8d8b0dd404c6c105d782976b6d62b6226628854de007844213d6",
-    "kernel/src/main.rs": "c733055a436ec53a03267ad7a1c9d117ed412c7ff535df45617b56eb05297538",
+    "kernel/src/main.rs": "b66774a4c627801b4a623efeeabb9f63107286401890494ef92f91b07efa9f07",
     "kernel/src/panic.rs": "8532f7434d33ed7c98c5eac90077e7269defd8e3eec5330ed4d3be06352ca9b1",
-    "kernel/target/aarch64-unknown-none/debug/indk": "ff6c4a1235c449753394ca3196b93542d6158ff31cda039b7ff76ff97127f8b7",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "318dc6377a6788d031dfbaffd7439ee2803e2fa37ba8a710d423ba90ad8b718f"
+    "kernel/target/aarch64-unknown-none/debug/indk": "e1c7f03fe0ad0d2980431f8ae2b9abf5dbe7cf727087ceaa3434bb6ba01bebce",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "1f9af8ad990f8e053323628c6ea5be80ab5292f5f4aba34eae57d19c07c36f8e"
   }
 }

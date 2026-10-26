@@ -1,4 +1,4 @@
-.PHONY: all bootstrap check clean test-harness kernel qemu-boot gate-g1 gate-g2 gate-g3
+.PHONY: all bootstrap check clean test-harness kernel qemu-boot gate-g1 gate-g2 gate-g3 gate-g4
 
 KERNEL_ELF = kernel/target/aarch64-unknown-none/debug/indk
 KERNEL_BIN = $(KERNEL_ELF).bin
@@ -12,7 +12,7 @@ bootstrap:
 
 kernel:
 	@echo "Building IndK ARM64 microkernel..."
-	@cd kernel && cargo build --target aarch64-unknown-none
+	@cd kernel && cargo build --target aarch64-unknown-none --target-dir target
 	@if [ -n "$(LLVM_OBJCOPY)" ]; then \
 		$(LLVM_OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN); \
 	fi
@@ -54,6 +54,7 @@ check:
 	@python3 ci/verify_sp28.py
 	@python3 ci/verify_sp29.py
 	@python3 ci/verify_sp30.py
+	@python3 ci/verify_sp31.py
 
 gate-g1:
 	@echo "Running Ind OS Gate G1 Audit & Verification Suite..."
@@ -67,6 +68,10 @@ gate-g3:
 	@echo "Running Ind OS Gate G3 Audit & Verification Suite..."
 	@python3 ci/verify_sp23.py
 
+gate-g4:
+	@echo "Running Ind OS Gate G4 Audit & Verification Suite..."
+	@python3 ci/verify_g4.py
+
 test-harness:
 	@echo "Running Ind OS Test Harness Self-Test..."
 	@python3 ci/run_qemu_test.py --self-test
@@ -74,3 +79,4 @@ test-harness:
 clean:
 	@rm -rf build/
 	@cd kernel 2>/dev/null && cargo clean || true
+

@@ -1,5 +1,7 @@
 [target.aarch64-unknown-none]
 rustflags = [
+    "-C", "link-arg=-L.",
+    "-C", "link-arg=-Lkernel",
     "-C", "link-arg=-Tlinker.ld",
     "-C", "link-arg=-nostdlib",
 ]
