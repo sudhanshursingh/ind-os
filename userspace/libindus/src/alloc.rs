@@ -72,4 +72,9 @@ impl UserHeapAllocator {
     pub fn active_allocations(&self) -> usize {
         self.allocation_count
     }
+
+    pub fn reset(&mut self) {
+        self.allocated_bytes = 0;
+        self.allocation_count = 0;
+    }
 }

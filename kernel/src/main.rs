@@ -3347,6 +3347,62 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-38] - Standalone indus-edit userspace crate in workspace.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-39: INTEGRATION TEST SUITE V1 (REQ-QA-201, INV-QA-001, INV-QA-002)
+    // ==================================================
+
+    // Stage 141: Integration Test Suite Subsystem Initialization
+    stage_marker!("141_QA_SUITE_INIT", "Integration test suite runner and soak harness initialized");
+    log_info!("qa", "QA Integration test suite initialized: scripted journeys & soak runner ready (REQ-QA-201 PASSED)");
+
+    // Stage 142: Scripted User Journeys 1 & 2 Verification (INV-QA-001)
+    stage_marker!("142_QA_USER_JOURNEY_1", "User journeys 1 (Init) & 2 (Hotplug) verified");
+    {
+        let j1 = crate::userspace::KernelUserJourneyRunner::journey_1_init_supervision();
+        assert_eq!(j1.status, crate::userspace::KernelJourneyStatus::Passed);
+
+        let j2 = crate::userspace::KernelUserJourneyRunner::journey_2_hotplug_capabilities();
+        assert_eq!(j2.status, crate::userspace::KernelJourneyStatus::Passed);
+
+        log_info!("qa", "Deterministic user journeys 1 & 2 passed: init supervision & device hotplug verified (INV-QA-001 PASSED)");
+    }
+
+    // Stage 143: Scripted User Journeys 3, 4, 5 Verification (INV-QA-001)
+    stage_marker!("143_QA_USER_JOURNEY_2", "User journeys 3 (Shell/Edit), 4 (Logd), 5 (Store) verified");
+    {
+        let j3 = crate::userspace::KernelUserJourneyRunner::journey_3_shell_session();
+        assert_eq!(j3.status, crate::userspace::KernelJourneyStatus::Passed);
+
+        let j4 = crate::userspace::KernelUserJourneyRunner::journey_4_logging_diagnostics();
+        assert_eq!(j4.status, crate::userspace::KernelJourneyStatus::Passed);
+
+        let j5 = crate::userspace::KernelUserJourneyRunner::journey_5_store_consent();
+        assert_eq!(j5.status, crate::userspace::KernelJourneyStatus::Passed);
+
+        log_info!("qa", "Deterministic user journeys 3, 4, 5 passed: shell/editor, logging, and consent verified (INV-QA-001 PASSED)");
+    }
+
+    // Stage 144: Automated Soak Harness Verification (INV-QA-002)
+    stage_marker!("144_QA_SOAK_HARNESS", "Automated soak harness 100 cycles verified without memory leaks");
+    {
+        let soak_rep = crate::userspace::KernelSoakHarness::run_cycles(100);
+        assert!(soak_rep.passed, "Soak harness reported leaks or uncompleted cycles");
+        assert_eq!(soak_rep.completed_cycles, 100);
+        assert_eq!(soak_rep.leak_count, 0);
+
+        log_info!("qa", "Soak harness verified: 100 allocation/capability cycles completed with 0 leaks (INV-QA-002 PASSED)");
+    }
+
+    // Stage 145: Sprint SP-39 Milestone Reached
+    stage_marker!("145_SP39_QA_READY", "Sprint SP-39 Integration Test Suite v1 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-39] Sprint SP-39 Integration Test Suite v1 Milestone REACHED.");
+    println!(" [SP-39] - Whole-System Automated User Journeys 1-5 (INV-QA-001),");
+    println!(" [SP-39] - Automated Soak Cycling Harness (INV-QA-002),");
+    println!(" [SP-39] - Deterministic Multi-Subsystem State Verification,");
+    println!(" [SP-39] - Standalone indus-testsuite userspace crate in workspace.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

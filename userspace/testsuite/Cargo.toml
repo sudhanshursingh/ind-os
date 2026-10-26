@@ -1,0 +1,24 @@
+[package]
+name = "indus-testsuite"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
+description = "Ind OS Integration Test Suite v1 (REQ-QA-201 Groundwork)"
+license = "GPL-2.0-only"
+
+[lib]
+name = "indus_testsuite"
+path = "src/lib.rs"
+
+[[bin]]
+name = "testsuite"
+path = "src/main.rs"
+
+[dependencies]
+libindus = { path = "../libindus" }
+indus-init = { path = "../init" }
+indus-devmgr = { path = "../devmgr" }
+indus-shell = { path = "../shell" }
+indus-logd = { path = "../logd" }
+indus-store = { path = "../store" }
+indus-edit = { path = "../edit" }

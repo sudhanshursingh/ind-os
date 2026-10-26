@@ -52,6 +52,10 @@ impl KernelUserHeap {
     pub fn buffer_mut(&mut self) -> &mut [u8] {
         &mut self.buffer
     }
+
+    pub fn reset(&mut self) {
+        self.allocated = 0;
+    }
 }
 
 pub const CAP_RIGHTS_READ: u32 = 0x01;

@@ -46,5 +46,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "indus-testsuite"
+version = "0.1.0"
+dependencies = [
+ "indus-devmgr",
+ "indus-edit",
+ "indus-init",
+ "indus-logd",
+ "indus-shell",
+ "indus-store",
+ "libindus",
+]
+
+[[package]]
 name = "libindus"
 version = "0.1.0"

@@ -12,6 +12,7 @@ pub mod shell;
 pub mod logd;
 pub mod store;
 pub mod devx;
+pub mod qa;
 
 pub use init::{
     BootStageRecord, InitError, KernelInitSubsystem, RestartPolicy, Runlevel,
@@ -43,5 +44,9 @@ pub use store::{
 };
 pub use devx::{
     KernelEditError, KernelRemoteShellBridge, KernelTextBuffer,
+};
+pub use qa::{
+    KernelJourneyReport, KernelJourneyStatus, KernelSoakHarness, KernelSoakReport,
+    KernelUserJourneyRunner,
 };
 
