@@ -32,6 +32,9 @@ _start:
     mov x2, #(1 << 31)
     msr hcr_el2, x2
 
+    /* Disable EL2 FP/SIMD traps */
+    msr cptr_el2, xzr
+
     /* Enable Non-secure EL1 timer access */
     mrs x2, cnthctl_el2
     orr x2, x2, #3          /* EL1PCEN (bit 1) and EL1PCTEN (bit 0) */
@@ -50,6 +53,11 @@ _start:
     eret
 
 .Lin_el1:
+    /* Enable Advanced SIMD and Floating-Point in EL1 (CPACR_EL1.FPEN = 0b11) */
+    mov x1, #(3 << 20)
+    msr cpacr_el1, x1
+    isb
+
     /* Initialize stack pointer to top of early stack */
     ldr x1, =__stack_top
     mov sp, x1

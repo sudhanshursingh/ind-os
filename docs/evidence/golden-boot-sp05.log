@@ -1,0 +1,22 @@
+==================================================
+ [BOOT] IndK ARM64 Microkernel Starting...
+re:Build Commit:
+  Architecture:   aarch64
+  Platform:       qemu-virt
+==================================================
+ [BOOT] Vector table (VBAR_EL1) online.
+ [BOOT] Early kernel stack verified (INV-BOOT-002).
+[STAGE:01_RESET] ARM64 EL1 entry and early stack established
+[STAGE:02_VECTORS] VBAR_EL1 exception vectors armed (INV-BOOT-004)
+[STAGE:03_CONSOLE] PL011 early serial console driver online
+[INFO ] boot: IndK microkernel core initialization sequence starting
+[DEBUG] arch: Execution state: EL1h, interrupts masked, MMU identity
+[STAGE:04_DTB] Validating Device Tree Blob header
+re:\[BOOT\] Device Tree Blob at: 0x[0-9a-fA-F]+
+ [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).
+re:\[INFO \] dtb: DTB header verified \(magic 0xd00dfeed, size [0-9]+ bytes\)
+ [WARN ] sched: Preemptive multitasking disabled (scheduled for Phase 2)
+--------------------------------------------------
+ [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.
+[STAGE:05_READY] Sprint SP-05 Serial Console Milestone REACHED
+==================================================

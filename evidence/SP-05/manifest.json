@@ -1,0 +1,38 @@
+{
+  "sprint": "SP-05",
+  "phase": "Phase 1: Kernel Bootstrap",
+  "milestone": "Serial Console & Leveled Logging",
+  "timestamp_utc": "2026-10-26T13:02:52Z",
+  "requirements_verified": [
+    "REQ-KRN-101"
+  ],
+  "stage_markers_verified": [
+    "01_RESET",
+    "02_VECTORS",
+    "03_CONSOLE",
+    "04_DTB",
+    "05_READY"
+  ],
+  "log_levels_verified": [
+    "TRACE",
+    "DEBUG",
+    "INFO",
+    "WARN",
+    "ERROR"
+  ],
+  "artifacts": {
+    "docs/evidence/golden-boot-sp05.log": "85bb5edc0abe2654d95958b185feaffe065d6ef8380a29fb043560892fd0ae40",
+    "evidence/SP-05/serial.log": "bd1819718a4f8fcda1e572c3fb35140de3e8798f51c82e18d09f464d44a97e49",
+    "kernel/build.rs": "2f0bf375d40af02de56b667ef477e83b091129cedb4424c5762d3544ecd8d974",
+    "kernel/src/console.rs": "3d0e7d4e0147b852f3b91b0d7c202cf425ff2544acb3263ca0b2731f95a82475",
+    "kernel/src/drivers/mod.rs": "c7c60268c9f62096e1da26323275d8cf56913fef95b57b9242e5adca59456b88",
+    "kernel/src/drivers/pl011.rs": "4fac7f0865618aa43e01abc46c8262bfa15ac11bf3a23d56a07c56e5ce2435e5",
+    "kernel/src/logger.rs": "780582a317eddb567e5940231d44d8dd8a6c805d9fc3f3ce8afcd27240cd0df8",
+    "kernel/src/main.rs": "3405bf0ae06648dc74c96a04e02bf752d98346e48f4e7e60a9935b4c4bdaea9e",
+    "kernel/src/panic.rs": "8532f7434d33ed7c98c5eac90077e7269defd8e3eec5330ed4d3be06352ca9b1",
+    "kernel/src/sync/mod.rs": "f51ff00a8055f117291180cb9a4543b91eb6b02d8fc8282e1653fad407ffa1f0",
+    "kernel/src/sync/spinlock.rs": "bb9a9f93be20f7a56d95c0e3d246932a9c541e2d6f5db697ea095cb1a57cb895",
+    "kernel/target/aarch64-unknown-none/debug/indk": "b8bfe4e1538208c86f994958b4f3702a3a8a52ccc3239a6cad0808f7b4ec3480",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "ed2fc1fc3ec042b3ff00ef6226ccc9f1b4f21144d5e94720db47e2d3d018c4e2"
+  }
+}

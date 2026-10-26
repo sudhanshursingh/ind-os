@@ -13,7 +13,6 @@ impl EarlyUart {
     #[inline(always)]
     pub fn write_byte(b: u8) {
         unsafe {
-            // Write directly to PL011 Data Register
             core::ptr::write_volatile(UART0_BASE as *mut u8, b);
         }
     }
@@ -92,6 +91,11 @@ fn panic(info: &PanicInfo) -> ! {
         EarlyUart::write_str("\n");
     }
 
+    EarlyUart::write_str(" Message:  ");
+    // Format message if available
+    let msg = info.message();
+    EarlyUart::write_str(msg.as_str().unwrap_or("structured panic payload"));
+    EarlyUart::write_str("\n--------------------------------------------------\n");
     EarlyUart::write_str(" System halted.\n");
     EarlyUart::write_str("==================================================\n");
 

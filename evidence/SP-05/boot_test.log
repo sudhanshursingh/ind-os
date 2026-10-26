@@ -1,0 +1,19 @@
+
+==================================================
+  IndK ARM64 Microkernel — Phase 1 Bootstrap     
+  Build Commit:   b17bd34f-dirty
+  Architecture:   aarch64
+  Platform:       qemu-virt
+==================================================
+[STAGE:01_RESET] ARM64 EL1 entry and early stack established
+[STAGE:02_VECTORS] VBAR_EL1 exception vectors armed (INV-BOOT-004)
+[STAGE:03_CONSOLE] PL011 early serial console driver online
+[INFO ] boot: IndK microkernel core initialization sequence starting
+[DEBUG] arch: Execution state: EL1h, interrupts masked, MMU identity
+[STAGE:04_DTB] Validating Device Tree Blob header
+[INFO ] dtb: Device Tree Blob physical pointer: 0x48000000
+[INFO ] dtb: DTB header verified (magic 0xd00dfeed, size 1048576 bytes)
+[WARN ] sched: Preemptive multitasking disabled (scheduled for Phase 2)
+--------------------------------------------------
+[STAGE:05_READY] Sprint SP-05 Serial Console Milestone REACHED
+==================================================
