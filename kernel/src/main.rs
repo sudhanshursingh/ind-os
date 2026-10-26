@@ -21,6 +21,7 @@ pub mod mm;
 pub mod object;
 pub mod panic;
 pub mod policy;
+pub mod redteam;
 pub mod sync;
 pub mod syscall;
 pub mod task;
@@ -1537,6 +1538,56 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [CON] Sprint SP-21 Consent Broker v1 Milestone REACHED.");
     println!(" [CON] Hardware-Isolated Display Surface, Kernel Input Mediation,");
     println!(" [CON] Overlay & Injection Rejection (INV-CON-001) Verified.");
+    println!("==================================================");
+
+    // Stage 57: Adversarial Red-Team Suite Initialization
+    stage_marker!("57_REDTEAM_SUITE_INIT", "Internal adversarial exploitation harness online");
+    {
+        log_info!("redteam", "Adversarial harness initialized: targeting Phase 3 Security Spine");
+    }
+
+    // Stage 58: Adversarial Exploit Probing (6 Attack Vectors)
+    stage_marker!("58_REDTEAM_EXPLOIT_PROBES", "Executing 6 red-team attack vectors against Phase 3 Security Spine");
+    {
+        use redteam::RedTeamSuite;
+
+        // 1. Probe 1: Rights Escalation
+        RedTeamSuite::probe_capability_escalation().expect("Probe 1 must repel escalation");
+        log_info!("redteam", "Attack Vector 1 REPELLED: Rights expansion prohibited (INV-CAP-001)");
+
+        // 2. Probe 2: Dangling Handle
+        RedTeamSuite::probe_dangling_handle().expect("Probe 2 must repel stale handle");
+        log_info!("redteam", "Attack Vector 2 REPELLED: Use-after-free rejected (INV-CAP-002, INV-OBJ-001)");
+
+        // 3. Probe 3: Ambient Authority
+        RedTeamSuite::probe_ambient_authority().expect("Probe 3 must repel ambient authority");
+        log_info!("redteam", "Attack Vector 3 REPELLED: Zero ambient authority enforced (INV-SEC-001)");
+
+        // 4. Probe 4: Policy Bypass
+        RedTeamSuite::probe_policy_bypass().expect("Probe 4 must repel policy bypass");
+        log_info!("redteam", "Attack Vector 4 REPELLED: Default-deny & deny precedence enforced (INV-ENF-001, INV-ENF-002)");
+
+        // 5. Probe 5: Audit Tampering
+        RedTeamSuite::probe_audit_tampering().expect("Probe 5 must detect audit tamper");
+        log_info!("redteam", "Attack Vector 5 REPELLED: 1-bit audit mutation localized (INV-AUD-001)");
+
+        // 6. Probe 6: Consent Spoofing
+        RedTeamSuite::probe_consent_spoofing().expect("Probe 6 must repel overlay & injection");
+        log_info!("redteam", "Attack Vector 6 REPELLED: Overlay & input injection rejected (INV-CON-001)");
+
+        let summary = RedTeamSuite::run_all_probes().expect("Suite run must succeed");
+        assert_eq!(summary.total_probes, 6);
+        assert_eq!(summary.repelled_count, 6);
+        assert_eq!(summary.vulnerabilities_found, 0);
+        log_info!("redteam", "Adversarial suite results: 6/6 attack vectors repelled, 0 vulnerabilities (100% DEFENSE)");
+    }
+
+    // Stage 59: Sprint SP-22 Milestone Reached
+    stage_marker!("59_REDTEAM_VERIFIED", "Sprint SP-22 Adversarial Self-Review Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [RED] Sprint SP-22 Adversarial Self-Review Milestone REACHED.");
+    println!(" [RED] 6/6 Red-Team Exploits Repelled (Escalation, UAF, Ambient Auth,");
+    println!(" [RED] Policy Bypass, Audit Tampering, and Consent Spoofing) Verified.");
     println!("==================================================");
 
     // Park CPU

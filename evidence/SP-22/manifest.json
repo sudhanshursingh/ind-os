@@ -1,0 +1,36 @@
+{
+  "sprint": "SP-22",
+  "title": "Adversarial Self-Review (Internal Red-Team Exploitation Probes: Escalation, UAF, Ambient Authority, Policy Bypass, Audit Tampering, Consent Spoofing)",
+  "timestamp": "2026-10-26T19:14:31Z",
+  "invariants": {
+    "INV-CAP-001": "Monotonic Rights Attenuation (repelling privilege escalation)",
+    "INV-CAP-002": "Revocation Soundness (repelling dangling handles and use-after-free)",
+    "INV-SEC-001": "Zero Ambient Authority (all operations capability-mediated)",
+    "INV-ENF-001": "Default-Deny Security Model",
+    "INV-ENF-002": "Deterministic Precedence Resolution",
+    "INV-AUD-001": "Cryptographic Append-Only Audit Integrity",
+    "INV-CON-001": "Unspoofable Consent Surface & Hardware Input Isolation"
+  },
+  "files": {
+    "docs/architecture/adversarial-self-review-report.md": {
+      "sha256": "34aaaf67c72ce7530514c6789038e8dfd7620d1a669b2fb7b7e7b354ed9bd4e2",
+      "bytes": 4757
+    },
+    "docs/evidence/SP-22-validation.md": {
+      "sha256": "3add8b6e09df6d3cd6ce216fedf11e34b6bab379af80a829a97f3e5f29db0690",
+      "bytes": 6192
+    },
+    "docs/evidence/golden-boot-sp22.log": {
+      "sha256": "9b0883e56605d1260ddc7051d40c3c221354edcc4047539c5a998ac75abe4608",
+      "bytes": 22806
+    },
+    "kernel/src/redteam/attacks.rs": {
+      "sha256": "5389b07ae9d1556e61c70661eb93af89bd394d872fb18b4e07bf786817572f37",
+      "bytes": 5433
+    },
+    "kernel/src/redteam/mod.rs": {
+      "sha256": "e8d71e1cb8133129379d1e87ecb4d43bfa0b61e33cdeb8d376facbacc63bad04",
+      "bytes": 226
+    }
+  }
+}

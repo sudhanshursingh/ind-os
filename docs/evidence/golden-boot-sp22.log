@@ -1,0 +1,301 @@
+==================================================
+ Starting Headless IndK QEMU Session             
+ Kernel:  kernel/target/aarch64-unknown-none/debug/indk
+ Timeout: 8s
+==================================================
+
+==================================================
+ [BOOT] IndK ARM64 Microkernel Starting...
+  Build Commit:   f09ca847-dirty
+  Architecture:   aarch64
+  Platform:       qemu-virt
+==================================================
+ [BOOT] Vector table (VBAR_EL1) online.
+ [BOOT] Early kernel stack verified (INV-BOOT-002).
+[STAGE:01_RESET] ARM64 EL1 entry and early stack established
+[STAGE:02_VECTORS] VBAR_EL1 exception vectors armed (INV-BOOT-004)
+[STAGE:03_CONSOLE] PL011 early serial console driver online
+[INFO ] boot: IndK microkernel core initialization sequence starting
+[DEBUG] arch: Execution state: EL1h, interrupts masked, MMU identity
+[STAGE:04_DTB] Validating Device Tree Blob header
+ [BOOT] Device Tree Blob at: 0x48000000
+ [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).
+[INFO ] dtb: DTB header verified (magic 0xd00dfeed, size 1048576 bytes)
+[WARN ] sched: Preemptive multitasking disabled (scheduled for Phase 2)
+[STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
+[INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
+[STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
+[INFO ] mm: Physical frames: total 131072, reserved 496, free 130576
+[DEBUG] mm: Allocated test frame 1 at 0x400f0000
+[DEBUG] mm: Allocated test frame 2 at 0x400f1000
+[INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
+[STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
+[INFO ] heap: Kernel heap initialized at 0x400f0000 (size: 1024 KB)
+[INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
+[DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
+[INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
+--------------------------------------------------
+ [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.
+==================================================
+[STAGE:05_READY] Sprint SP-05 Serial Console Milestone REACHED
+[STAGE:08_MM_READY] Sprint SP-06 Memory Discovery Milestone REACHED
+[STAGE:10_CORE_DS_READY] Sprint SP-07 Kernel Heap & Core DS Milestone REACHED
+[STAGE:11_GICV2_INIT] ARM GICv2 interrupt controller initialized
+[INFO ] gic: GICv2 Distributor & CPU Interface initialized (GICD: 0x08000000, GICC: 0x08010000)
+[STAGE:12_TIMER_INIT] ARM Generic Timer configured for 100 Hz
+[INFO ] timer: ARM Generic Timer online (frequency: 62500000 Hz, interval: 10ms, PPI IRQ 30)
+[STAGE:13_IRQ_DISPATCH] IRQs unmasked and periodic ticks servicing
+[INFO ] irq: Hardware interrupts unmasked in DAIF (INV-INT-003 armed)
+[DEBUG] irq: Critical section mask active (INV-INT-002)
+[INFO ] irq: Critical section RAII discipline verified (INV-INT-002 PASSED)
+[INFO ] timer: Awaiting periodic hardware timer ticks...
+[INFO ] timer: Periodic timer ticks verified (received 3 ticks, INV-IRQ-004 verified)
+[INFO ] irq: Spurious interrupt handling verified (spurious count: 0, INV-INT-001 verified)
+[STAGE:14_INTERRUPTS_READY] Sprint SP-08 Interrupts & Hardware Timers Milestone REACHED
+==================================================
+[STAGE:15_BOOT_COMPLETE] Phase 1 Kernel Bootstrap complete
+--------------------------------------------------
+ [BOOT] Hello from IndK! Phase 1 Bootstrap Complete.
+ [BOOT] Gate G1 Criteria Met: 2048-byte vectors armed,
+ [BOOT] 512MB RAM discovered, frame & heap allocators online,
+ [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
+==================================================
+[STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
+[INFO ] mmu: Root L0 page table allocated at 0x401f0000
+[INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
+[INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
+[INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
+[STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401f7000)
+[INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
+[INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x40201000, RW)
+[INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
+[STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
+--------------------------------------------------
+ [MMU] Sprint SP-10 Virtual Memory Milestone REACHED.
+ [MMU] AArch64 4-Level Page Tables, Per-Process Address Spaces,
+ [MMU] Strict NULL-Trap ([0..4MB]), PXN/UXN Protection, and CoW Verified.
+==================================================
+[STAGE:19_PROCESS_SUBSYSTEM_INIT] Process abstraction & INDBIN loader initialized
+[INFO ] proc: INDBIN header verified (magic 0x42444e49, entry: 0x00400000, text size: 71 B)
+[INFO ] proc: INV-MEM-001 verified: Loader rejected executable targeting NULL trap zone
+[INFO ] proc: Created Process 1 ('hello_user', PID: 1, entry: 0x00400000, sp: 0x00007fffffff0000)
+[STAGE:20_USER_MODE_HELLO] Executing first user-mode process in EL0
+--------------------------------------------------
+ [USER] Dropping to AArch64 EL0 User Mode...
+Hello from Ind OS User Mode (EL0)!
+[INFO ] proc: User process issued sys_exit(status: 0)
+ [USER] Returned to AArch64 EL1 Kernel Mode.
+[INFO ] proc: Process 1 exited cleanly with status 0
+[STAGE:21_SYSCALL_DISPATCH_READY] Sprint SP-11 Processes & Loading Milestone REACHED
+--------------------------------------------------
+ [PROC] Sprint SP-11 Processes & Loading Milestone REACHED.
+ [PROC] Process Abstraction, INDBIN Loader, Real EL0 User Mode,
+ [PROC] and SVC #0 System Call Dispatch Verified.
+==================================================
+[STAGE:22_SCHEDULER_INIT] Preemptive priority scheduler initialized
+[INFO ] sched: Advisory sched_hint LatencySensitive received for PID 1
+[INFO ] sched: Multi-level priority classes initialized (5 levels, 10ms time slice, sched_hint advisory stub active)
+[STAGE:23_PREEMPTIVE_MULTITASKING] Concurrent user processes scheduled & preempted
+[INFO ] sched: Enqueuing Process 1 ('proc_alpha', PID: 1, Priority: Normal) and Process 2 ('proc_beta', PID: 2, Priority: Normal)
+--------------------------------------------------
+ [SCHED] Starting Preemptive Scheduler with 2 Concurrent User Processes...
+[ALPHA] Process 1 executing in EL0 (iter 1)
+[INFO ] sched: Advisory sched_hint LatencySensitive received for PID 1
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[BETA]  Process 2 executing in EL0 (iter 1)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[ALPHA] Process 1 resumed after yield/preemption (iter 2)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[BETA]  Process 2 resumed after yield/preemption (iter 2)
+[BETA]  Process 2 completed successfully, exiting.
+[INFO ] proc: User process issued sys_exit(status: 0)
+[INFO ] sched: Process 2 ('proc_beta') exited with status 0
+[INFO ] sched: Context switch on exit: activating PID 1 ('proc_alpha')
+[ALPHA] Process 1 completed successfully, exiting.
+[INFO ] proc: User process issued sys_exit(status: 0)
+[INFO ] sched: Process 1 ('proc_alpha') exited with status 0
+ [SCHED] All concurrent processes finished. Scheduler returned to kernel.
+[INFO ] sched: Multitasking verified: 12 context switches, 9 preemptions, 2 yields, 2 hints
+[STAGE:24_SCHEDULER_READY] Sprint SP-12 Preemptive Scheduler Milestone REACHED
+--------------------------------------------------
+ [SCHED] Sprint SP-12 Preemptive Scheduler Milestone REACHED.
+ [SCHED] Multi-Level Priority Classes, Timer Quantum Preemption,
+ [SCHED] Atomic Context Switches, and sched_hint Advisory API Verified.
+==================================================
+[STAGE:25_CAPABILITY_INIT] Capability system initialized & invariants verified
+[INFO ] cap: Monotonic attenuation verified: illegal right expansion rejected (INV-CAP-001 PASSED)
+[INFO ] cap: Authority without GRANT cannot mint derived tokens (EPERM verified)
+[INFO ] cap: Revocation soundness verified: transitive child revocation succeeded (INV-CAP-002 PASSED)
+[INFO ] cap: Per-process syscall permission bitmap scaffolding verified (Bible §8.8 PASSED)
+[STAGE:26_IPC_RENDEZVOUS] Cross-process synchronous IPC & capability delegation verified
+[INFO ] ipc: Allocated synchronous IPC Endpoint ID 0
+[INFO ] ipc: Synchronous IPC rendezvous verified: 1 msgs transferred, 1 events (INV-IPC-001 PASSED)
+[STAGE:27_IPC_READY] Sprint SP-13 IPC & Capability System Milestone REACHED
+--------------------------------------------------
+ [IPC] Sprint SP-13 IPC & Capability System Milestone REACHED.
+ [IPC] Capability-Based Access Control Tokens, Typed Invocations,
+ [IPC] Monotonic Rights Attenuation (INV-CAP-001), Revocation Soundness (INV-CAP-002),
+ [IPC] and Synchronous Rendezvous IPC Endpoints (INV-IPC-001) Verified.
+==================================================
+[STAGE:28_OBJECT_MODEL_INIT] Typed Kernel Object Tables initialized
+[INFO ] object: Allocated ProcessObject [id: KObjectId { index: 0, generation: 1, obj_type: Process }, pid: 1, name: init_server]
+[INFO ] object: Allocated EndpointObject [id: KObjectId { index: 1, generation: 1, obj_type: Endpoint }, ep_id: 101]
+[INFO ] object: Allocated MemoryRegionObject [id: KObjectId { index: 2, generation: 1, obj_type: MemoryRegion }, base: 0x48000000, size: 64KB]
+[INFO ] object: Allocated IrqObject [id: KObjectId { index: 3, generation: 1, obj_type: Irq }, irq: 33, edge: false]
+[STAGE:29_OBJECT_LIFECYCLE] Object reference counting, type isolation, and Anti-ABA generational recycling verified
+[INFO ] object: Reference count retain/release validated (INV-OBJ-002 PASSED)
+[INFO ] object: Anti-ABA generational recycling and use-after-free rejection validated (INV-OBJ-001 PASSED)
+[INFO ] object: Strong type isolation validated (INV-OBJ-003 PASSED)
+[INFO ] object: Pre-allocated KObjectTable with 128 bounded slots verified (INV-OBJ-004 PASSED)
+[STAGE:30_OBJECT_MODEL_READY] Sprint SP-14 Kernel Object Model Milestone REACHED
+--------------------------------------------------
+ [OBJ] Sprint SP-14 Kernel Object Model Milestone REACHED.
+ [OBJ] Process, Endpoint, Memory Region, and IRQ Object Tables,
+ [OBJ] Anti-ABA Generational Slots (INV-OBJ-001), Ref-Counting Soundness (INV-OBJ-002),
+ [OBJ] Strong Type Isolation (INV-OBJ-003), and Bounded Allocation (INV-OBJ-004) Verified.
+==================================================
+[STAGE:31_STRESS_SOAK_TESTS] Process storm, memory pressure, and address-space isolation soak verified
+[INFO ] stress: Process lifecycle storm soak passed: 8/8 processes spawned across priority classes
+[INFO ] stress: Process reclamation soak passed: 8/8 processes deterministically destroyed
+[INFO ] stress: Memory pressure soak passed: 64/64 frames allocated & reclaimed, zero leaks (INV-STRESS-002 PASSED)
+[INFO ] stress: Address space separation proven: cross-boundary access generates translation fault (INV-STRESS-003 PASSED)
+[INFO ] stress: Preemptive multitasking soak verified: 56 switches, median latency 2.4us (INV-STRESS-001 PASSED)
+[STAGE:32_LOCK_DISCIPLINE_AUDIT] Lock hierarchy, deadlock-freedom, and irqsave discipline verified
+[INFO ] sync: Strict lock hierarchy and IRQ-safe discipline validated (INV-STRESS-004 PASSED)
+[STAGE:33_GATE_G2_READY] Gate G2 Multitasking Kernel & Sprint SP-15 Milestone REACHED
+--------------------------------------------------
+ [GATE-G2] Phase 2 Core Kernel & Sprint SP-15 Milestone REACHED.
+ [GATE-G2] Preemptive Multitasking (INV-STRESS-001), Memory Soak (INV-STRESS-002),
+ [GATE-G2] Address-Space Hard Isolation (INV-STRESS-003), Lock Discipline (INV-STRESS-004),
+ [GATE-G2] Frozen Syscall ABI, and Unsafe Budget Compliance Verified.
+==================================================
+[STAGE:34_IPC_CORE_INIT] IPC Core endpoints, notification registry, and timeout primitives initialized
+[INFO ] ipc: Allocated IPC Endpoint ID 1
+[INFO ] ipc: Allocated Notification ID 0
+[STAGE:35_IPC_RIGHTS_NOTIFICATIONS] Rights transfer, fast-path cache, atomic notifications, and deadlines verified
+[INFO ] ipc: Fast-path inline capability cache validated (INV-IPC-002 hot path ready)
+[INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
+[INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
+[STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 18565 ticks (297 us total)
+[INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
+[STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
+--------------------------------------------------
+ [IPC] Sprint SP-16 IPC Core Milestone REACHED.
+ [IPC] Synchronous Endpoints, Rights Transfer, Notifications (INV-IPC-003),
+ [IPC] Deadlines & Timeouts (INV-IPC-004), and Round-Trip Latency < 10us (INV-IPC-002) Verified.
+==================================================
+[STAGE:38_CAPABILITY_TOKENS_INIT] Per-process capability namespaces initialized per Bible §8.9 / §14
+[INFO ] cap: Initialized per-process namespaces: PID 1 and PID 2 active (INV-CAP-004)
+[STAGE:39_CAP_OBJECT_INTEGRATION] KObject binding, monotonic attenuation, cross-namespace delegation & revocation verified
+[INFO ] cap: Created KObject (type: MemoryRegion, index: 5, generation: 2)
+[INFO ] cap: Installed Object Cap in PID 1 (handle: 0, ref_count: 2) (INV-CAP-003)
+[INFO ] cap: Monotonic attenuation verified: rights expansion rejected (INV-CAP-001 PASSED)
+[INFO ] cap: Delegated capability from PID 1 to PID 2 (handle: 0, ref_count: 5) (INV-CAP-003)
+[INFO ] cap: Per-process namespace isolation verified (INV-CAP-004 PASSED)
+[INFO ] cap: Cascading revocation invalidated 3 slots in PID 1; ref_count drops to 2 (INV-CAP-002, INV-CAP-003)
+[INFO ] cap: KObject successfully destroyed upon final reference release (INV-CAP-003 PASSED)
+[STAGE:40_CAPABILITY_SYSTEM_READY] Sprint SP-17 Capabilities I Milestone REACHED
+--------------------------------------------------
+ [CAP] Sprint SP-17 Capabilities I Milestone REACHED.
+ [CAP] Unforgeable Tokens, Object-Table Integration (INV-CAP-003),
+ [CAP] Monotonic Attenuation (INV-CAP-001), Revocation Soundness (INV-CAP-002),
+ [CAP] and Per-Process Namespaces (INV-CAP-004) Verified.
+==================================================
+[STAGE:41_CAP_DELEGATION_CHAIN] Multi-hop cross-process delegation chain P1 -> P2 -> P3 -> P4 verified
+[INFO ] cap: Delegation Hop 1: P1 -> P2 attenuated to READ|WRITE|GRANT (INV-CAP-001)
+[INFO ] cap: Delegation Hop 2: P2 -> P3 attenuated to READ|GRANT (INV-CAP-001)
+[INFO ] cap: Delegation Hop 3: P3 -> P4 attenuated to READ (INV-CAP-001)
+[INFO ] cap: Multi-hop delegation chain verified (4 processes, 5 references, INV-CAP-001 PASSED)
+[STAGE:42_CAP_REVOCATION_PROPAGATION] Global cascading revocation along multi-hop chain P2 -> P3 -> P4 verified
+[INFO ] cap: Cross-process revocation propagation verified: 3 slots revoked, ancestor intact (INV-CAP-002 PASSED)
+[INFO ] cap: Root revocation & KObject cleanup verified (INV-CAP-002, INV-CAP-003 PASSED)
+[STAGE:43_CAP_LEAK_SUITE] Zero-leak audit, process termination cleanup & active slot balance verified
+[INFO ] cap: Capability leak baseline: 0 active caps, 5 active objects
+[INFO ] cap: Capability leak suite: 0 leaked tokens, 0 leaked objects (INV-CAP-LEAK-001 PASSED)
+[STAGE:44_CAPABILITY_II_READY] Sprint SP-18 Capabilities II Milestone REACHED
+--------------------------------------------------
+ [CAP] Sprint SP-18 Capabilities II Milestone REACHED.
+ [CAP] Multi-Hop Delegation with Monotonic Attenuation (INV-CAP-001),
+ [CAP] Global Revocation Propagation Across Namespaces (INV-CAP-002),
+ [CAP] Object-Table Coherence (INV-CAP-003), and Zero-Leak Suite (INV-CAP-LEAK-001) Verified.
+==================================================
+[STAGE:45_POLICY_ENGINE_INIT] ENF Policy Engine v1 initialized with declarative rule language
+[INFO ] enf: Loaded 4 declarative policy rules (v1 ruleset active, INV-ENF-002)
+[STAGE:46_POLICY_EVALUATION] Default-deny and deterministic precedence resolution verified
+[INFO ] enf: Default-deny verified for unknown subject (INV-ENF-001 PASSED): Default-Deny: No matching allow rule (INV-ENF-001)
+[INFO ] enf: Explicit allow matched rule #1 (PID 1 -> EP 101)
+[INFO ] enf: Deterministic precedence verified: Deny rule #3 overrides allow (INV-ENF-002 PASSED): Explicit Deny Rule Precedence (INV-ENF-002)
+[INFO ] enf: RequireConsent action verified for AIS Role 3 (rule #4)
+[STAGE:47_POLICY_CAP_INTEGRATION] Dual-check enforcement verified: token possession + policy authorization
+[INFO ] enf: Dual-check: PID 2 authorized for READ (token valid + policy allowed)
+[INFO ] enf: Dual-check: PID 2 WRITE blocked by standing policy despite possessing token (REQ-SEC-001 PASSED)
+[STAGE:48_POLICY_ENGINE_READY] Sprint SP-19 Policy Engine v1 Milestone REACHED
+--------------------------------------------------
+ [ENF] Sprint SP-19 Policy Engine v1 Milestone REACHED.
+ [ENF] Declarative Rule Language, Default-Deny (INV-ENF-001),
+ [ENF] Deterministic Precedence Resolution (INV-ENF-002),
+ [ENF] and Dual-Check Capability Enforcement (REQ-SEC-001) Verified.
+==================================================
+[STAGE:49_AUDIT_LOG_INIT] Append-only SHA-256 hash-chained audit log online
+[INFO ] audit: Cryptographic audit log online: Genesis block hash verified (INV-AUD-001)
+[STAGE:50_AUDIT_EVENT_LOGGING] Recording security lifecycle events with SHA-256 hash chaining
+[INFO ] audit: Logged 4 security events; hash chain valid and monotonic (INV-AUD-001)
+[STAGE:51_AUDIT_TAMPER_TEST] Cryptographic tamper resistance test: 1-bit mutation detection
+[INFO ] audit: Tamper detected at entry #2: Entry content hash mismatch: payload modified (INV-AUD-001 verified)
+[INFO ] audit: Tamper test passed: 1-bit mutation detected and localized (INV-AUD-001 PASSED)
+[STAGE:52_AUDIT_V1_READY] Sprint SP-20 Audit v1 Milestone REACHED
+--------------------------------------------------
+ [AUD] Sprint SP-20 Audit v1 Milestone REACHED.
+ [AUD] Cryptographic Append-Only Audit Log, SHA-256 Hash Chaining,
+ [AUD] Tamper Detection & Localization (INV-AUD-001) Verified.
+==================================================
+[STAGE:53_CONSENT_SURFACE_INIT] Hardware-isolated consent display surface & input mediation online
+[INFO ] consent: Consent Broker online: hardware-isolated display surface initialized (INV-CON-001)
+[STAGE:54_CONSENT_REQUEST_EVAL] Consent request lifecycle: prompt activation, user grant, and audit linkage
+[INFO ] consent: Consent request #1 granted by user; audit record chained (INV-CON-001)
+[STAGE:55_CONSENT_SPOOF_INJECTION_DEFENSE] Adversarial overlay and input injection repelled (INV-CON-001)
+[INFO ] consent: Adversarial overlay from PID 4 blocked: EPERM: Access denied to isolated consent display surface (INV-CON-001)
+[INFO ] consent: Synthetic input injection from PID 4 rejected: EPERM: Synthetic input injection rejected during active consent prompt (INV-CON-001)
+[INFO ] consent: Spoofing & injection repelled: 100% defense verified (INV-CON-001 PASSED)
+[STAGE:56_CONSENT_BROKER_READY] Sprint SP-21 Consent Broker v1 Milestone REACHED
+--------------------------------------------------
+ [CON] Sprint SP-21 Consent Broker v1 Milestone REACHED.
+ [CON] Hardware-Isolated Display Surface, Kernel Input Mediation,
+ [CON] Overlay & Injection Rejection (INV-CON-001) Verified.
+==================================================
+[STAGE:57_REDTEAM_SUITE_INIT] Internal adversarial exploitation harness online
+[INFO ] redteam: Adversarial harness initialized: targeting Phase 3 Security Spine
+[STAGE:58_REDTEAM_EXPLOIT_PROBES] Executing 6 red-team attack vectors against Phase 3 Security Spine
+[INFO ] redteam: Attack Vector 1 REPELLED: Rights expansion prohibited (INV-CAP-001)
+[INFO ] redteam: Attack Vector 2 REPELLED: Use-after-free rejected (INV-CAP-002, INV-OBJ-001)
+[INFO ] redteam: Attack Vector 3 REPELLED: Zero ambient authority enforced (INV-SEC-001)
+[INFO ] redteam: Attack Vector 4 REPELLED: Default-deny & deny precedence enforced (INV-ENF-001, INV-ENF-002)
+[INFO ] redteam: Attack Vector 5 REPELLED: 1-bit audit mutation localized (INV-AUD-001)
+[INFO ] redteam: Attack Vector 6 REPELLED: Overlay & input injection rejected (INV-CON-001)
+[INFO ] redteam: Adversarial suite results: 6/6 attack vectors repelled, 0 vulnerabilities (100% DEFENSE)
+[STAGE:59_REDTEAM_VERIFIED] Sprint SP-22 Adversarial Self-Review Milestone REACHED
+--------------------------------------------------
+ [RED] Sprint SP-22 Adversarial Self-Review Milestone REACHED.
+ [RED] 6/6 Red-Team Exploits Repelled (Escalation, UAF, Ambient Auth,
+ [RED] Policy Bypass, Audit Tampering, and Consent Spoofing) Verified.
+==================================================
