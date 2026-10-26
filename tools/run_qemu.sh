@@ -93,17 +93,25 @@ fi
 
 python3 -c "
 import subprocess, sys
+
+def to_str(x):
+    if not x:
+        return ''
+    if isinstance(x, bytes):
+        return x.decode('utf-8', errors='replace')
+    return str(x)
+
 cmd = sys.argv[1:]
 log_path = '$LOG_PATH'
-p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 try:
     stdout, _ = p.communicate(timeout=$TIMEOUT_SECS)
-except subprocess.TimeoutExpired:
+except subprocess.TimeoutExpired as e:
     p.kill()
-    stdout, _ = p.communicate()
-
-if isinstance(stdout, bytes):
-    stdout = stdout.decode('utf-8', errors='replace')
+    rem, _ = p.communicate()
+    stdout = to_str(e.stdout) + to_str(rem)
+else:
+    stdout = to_str(stdout)
 
 if log_path:
     with open(log_path, 'w', encoding='utf-8') as out_f:

@@ -48,3 +48,17 @@ pub extern "C" fn handle_lower_el_sync(ctx: &mut crate::task::UserContext) {
         panic!("Unhandled lower EL exception");
     }
 }
+
+/// Lower EL IRQ handler (hardware interrupts arriving during EL0 execution)
+#[no_mangle]
+pub extern "C" fn handle_lower_el_irq(ctx: &mut crate::task::UserContext) {
+    let is_timer = crate::interrupts::handle_irq_dispatch();
+    if is_timer {
+        let reschedule = crate::task::scheduler::SCHEDULER.lock().on_timer_tick();
+        if reschedule {
+            let pid = crate::task::scheduler::SCHEDULER.lock().current_process().map(|p| p.pid).unwrap_or(0);
+            crate::log_info!("sched", "Time quantum expired for PID {}: preemptive context switch triggered", pid);
+            crate::task::scheduler::SCHEDULER.lock().schedule_next(ctx);
+        }
+    }
+}

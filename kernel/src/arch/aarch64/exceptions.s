@@ -70,7 +70,7 @@ vec_lower_el_a64_sync:
 
 .align 7
 vec_lower_el_a64_irq:
-    b common_irq_entry
+    b common_lower_el_irq_entry
 
 .align 7
 vec_lower_el_a64_fiq:

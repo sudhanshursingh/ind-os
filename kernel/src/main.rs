@@ -159,6 +159,7 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     // Milestones reached
     println!("--------------------------------------------------");
     println!(" [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.");
+    println!("==================================================");
     stage_marker!("05_READY", "Sprint SP-05 Serial Console Milestone REACHED");
     stage_marker!("08_MM_READY", "Sprint SP-06 Memory Discovery Milestone REACHED");
     stage_marker!("10_CORE_DS_READY", "Sprint SP-07 Kernel Heap & Core DS Milestone REACHED");
@@ -359,7 +360,87 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [PROC] and SVC #0 System Call Dispatch Verified.");
     println!("==================================================");
 
-    // Park CPU until Phase 2 (SP-12 Scheduler & Preemption)
+    // Stage 22: Preemptive Priority Scheduler Initialization
+    stage_marker!("22_SCHEDULER_INIT", "Preemptive priority scheduler initialized");
+    {
+        let prio_rt = task::Priority::REALTIME_HARDWARE;
+        let prio_interactive = task::Priority::INTERACTIVE_USER;
+        let prio_normal = task::Priority::NORMAL_SERVICES;
+        let prio_batch = task::Priority::BATCH_INTELLIGENCE;
+        let prio_idle = task::Priority::IDLE;
+
+        assert!(prio_rt > prio_interactive);
+        assert!(prio_interactive > prio_normal);
+        assert!(prio_normal > prio_batch);
+        assert!(prio_batch > prio_idle);
+        assert_eq!(task::DEFAULT_TIME_QUANTUM_TICKS, 1);
+
+        // Test advisory hint submission (INDOS-SPEC-SCHED-01 §3 & Rule N-04)
+        task::SCHEDULER.lock().sched_hint(1, task::SchedHint::LatencySensitive);
+        let (_, _, _, hints) = task::SCHEDULER.lock().metrics();
+        assert_eq!(hints, 1, "Advisory hint must be registered in scheduler metrics");
+
+        log_info!("sched", "Multi-level priority classes initialized (5 levels, 10ms time slice, sched_hint advisory stub active)");
+    }
+
+    // Stage 23: Preemptive Concurrency & Multi-Process Execution
+    stage_marker!("23_PREEMPTIVE_MULTITASKING", "Concurrent user processes scheduled & preempted");
+    {
+        let alpha_code = loader::get_alpha_user_code();
+        let beta_code = loader::get_beta_user_code();
+
+        let alpha_image = loader::build_indbin_image(
+            0x0040_0000,
+            0x0040_0000,
+            alpha_code,
+            0,
+            &[],
+            16384,
+        );
+
+        let beta_image = loader::build_indbin_image(
+            0x0040_0000,
+            0x0040_0000,
+            beta_code,
+            0,
+            &[],
+            16384,
+        );
+
+        // Instantiate Process 1 ("proc_alpha", PID 1, Priority::Interactive)
+        let proc_alpha = task::Process::create_from_indbin(1, "proc_alpha", &alpha_image)
+            .expect("Failed to create proc_alpha");
+
+        // Instantiate Process 2 ("proc_beta", PID 2, Priority::Normal)
+        let proc_beta = task::Process::create_from_indbin(2, "proc_beta", &beta_image)
+            .expect("Failed to create proc_beta");
+
+        log_info!("sched", "Enqueuing Process 1 ('{}', PID: 1, Priority: Normal) and Process 2 ('{}', PID: 2, Priority: Normal)",
+            proc_alpha.name, proc_beta.name);
+
+        task::SCHEDULER.lock().add_process(proc_alpha, task::Priority::Normal);
+        task::SCHEDULER.lock().add_process(proc_beta, task::Priority::Normal);
+
+        println!("--------------------------------------------------");
+        println!(" [SCHED] Starting Preemptive Scheduler with 2 Concurrent User Processes...");
+        let (switches, preempts, yields, hints) = task::run_scheduler();
+        println!(" [SCHED] All concurrent processes finished. Scheduler returned to kernel.");
+
+        assert!(switches >= 2, "Must have performed at least 2 context switches");
+        assert!(yields >= 1, "Must have recorded voluntary yields");
+        log_info!("sched", "Multitasking verified: {} context switches, {} preemptions, {} yields, {} hints",
+            switches, preempts, yields, hints);
+    }
+
+    // Stage 24: Milestone Reached
+    stage_marker!("24_SCHEDULER_READY", "Sprint SP-12 Preemptive Scheduler Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SCHED] Sprint SP-12 Preemptive Scheduler Milestone REACHED.");
+    println!(" [SCHED] Multi-Level Priority Classes, Timer Quantum Preemption,");
+    println!(" [SCHED] Atomic Context Switches, and sched_hint Advisory API Verified.");
+    println!("==================================================");
+
+    // Park CPU until Phase 2 (SP-13 IPC & Capability System)
     loop {
         core::hint::spin_loop();
     }

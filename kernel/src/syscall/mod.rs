@@ -1,21 +1,23 @@
 //! System Call Subsystem for IndK
-//! Implements AArch64 Register ABI dispatch and user pointer validation per Bible §8.8 (SP-11 / SP-13).
+//! Implements AArch64 Register ABI dispatch and user pointer validation per Bible §8.8 (SP-11 / SP-12 / SP-13).
 
 use crate::{log_info, log_warn, print};
 use crate::mm::address_space::{is_valid_user_address, USER_SPACE_END};
-use crate::task::{terminate_current_process, UserContext, CURRENT_PROCESS};
+use crate::task::{terminate_current_process, UserContext, SCHEDULER, CURRENT_PROCESS, SchedHint};
 
 // Standard IndK System Call Numbers
 pub const SYS_YIELD: u64 = 0;
 pub const SYS_WRITE: u64 = 1;
 pub const SYS_EXIT: u64 = 2;
 pub const SYS_GETPID: u64 = 3;
+pub const SYS_SCHED_HINT: u64 = 4;
 
 // Error codes
 pub const EPERM: i64 = -1;
 pub const ENOENT: i64 = -2;
 pub const EBADF: i64 = -9;
 pub const EFAULT: i64 = -14;
+pub const EINVAL: i64 = -22;
 pub const ENOSYS: i64 = -38;
 
 /// Validates that a user-provided memory buffer falls strictly within user virtual memory
@@ -50,7 +52,8 @@ pub fn handle_syscall(context: &mut UserContext) {
 
     let ret: i64 = match syscall_num {
         SYS_YIELD => {
-            // Voluntary yield
+            // Voluntary yield to next scheduled process
+            SCHEDULER.lock().yield_current(context);
             0
         }
 
@@ -78,12 +81,30 @@ pub fn handle_syscall(context: &mut UserContext) {
         SYS_EXIT => {
             let status = arg0 as i32;
             log_info!("proc", "User process issued sys_exit(status: {})", status);
-            terminate_current_process(status);
+            let has_more = SCHEDULER.lock().exit_current(status, context);
+            if !has_more {
+                // Check if running in SP-11 single process mode
+                terminate_current_process(status);
+            }
+            0
         }
 
         SYS_GETPID => {
-            let pid = CURRENT_PROCESS.lock().as_ref().map(|p| p.pid).unwrap_or(0);
+            let pid = SCHEDULER.lock().current_process().map(|p| p.pid).or_else(|| {
+                CURRENT_PROCESS.lock().as_ref().map(|p| p.pid)
+            }).unwrap_or(0);
             pid as i64
+        }
+
+        SYS_SCHED_HINT => {
+            let hint_val = arg0 as u32;
+            if let Some(hint) = SchedHint::from_u32(hint_val) {
+                let pid = SCHEDULER.lock().current_process().map(|p| p.pid).unwrap_or(0);
+                SCHEDULER.lock().sched_hint(pid, hint);
+                0
+            } else {
+                EINVAL
+            }
         }
 
         _ => {

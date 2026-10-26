@@ -66,6 +66,7 @@ pub struct Process {
     pub pid: ProcessId,
     pub name: &'static str,
     pub state: ProcessState,
+    pub priority: crate::task::scheduler::Priority,
     pub address_space: AddressSpace,
     pub context: UserContext,
     pub exit_code: Option<i32>,
@@ -90,10 +91,16 @@ impl Process {
             pid,
             name,
             state: ProcessState::Ready,
+            priority: crate::task::scheduler::Priority::Normal,
             address_space,
             context,
             exit_code: None,
         })
+    }
+
+    /// Sets the scheduler priority class of this process
+    pub fn set_priority(&mut self, priority: crate::task::scheduler::Priority) {
+        self.priority = priority;
     }
 
     /// Checks if the process has completed execution

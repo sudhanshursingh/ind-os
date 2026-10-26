@@ -1,0 +1,35 @@
+{
+  "sprint": "SP-12",
+  "phase": "Phase 2 Core Kernel",
+  "title": "Preemptive Scheduler & Context Switch (Priority Classes, Quantum Preemption, & sched_hint)",
+  "timestamp_utc": "2026-10-26T15:12:52Z",
+  "specifications_verified": [
+    "INDOS-SPEC-SCHED-01 (Priority classes, context switch, and sched_hint)",
+    "INV-SCHED-001 (AArch64 atomic register & address space context switch)",
+    "INV-SCHED-002 (Priority preemption and fairness bounds)",
+    "INV-IRQ-004 (100 Hz timer tick preemption of EL0 user processes)"
+  ],
+  "deliverables": [
+    "docs/architecture/scheduler-spec.md",
+    "kernel/src/task/scheduler.rs",
+    "kernel/src/task/process.rs",
+    "kernel/src/task/mod.rs",
+    "kernel/src/syscall/mod.rs",
+    "kernel/src/arch/aarch64/user_trap.s",
+    "kernel/src/arch/aarch64/exceptions.s",
+    "docs/evidence/golden-boot-sp12.log"
+  ],
+  "sha256_checksums": {
+    "docs/architecture/scheduler-spec.md": "08745a36d1828875ce8884b5b2d47ed35e32710a38c4e40a864398880ee97121",
+    "kernel/src/task/scheduler.rs": "427e516de70f59aa56e4d7d31f7a7597382b77d598e3b75df7701311bb8e666e",
+    "kernel/src/task/process.rs": "49a4de1bedb923ab05e85f74dbdcd94a266e9d456713e5962cba77c49afffbfd",
+    "kernel/src/task/mod.rs": "4d3ab4bcf75dc569f4554dc23599066fea973fa1d0502135bccd2fa5b5ec5480",
+    "kernel/src/syscall/mod.rs": "2d31a3f56e3fa5d9555e62e23788a0af0e2e0922ebde7ad12016b4de330a9587",
+    "kernel/src/arch/aarch64/user_trap.s": "1570107c8bbc001cf01a980f327a5edffb4b1c469050f98f1d47e33afbb20592",
+    "kernel/src/arch/aarch64/exceptions.s": "20315700bf24b76e17efb1265588dba5be614996447af3eb1e5a252a702f05f5",
+    "docs/evidence/golden-boot-sp12.log": "5f028e42a881c98f4df146800f012b8ba85287e83ae03e35a6b67e531f9b779b",
+    "kernel/target/aarch64-unknown-none/debug/indk": "7d05fcf28802c6e5bd434441641caf9382c338376f3de7ea2b4f55b4c7acf8fc"
+  },
+  "test_result": "PASS",
+  "qemu_execution": "SUCCESS"
+}

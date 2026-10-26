@@ -28,6 +28,8 @@
 | **UNSAFE-012** | `kernel/src/mm/address_space.rs` | Virtual Memory | TTBR0_EL1 register loading & ISB barrier | Physical root table is 4KB aligned with valid ASID. | ✅ AUDITED |
 | **UNSAFE-013** | `kernel/src/loader/indbin.rs` | Binary Loader | Zeroing and copying segments to newly allocated frames | Frame pointers backed by verified physical allocator. | ✅ AUDITED |
 | **UNSAFE-014** | `kernel/src/task/mod.rs` | Process Subsystem | Context save/restore and user mode entry trampoline | Callee-saved context and stack pointer strictly preserved. | ✅ AUDITED |
+| **UNSAFE-015** | `kernel/src/loader/indbin.rs` | Test Executables | Slicing rodata embedded test user processes | Slices bounded by linker assembly symbols `user_task_alpha/beta_start/end`. | ✅ AUDITED |
+| **UNSAFE-016** | `kernel/src/task/mod.rs` | Scheduler Runner | User trampoline invocation in `run_scheduler` | UserContext validated, registers and stack restored on exit. | ✅ AUDITED |
 
 ---
 

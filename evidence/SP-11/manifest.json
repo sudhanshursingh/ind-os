@@ -2,7 +2,7 @@
   "sprint": "SP-11",
   "phase": "Phase 2 Core Kernel",
   "title": "Processes & Loading (PCB, INDBIN Native Loader, Real EL0 User Mode, & SVC Syscalls)",
-  "timestamp_utc": "2026-10-26T14:35:41Z",
+  "timestamp_utc": "2026-10-26T15:12:43Z",
   "adr_recorded": "ADR-001 (docs/DECISIONS/ADR-001-binary-format.md)",
   "invariants_verified": [
     "INV-MEM-001 (Strict NULL trap zone [0..4MB] enforced)",
@@ -22,14 +22,14 @@
   ],
   "sha256_checksums": {
     "docs/DECISIONS/ADR-001-binary-format.md": "e9e9dc85ca35f80b1e8b9f62e44b91be098cb0ef059671528ef68a6eef5e24fc",
-    "kernel/src/loader/indbin.rs": "5b5351a1fd2581244a92f90a45abb14bd1f76ca7c5ac43c549355e65dfc0c5ac",
-    "kernel/src/loader/mod.rs": "73de4fb85fe483cbfd758199bd7a50b6c7e0d9f2e5ba2ef9920ade47fb9bc703",
-    "kernel/src/task/process.rs": "20515b712e40a3c1a8e3be41f639dbf1c762621699c6300c46e749e7b4714b1c",
-    "kernel/src/task/mod.rs": "70d11dd001e65594a4f405d4b87420798085bce66a86b5a825d5b26db6943f31",
-    "kernel/src/syscall/mod.rs": "9940dc470905ac2022242f7f39540707c17a4920646eb5f058f28531c4270a15",
-    "kernel/src/arch/aarch64/user_trap.s": "c659a9bf39913688d80436e1f9b790d07752c0d659c11879ab827a9815e6ad69",
+    "kernel/src/loader/indbin.rs": "4c8d9b5633648fce5bc8a8bf9d6cf50243484fb014f8b811cfe4b1c91a452267",
+    "kernel/src/loader/mod.rs": "db83d42c68b9b533f976213ed1e4df02eb51e7c3e11ad0a0ec2ed8bf45700956",
+    "kernel/src/task/process.rs": "49a4de1bedb923ab05e85f74dbdcd94a266e9d456713e5962cba77c49afffbfd",
+    "kernel/src/task/mod.rs": "4d3ab4bcf75dc569f4554dc23599066fea973fa1d0502135bccd2fa5b5ec5480",
+    "kernel/src/syscall/mod.rs": "2d31a3f56e3fa5d9555e62e23788a0af0e2e0922ebde7ad12016b4de330a9587",
+    "kernel/src/arch/aarch64/user_trap.s": "1570107c8bbc001cf01a980f327a5edffb4b1c469050f98f1d47e33afbb20592",
     "docs/evidence/golden-boot-sp11.log": "1ad85b833e209e7dab5f9f479f63451c2096cda2490f18c5df8f494dbd5b04ee",
-    "kernel/target/aarch64-unknown-none/debug/indk": "234d4e4dc0ec4bdf8fbebf60ad35e25de7002ef7fb42192b23ad8891623f9ce6"
+    "kernel/target/aarch64-unknown-none/debug/indk": "7d05fcf28802c6e5bd434441641caf9382c338376f3de7ea2b4f55b4c7acf8fc"
   },
   "test_result": "PASS",
   "qemu_execution": "SUCCESS"

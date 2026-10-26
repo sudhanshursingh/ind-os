@@ -112,9 +112,9 @@ pub fn get_spurious_count() -> u64 {
     SPURIOUS_INTERRUPTS.load(Ordering::Relaxed)
 }
 
-/// Top-level IRQ dispatcher called from assembly `vec_curr_el_spx_irq`
+/// Top-level IRQ dispatcher called from assembly `vec_curr_el_spx_irq` and `handle_lower_el_irq`
 #[no_mangle]
-pub extern "C" fn handle_irq_dispatch() {
+pub extern "C" fn handle_irq_dispatch() -> bool {
     // Machine Invariant INV-INT-004: Verify execution on valid aligned kernel stack
     let sp: u64;
     // SAFETY: Reading SP register is side-effect free.
@@ -129,7 +129,7 @@ pub extern "C" fn handle_irq_dispatch() {
     // Machine Invariant INV-INT-001: Handle spurious interrupt ID 1023
     if irq == SPURIOUS_IRQ {
         SPURIOUS_INTERRUPTS.fetch_add(1, Ordering::Relaxed);
-        return;
+        return false;
     }
 
     // Handle timer interrupt
@@ -142,9 +142,10 @@ pub extern "C" fn handle_irq_dispatch() {
 
         // Signal End of Interrupt (EOI) to GIC (INV-INT-003)
         GIC.lock().end_of_interrupt(irq);
-        return;
+        return true;
     }
 
     // Peripheral or other IRQ: signal EOI
     GIC.lock().end_of_interrupt(irq);
+    false
 }

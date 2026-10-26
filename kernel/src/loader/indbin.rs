@@ -271,3 +271,28 @@ pub const HELLO_USER_CODE: [u8; 71] = [
     b'L', b'0', b')', b'!', b'\n',
 ];
 
+extern "C" {
+    static user_task_alpha_start: u8;
+    static user_task_alpha_end: u8;
+    static user_task_beta_start: u8;
+    static user_task_beta_end: u8;
+}
+
+/// Returns the embedded machine code slice for test user process Alpha
+pub fn get_alpha_user_code() -> &'static [u8] {
+    let start = core::ptr::addr_of!(user_task_alpha_start) as usize;
+    let end = core::ptr::addr_of!(user_task_alpha_end) as usize;
+    let len = end.saturating_sub(start);
+    // SAFETY: user_task_alpha is placed in .rodata by user_trap.s with valid start/end bounds.
+    unsafe { core::slice::from_raw_parts(start as *const u8, len) }
+}
+
+/// Returns the embedded machine code slice for test user process Beta
+pub fn get_beta_user_code() -> &'static [u8] {
+    let start = core::ptr::addr_of!(user_task_beta_start) as usize;
+    let end = core::ptr::addr_of!(user_task_beta_end) as usize;
+    let len = end.saturating_sub(start);
+    // SAFETY: user_task_beta is placed in .rodata by user_trap.s with valid start/end bounds.
+    unsafe { core::slice::from_raw_parts(start as *const u8, len) }
+}
+
