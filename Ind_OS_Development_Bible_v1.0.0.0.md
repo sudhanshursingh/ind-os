@@ -584,7 +584,7 @@ Therefore Phase 9 is **40 sprints of planned work**, and it is explicitly classi
 - **SP-28** — SMP: core bring-up, per-CPU run queues, lock refinement, IPIs, affinity (REQ-KRN-109).
 - **SP-29** — Memory pressure & OOM: reclamation, swap decision (spike → DEF or PEN), OOM policy — deterministic, never model-controlled.
 - **SP-30** — Kernel telemetry API v1: read-only ring buffer of scheduler/IPC/memory events for later AIS consumption (REQ-KRN-113); write-attempt-from-userspace denial test.
-- **SP-31** — **HAL skeleton + performance baselines**: the Hardware Abstraction Layer interface (memory-mapped register access, IRQ, DMA, clocks/resets) that every driver must route through — designed with Phase 9's Qualcomm targets in mind. Simultaneously: **performance baselines measured and recorded** (boot time, IPC round-trip, syscall latency, context-switch cost, FS throughput) — these become the targets' *denominators* for the Phase 8/9.5 budgets (§8.12). DEF-001/002 sunset review held and minuted.
+- **SP-31** — **HAL skeleton + performance baselines**: the Hardware Abstraction Layer interface (memory-mapped register access, IRQ, DMA, clocks/resets) that every driver must route through — designed with Phase 9's Qualcomm targets in mind. Includes `REQ-ARCH-101` standalone `indk-core` workspace crate decoupling (RFC-INDOS-2026-001). Simultaneously: **performance baselines measured and recorded** (boot time, IPC round-trip, syscall latency, context-switch cost, FS throughput) — these become the targets' *denominators* for the Phase 8/9.5 budgets (§8.12). DEF-001/002 sunset review held and minuted.
 
 **Gate G4 exit:** user-mode driver suite serves storage+input+display on QEMU; FS survives randomized power-cut fuzzing (documented crash-consistency results); SMP scaling measured at 1/2/4 cores; telemetry API proven read-only; HAL interface adopted by 100% of reference drivers (grep + runtime proof); performance baseline report approved; DEF-001/002 reviews minuted.
 
@@ -610,7 +610,7 @@ Therefore Phase 9 is **40 sprints of planned work**, and it is explicitly classi
 
 **Goal:** the AI-native heart, built *inside* the Phase 3 enforcement architecture — advisory AIS, real ENF. **Safety AND quality are both gated (REQ-AI-110).**
 
-- **SP-41** — Model runtime sandbox (REQ-AI-101): signed-model loader only, isolated inference process with minimal capabilities, CPU backend, scheduler-enforced memory/time limits.
+- **SP-41** — Model runtime sandbox (REQ-AI-101): signed-model loader only, isolated inference process with minimal capabilities, CPU backend, scheduler-enforced memory/time limits. Includes `REQ-AI-112` dynamic hardware profile manager (`IndHardwareProfile`, RFC-INDOS-2026-001).
 - **SP-42** — Intent broker (REQ-AI-102): NL/system-event → typed proposal schema; schema registry; every proposal logged pre-routing (REQ-AI-003).
 - **SP-43** — Policy engine v2: standing user policies as first-class objects (inspectable, revocable); conflict resolution; dry-run simulation ("what would happen if…").
 - **SP-44** — Consent UX + broker v2: plain-language narratives (REQ-UX-301); AIS proposals rendered as *proposals*; user decisions recorded to audit.
@@ -789,7 +789,23 @@ The HAL is the mechanism that converts "Phase 9 is re-implementation, not portin
 | **REQ-HAL-104 (P0)** | Conformance test suite runnable against any backend; failures block backend promotion. | G4 |
 | **REQ-HAL-105 (P1)** | HAL interface stability: any breaking change to the trait requires a change request (it affects Phase 9 schedule). | G4 |
 
-### 9.7 Requirement lifecycle
+### 9.7 REQ-AI-112 — Dynamic Hardware Profile Manager (new, per RFC-INDOS-2026-001)
+
+Dynamic inference configuration daemon in unprivileged userspace (`userspace/ais/`) to eliminate RAM strain on budget hardware (6 GB) while utilizing flagship compute (12 GB+). Scheduled for Phase 6 (Sprint SP-41).
+
+| REQ ID | Requirement | Applies at |
+|---|---|---|
+| **REQ-AI-112 (P1)** | `IndHardwareProfile` daemon in `userspace/ais/` inspects physical RAM via read-only telemetry (`REQ-KRN-113`) during early initialization. Selects `Q4_K_M` 1.5B (2K context, 128 MB KV-cache, $\le 1250$ MB RAM) on $\le 6$ GB tier, or `Q8_0`/7B/8B (8K context, Vulkan acceleration) on $\ge 12$ GB tier. Zero kernel/ENF modification. | G6 |
+
+### 9.8 REQ-ARCH-101 — Standalone `indk-core` Workspace Decoupling (new, per RFC-INDOS-2026-001)
+
+Freestanding workspace decoupling of kernel primitives from mobile userspace assumptions, enabling `IndK` reusability for robotics, IoT, and edge compute. Scheduled for Phase 4 (Sprint SP-31).
+
+| REQ ID | Requirement | Applies at |
+|---|---|---|
+| **REQ-ARCH-101 (P1)** | Restructure `/kernel` into an independent Cargo workspace crate `indk-core` (`aarch64-unknown-none`, `no_std`) compiling standalone without mobile userspace (`IndUS`) or AI subsystem (`AIS`) dependencies. Non-disruptive refactor executed in SP-31 HAL buildout. | G4 |
+
+### 9.9 Requirement lifecycle
 
 - **Adding a requirement** requires a change request (§21), MINOR version bump, and — if it blocks a gate — a phase-plan update in Part 2.
 - **Changing a requirement** requires the same, with a documented reason. Silent requirement changes are grounds for rollback of the offending sprint (Rule N-13).

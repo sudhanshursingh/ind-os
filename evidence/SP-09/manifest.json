@@ -2,7 +2,7 @@
   "sprint": "SP-09",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Boot Hardening & Gate G1 Exit",
-  "timestamp_utc": "2026-10-26T15:12:26Z",
+  "timestamp_utc": "2026-10-26T16:00:26Z",
   "stage_markers_verified": [
     "15_BOOT_COMPLETE"
   ],
@@ -10,13 +10,13 @@
   "corrupt_image_rejected": true,
   "artifacts": {
     "ci/cold_boot_matrix.py": "66b33598a1048954a4509de5e35f5de16c195d2d6ce8e7ad58ff768b3ab2ebba",
-    "ci/test_corrupt_boot.py": "ab1b4c31f3ffde7ba5d4a66154001af31ee93f3847e518756a4b4423be260eac",
+    "ci/test_corrupt_boot.py": "6ef99c368bf9798b76fc6375be7d20419b776c06a7f2e05992fdb77f110c24cd",
     "docs/DECISIONS/gate-G1-dec001-review.md": "6729ac3be72896a86e28c22cae6bc77014eb0b3969b15af06ba69e741b4dc3c3",
     "docs/evidence/GATE-G1-AUDIT.md": "2e271a6c0231e5374b356341f16321ad6c2e10481ef55251f1fe488f8b367a83",
     "docs/evidence/boot-time-budget.md": "b3248f56869d9686a98d09db272fb4645e5e7b6007271464f75febaaddb1a368",
     "docs/evidence/golden-boot-sp09.log": "4de2860466bca081be5f67cc7d65fc237f5877420d758d16eba736a58f09aeb8",
     "evidence/G1/cold_boots/summary.json": "52dfc12b8fab646f4a91a9e07cebf1c33b734fae3d71e7224a3bddd2f38a27d7",
-    "kernel/target/aarch64-unknown-none/debug/indk": "7d05fcf28802c6e5bd434441641caf9382c338376f3de7ea2b4f55b4c7acf8fc",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "60ec34d8bced675e73e4c7e0cc0d67db5e6faa0322f18453d5f338e2e770896c"
+    "kernel/target/aarch64-unknown-none/debug/indk": "806010a88acc6304096a6a1c8ee802755991be5c46581486c372d4360cb7ce71",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "634b595cc3d49efc823e377990346851b599a30500b40e18ca6af1c6f2f620b7"
   }
 }

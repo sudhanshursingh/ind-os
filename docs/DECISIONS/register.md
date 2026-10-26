@@ -47,3 +47,11 @@
 | **PEN-010** | Reference ARM64 dev board | Selection and budget for physical ARM64 reference board before hanoip. | Open |
 | **PEN-011** | Staffing baseline | May engineering plan on assumed minimum staffing or founder-only gate input? | Open |
 | **PEN-012** | Repository visibility | Public from day 1, private until G5, or public at G9? | Open |
+
+---
+
+## 4. Architectural RFCs & Change Requests
+
+| ID | Title | Date | Status / Target | Summary & Non-Disruption Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **RFC-INDOS-2026-001** | Non-Disruptive Architectural Extensions | 2026-10-26 | PROPOSED (Phase 4 / Phase 6) | `REQ-AI-112` (Dynamic Hardware Profile Manager in `userspace/ais/` for SP-41) and `REQ-ARCH-101` (Standalone `indk-core` crate workspace decoupling for SP-31). Class: `CR-SEMANTIC`. Zero Phase 2/3 disruption. (`docs/RFC/RFC-INDOS-2026-001.md`). |

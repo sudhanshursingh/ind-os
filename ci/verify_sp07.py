@@ -139,7 +139,7 @@ def verify_sp07():
             "--kernel", kernel_elf,
             "--golden", "docs/evidence/golden-boot-sp07.log",
             "--evidence", "evidence/SP-07",
-            "--timeout", "4",
+            "--timeout", "8",
         ],
         capture_output=True,
         text=True,

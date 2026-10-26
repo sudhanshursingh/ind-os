@@ -92,30 +92,43 @@ if [[ -n "$LOG_PATH" ]]; then
 fi
 
 python3 -c "
-import subprocess, sys
-
-def to_str(x):
-    if not x:
-        return ''
-    if isinstance(x, bytes):
-        return x.decode('utf-8', errors='replace')
-    return str(x)
+import subprocess, sys, time, select
 
 cmd = sys.argv[1:]
 log_path = '$LOG_PATH'
-p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-try:
-    stdout, _ = p.communicate(timeout=$TIMEOUT_SECS)
-except subprocess.TimeoutExpired as e:
-    p.kill()
-    rem, _ = p.communicate()
-    stdout = to_str(e.stdout) + to_str(rem)
-else:
-    stdout = to_str(stdout)
+out_file = open(log_path, 'w', encoding='utf-8') if log_path else None
 
-if log_path:
-    with open(log_path, 'w', encoding='utf-8') as out_f:
-        out_f.write(stdout)
-sys.stdout.write(stdout)
+p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+start_time = time.time()
+
+while True:
+    elapsed = time.time() - start_time
+    rem_time = max(0.05, $TIMEOUT_SECS - elapsed)
+    if elapsed >= $TIMEOUT_SECS:
+        break
+
+    rlist, _, _ = select.select([p.stdout], [], [], min(rem_time, 0.2))
+    if rlist:
+        chunk = p.stdout.read1(4096) if hasattr(p.stdout, 'read1') else p.stdout.read(4096)
+        if not chunk:
+            break
+        text = chunk.decode('utf-8', errors='replace')
+        sys.stdout.write(text)
+        sys.stdout.flush()
+        if out_file:
+            out_file.write(text)
+            out_file.flush()
+    elif p.poll() is not None:
+        break
+
+if out_file:
+    out_file.close()
+
+try:
+    p.kill()
+    p.wait(timeout=1)
+except Exception:
+    pass
+
 sys.exit(0)
 " "${QEMU_CMD[@]}"

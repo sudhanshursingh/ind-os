@@ -104,6 +104,11 @@ impl Scheduler {
         self.current.as_ref()
     }
 
+    /// Returns a mutable reference to the currently active process, if any
+    pub fn current_process_mut(&mut self) -> Option<&mut Process> {
+        self.current.as_mut()
+    }
+
     /// Sets the currently active process
     pub fn set_current(&mut self, proc: Option<Process>) {
         self.current = proc;

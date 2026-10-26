@@ -1,10 +1,14 @@
 //! Process Abstraction & Control Block (PCB) for IndK
 //! Implements per-process execution state, register contexts, and memory space binding per Bible §8.8 (SP-11).
 
+use crate::capability::CapTable;
 use crate::loader::indbin::{load_indbin, LoaderError};
 use crate::mm::address_space::AddressSpace;
 
 pub type ProcessId = u32;
+
+/// Default permission bitmap allowing standard system calls (0..9)
+pub const DEFAULT_SYSCALL_MASK: u64 = 0x03FF;
 
 /// Process lifecycle state
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -70,6 +74,8 @@ pub struct Process {
     pub address_space: AddressSpace,
     pub context: UserContext,
     pub exit_code: Option<i32>,
+    pub cap_table: CapTable,
+    pub syscall_mask: u64, // Per-process syscall permission bitmap (Bible §8.8 / SP-13)
 }
 
 impl Process {
@@ -95,6 +101,8 @@ impl Process {
             address_space,
             context,
             exit_code: None,
+            cap_table: CapTable::new(),
+            syscall_mask: DEFAULT_SYSCALL_MASK,
         })
     }
 

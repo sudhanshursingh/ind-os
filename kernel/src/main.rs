@@ -7,10 +7,12 @@
 extern crate alloc;
 
 pub mod arch;
+pub mod capability;
 pub mod console;
 pub mod drivers;
 pub mod ds;
 pub mod interrupts;
+pub mod ipc;
 pub mod loader;
 pub mod logger;
 pub mod mm;
@@ -440,8 +442,137 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SCHED] Atomic Context Switches, and sched_hint Advisory API Verified.");
     println!("==================================================");
 
-    // Park CPU until Phase 2 (SP-13 IPC & Capability System)
+    // Stage 25: Capability System Initialization & Monotonic Attenuation (INV-CAP-001 / INV-CAP-002)
+    stage_marker!("25_CAPABILITY_INIT", "Capability system initialized & invariants verified");
+    {
+        use capability::{CapRights, CapType, Capability, CapTable};
+        let mut table = CapTable::new();
+        assert_eq!(table.active_count(), 0);
+
+        // 1. Create a root endpoint capability with ALL rights
+        let ep_cap = Capability::new(CapType::Endpoint(1), CapRights::ALL, 0x1337);
+        let root_handle = table.insert(ep_cap).expect("Failed to insert root capability");
+        assert_eq!(table.active_count(), 1);
+
+        // 2. Mint derived capability with attenuated rights (INV-CAP-001: READ | CALL | GRANT)
+        let attenuated_rights = CapRights::READ.union(CapRights::CALL).union(CapRights::GRANT);
+        assert!(CapRights::ALL.can_attenuate_to(attenuated_rights), "INV-CAP-001: Rights must monotonically attenuate");
+        let child_handle = table.mint(root_handle, attenuated_rights, 0x1338)
+            .expect("Minting attenuated capability failed");
+        assert_eq!(table.active_count(), 2);
+
+        // 3. Verify monotonic attenuation enforcement (INV-CAP-001: cannot expand rights)
+        // Attempting to mint with WRITE from child (which lacks WRITE) must fail with EPERM
+        let illegal_rights = CapRights::WRITE;
+        let illegal_mint = table.mint(child_handle, illegal_rights, 0xDEAD);
+        assert_eq!(illegal_mint, Err(syscall::EPERM), "INV-CAP-001 VIOLATION: Expanding rights must be rejected with EPERM");
+        log_info!("cap", "Monotonic attenuation verified: illegal right expansion rejected (INV-CAP-001 PASSED)");
+
+        // 4. Mint grandchild with further attenuated rights (CALL only, no GRANT)
+        let grandchild_handle = table.mint(child_handle, CapRights::CALL, 0x1339)
+            .expect("Grandchild minting failed");
+        assert_eq!(table.active_count(), 3);
+
+        // Attempting to mint from grandchild (which lacks GRANT) must fail with EPERM
+        let nogrant_mint = table.mint(grandchild_handle, CapRights::CALL, 0xBEEF);
+        assert_eq!(nogrant_mint, Err(syscall::EPERM), "Minting without GRANT right must fail with EPERM");
+        log_info!("cap", "Authority without GRANT cannot mint derived tokens (EPERM verified)");
+
+        // 5. Test Revocation Soundness (INV-CAP-002)
+        // Revoking child_handle must cascade to grandchild_handle
+        let revoked = table.revoke(child_handle).expect("Revocation failed");
+        assert_eq!(revoked, 2, "Revocation of child must cascade to grandchild (INV-CAP-002)");
+        assert!(table.get(child_handle).is_err(), "Child capability must be invalidated");
+        assert!(table.get(grandchild_handle).is_err(), "Grandchild capability must be transitively invalidated");
+        assert!(table.get(root_handle).is_ok(), "Root capability must remain valid");
+        assert_eq!(table.active_count(), 1);
+        log_info!("cap", "Revocation soundness verified: transitive child revocation succeeded (INV-CAP-002 PASSED)");
+
+        // 6. Test Per-Process Syscall Permission Bitmap (Pre-capability scaffolding per Bible §8.8)
+        let mask_normal = task::process::DEFAULT_SYSCALL_MASK;
+        let mask_restricted = mask_normal & !(1 << syscall::SYS_WRITE);
+        assert_eq!(mask_normal & (1 << syscall::SYS_WRITE), 1 << syscall::SYS_WRITE);
+        assert_eq!(mask_restricted & (1 << syscall::SYS_WRITE), 0);
+        log_info!("cap", "Per-process syscall permission bitmap scaffolding verified (Bible §8.8 PASSED)");
+    }
+
+    // Stage 26: Synchronous IPC Rendezvous & Capability Delegation (INV-IPC-001)
+    stage_marker!("26_IPC_RENDEZVOUS", "Cross-process synchronous IPC & capability delegation verified");
+    {
+        use capability::{CapRights, CapType, Capability, CapTable};
+        use ipc::{IpcMessage, ENDPOINT_REGISTRY};
+
+        // Create a kernel synchronous IPC endpoint
+        let ep_id = ENDPOINT_REGISTRY.lock().create_endpoint().expect("Failed to create IPC endpoint");
+        log_info!("ipc", "Allocated synchronous IPC Endpoint ID {}", ep_id);
+
+        let mut sender_table = CapTable::new();
+        let mut receiver_table = CapTable::new();
+
+        // Sender gets Endpoint capability with WRITE authority
+        let sender_ep_cap = Capability::new(CapType::Endpoint(ep_id), CapRights::WRITE.union(CapRights::GRANT), 0xA001);
+        let _sender_ep_handle = sender_table.insert(sender_ep_cap).expect("Failed to insert sender endpoint cap");
+
+        // Sender creates an authority capability to transfer (e.g. MemoryRegion with READ | GRANT)
+        let auth_cap = Capability::new(
+            CapType::MemoryRegion { base: 0x4000_0000, size: 0x1000 },
+            CapRights::READ.union(CapRights::GRANT),
+            0xB002,
+        );
+        let auth_handle = sender_table.insert(auth_cap).expect("Failed to insert transferable cap");
+
+        // Receiver gets Endpoint capability with READ authority
+        let receiver_ep_cap = Capability::new(CapType::Endpoint(ep_id), CapRights::READ, 0xC003);
+        let _receiver_ep_handle = receiver_table.insert(receiver_ep_cap).expect("Failed to insert receiver endpoint cap");
+
+        // Execute direct synchronous rendezvous message passing with capability delegation
+        let payload = [0x1111_2222_3333_4444, 0x5555_6666_7777_8888, 0xAAAA_BBBB, 0xCCCC_DDDD];
+        let msg = IpcMessage::new(0x42, payload, Some(auth_handle));
+
+        let (recv_msg, delegated_cap_handle) = ENDPOINT_REGISTRY.lock().rendezvous_transfer(
+            1, // Sender PID
+            &sender_table,
+            2, // Receiver PID
+            &mut receiver_table,
+            ep_id,
+            msg,
+        ).expect("Synchronous IPC rendezvous transfer failed");
+
+        // Verify message payload integrity
+        assert_eq!(recv_msg.label, 0x42, "IPC message label mismatch");
+        assert_eq!(recv_msg.data[0], 0x1111_2222_3333_4444, "IPC message data[0] mismatch");
+        assert_eq!(recv_msg.data[1], 0x5555_6666_7777_8888, "IPC message data[1] mismatch");
+
+        // Verify delegated capability received in receiver's CapTable
+        let new_handle = delegated_cap_handle.expect("Delegated capability must be received");
+        let recv_cap = receiver_table.get(new_handle).expect("Received capability must exist in receiver table");
+        assert_eq!(recv_cap.rights, CapRights::READ.union(CapRights::GRANT));
+        assert_eq!(recv_cap.badge, 0xB002);
+        match recv_cap.cap_type {
+            CapType::MemoryRegion { base, size } => {
+                assert_eq!(base, 0x4000_0000);
+                assert_eq!(size, 0x1000);
+            }
+            _ => panic!("Transferred capability type mismatch"),
+        }
+
+        let (msgs, events) = ENDPOINT_REGISTRY.lock().metrics();
+        log_info!("ipc", "Synchronous IPC rendezvous verified: {} msgs transferred, {} events (INV-IPC-001 PASSED)",
+            msgs, events);
+    }
+
+    // Stage 27: Milestone Reached
+    stage_marker!("27_IPC_READY", "Sprint SP-13 IPC & Capability System Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [IPC] Sprint SP-13 IPC & Capability System Milestone REACHED.");
+    println!(" [IPC] Capability-Based Access Control Tokens, Typed Invocations,");
+    println!(" [IPC] Monotonic Rights Attenuation (INV-CAP-001), Revocation Soundness (INV-CAP-002),");
+    println!(" [IPC] and Synchronous Rendezvous IPC Endpoints (INV-IPC-001) Verified.");
+    println!("==================================================");
+
+    // Park CPU until Phase 2 (SP-14 Kernel Object Model)
     loop {
         core::hint::spin_loop();
     }
 }
+

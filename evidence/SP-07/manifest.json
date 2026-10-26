@@ -2,7 +2,7 @@
   "sprint": "SP-07",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Kernel Heap & Core Data Structures",
-  "timestamp_utc": "2026-10-26T15:12:14Z",
+  "timestamp_utc": "2026-10-26T16:00:08Z",
   "unsafe_budget_active": true,
   "default_heap_size_bytes": 1048576,
   "stage_markers_verified": [
@@ -13,11 +13,11 @@
     "ci/check_unsafe_budget.py": "b7af0b31286892e12f078f3b59b4433e235a7df3dfb027a6751595b4d23cfc2d",
     "docs/engineering/unsafe-budget.md": "a90b42c1fefea653e832670c0e18d99384f39c2471b2ddfc072d5e3e407fae90",
     "docs/evidence/golden-boot-sp07.log": "f6dc32f8d4309baa734a7dcc8eaabb80d0d3116d9ec1688094a19be0343c02be",
-    "evidence/SP-07/serial.log": "74b5a3811675b05971f67ad6b6d280b638cf735beea94d5b3c8209d640655db9",
+    "evidence/SP-07/serial.log": "e3248a47d655807bd85f27ad1ba090e920b223a6fa774c69971eb90e4f5a8209",
     "kernel/src/ds/intrusive_list.rs": "a9f36016439c155bec759939be7c742b300ab6d21abe8fda9b9299e35c37ef54",
     "kernel/src/ds/mod.rs": "0cd69d16af247d8878da68034dbc1b0da1932c90be79eaf27d3fbeb634de81a8",
     "kernel/src/mm/heap.rs": "9500c44e7b2660acde4a0de9b3de684576825f6cea370f9a3a088d98ea7e4b67",
-    "kernel/target/aarch64-unknown-none/debug/indk": "7d05fcf28802c6e5bd434441641caf9382c338376f3de7ea2b4f55b4c7acf8fc",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "60ec34d8bced675e73e4c7e0cc0d67db5e6faa0322f18453d5f338e2e770896c"
+    "kernel/target/aarch64-unknown-none/debug/indk": "806010a88acc6304096a6a1c8ee802755991be5c46581486c372d4360cb7ce71",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "634b595cc3d49efc823e377990346851b599a30500b40e18ca6af1c6f2f620b7"
   }
 }

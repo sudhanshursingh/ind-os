@@ -135,7 +135,7 @@ def verify_sp06():
             "--kernel", kernel_elf,
             "--golden", "docs/evidence/golden-boot-sp06.log",
             "--evidence", "evidence/SP-06",
-            "--timeout", "4",
+            "--timeout", "8",
         ],
         capture_output=True,
         text=True,

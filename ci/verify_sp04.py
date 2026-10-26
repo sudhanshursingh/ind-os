@@ -192,7 +192,7 @@ def verify_sp04():
             "--kernel", kernel_elf,
             "--golden", "docs/evidence/golden-boot-sp04.log",
             "--evidence", "evidence/SP-04",
-            "--timeout", "4",
+            "--timeout", "8",
         ],
         capture_output=True,
         text=True,

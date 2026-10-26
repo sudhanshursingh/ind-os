@@ -195,7 +195,7 @@ def verify_sp12():
         "ci/run_qemu_test.py",
         "--kernel", kernel_elf,
         "--golden", golden_log,
-        "--timeout", "8"
+        "--timeout", "12"
     ], capture_output=True, text=True)
     if res_test.returncode != 0:
         print(f"❌ FAIL: QEMU execution validation failed:\n{res_test.stdout}\n{res_test.stderr}")

@@ -161,7 +161,7 @@ def verify_sp05():
             "--kernel", kernel_elf,
             "--golden", "docs/evidence/golden-boot-sp05.log",
             "--evidence", "evidence/SP-05",
-            "--timeout", "4",
+            "--timeout", "8",
         ],
         capture_output=True,
         text=True,

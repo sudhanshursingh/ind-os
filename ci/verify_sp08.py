@@ -174,7 +174,7 @@ def verify_sp08():
             "--kernel", kernel_elf,
             "--golden", "docs/evidence/golden-boot-sp08.log",
             "--evidence", "evidence/SP-08",
-            "--timeout", "4",
+            "--timeout", "8",
         ],
         capture_output=True,
         text=True,

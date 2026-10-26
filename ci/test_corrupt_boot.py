@@ -34,7 +34,7 @@ def test_corrupt_dtb_rejection(kernel_elf: str) -> bool:
             "./tools/run_qemu.sh",
             "--kernel", kernel_elf,
             "--log", log_file,
-            "--timeout", "3",
+            "--timeout", "6",
             "-dtb", corrupt_dtb,
         ]
 

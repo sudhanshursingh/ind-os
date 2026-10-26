@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   c777b10a-dirty
+  Build Commit:   b6f92ebd-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 435, free 130637
-[DEBUG] mm: Allocated test frame 1 at 0x400b3000
-[DEBUG] mm: Allocated test frame 2 at 0x400b4000
+[INFO ] mm: Physical frames: total 131072, reserved 441, free 130631
+[DEBUG] mm: Allocated test frame 1 at 0x400b9000
+[DEBUG] mm: Allocated test frame 2 at 0x400ba000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400b3000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x400b9000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x401b3000
+[INFO ] mmu: Root L0 page table allocated at 0x401b9000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401ba000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401c0000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401c4000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401ca000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -106,116 +106,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[ALPHA] Process 1 resumed after yield/preemption (iter 2)
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
-[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-
-==================================================
- [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   c777b10a-dirty
-  Architecture:   aarch64
-  Platform:       qemu-virt
-==================================================
- [BOOT] Vector table (VBAR_EL1) online.
- [BOOT] Early kernel stack verified (INV-BOOT-002).
-[STAGE:01_RESET] ARM64 EL1 entry and early stack established
-[STAGE:02_VECTORS] VBAR_EL1 exception vectors armed (INV-BOOT-004)
-[STAGE:03_CONSOLE] PL011 early serial console driver online
-[INFO ] boot: IndK microkernel core initialization sequence starting
-[DEBUG] arch: Execution state: EL1h, interrupts masked, MMU identity
-[STAGE:04_DTB] Validating Device Tree Blob header
- [BOOT] Device Tree Blob at: 0x48000000
- [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).
-[INFO ] dtb: DTB header verified (magic 0xd00dfeed, size 1048576 bytes)
-[WARN ] sched: Preemptive multitasking disabled (scheduled for Phase 2)
-[STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
-[INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
-[STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 435, free 130637
-[DEBUG] mm: Allocated test frame 1 at 0x400b3000
-[DEBUG] mm: Allocated test frame 2 at 0x400b4000
-[INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
-[STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400b3000 (size: 1024 KB)
-[INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
-[DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
-[INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
---------------------------------------------------
- [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.
-==================================================
-[STAGE:05_READY] Sprint SP-05 Serial Console Milestone REACHED
-[STAGE:08_MM_READY] Sprint SP-06 Memory Discovery Milestone REACHED
-[STAGE:10_CORE_DS_READY] Sprint SP-07 Kernel Heap & Core DS Milestone REACHED
-[STAGE:11_GICV2_INIT] ARM GICv2 interrupt controller initialized
-[INFO ] gic: GICv2 Distributor & CPU Interface initialized (GICD: 0x08000000, GICC: 0x08010000)
-[STAGE:12_TIMER_INIT] ARM Generic Timer configured for 100 Hz
-[INFO ] timer: ARM Generic Timer online (frequency: 62500000 Hz, interval: 10ms, PPI IRQ 30)
-[STAGE:13_IRQ_DISPATCH] IRQs unmasked and periodic ticks servicing
-[INFO ] irq: Hardware interrupts unmasked in DAIF (INV-INT-003 armed)
-[DEBUG] irq: Critical section mask active (INV-INT-002)
-[INFO ] irq: Critical section RAII discipline verified (INV-INT-002 PASSED)
-[INFO ] timer: Awaiting periodic hardware timer ticks...
-[INFO ] timer: Periodic timer ticks verified (received 3 ticks, INV-IRQ-004 verified)
-[INFO ] irq: Spurious interrupt handling verified (spurious count: 0, INV-INT-001 verified)
-[STAGE:14_INTERRUPTS_READY] Sprint SP-08 Interrupts & Hardware Timers Milestone REACHED
-==================================================
-[STAGE:15_BOOT_COMPLETE] Phase 1 Kernel Bootstrap complete
---------------------------------------------------
- [BOOT] Hello from IndK! Phase 1 Bootstrap Complete.
- [BOOT] Gate G1 Criteria Met: 2048-byte vectors armed,
- [BOOT] 512MB RAM discovered, frame & heap allocators online,
- [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
-==================================================
-[STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x401b3000
-[INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
-[INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
-[INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
-[STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401ba000)
-[INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
-[INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401c4000, RW)
-[INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
-[STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
---------------------------------------------------
- [MMU] Sprint SP-10 Virtual Memory Milestone REACHED.
- [MMU] AArch64 4-Level Page Tables, Per-Process Address Spaces,
- [MMU] Strict NULL-Trap ([0..4MB]), PXN/UXN Protection, and CoW Verified.
-==================================================
-[STAGE:19_PROCESS_SUBSYSTEM_INIT] Process abstraction & INDBIN loader initialized
-[INFO ] proc: INDBIN header verified (magic 0x42444e49, entry: 0x00400000, text size: 71 B)
-[INFO ] proc: INV-MEM-001 verified: Loader rejected executable targeting NULL trap zone
-[INFO ] proc: Created Process 1 ('hello_user', PID: 1, entry: 0x00400000, sp: 0x00007fffffff0000)
-[STAGE:20_USER_MODE_HELLO] Executing first user-mode process in EL0
---------------------------------------------------
- [USER] Dropping to AArch64 EL0 User Mode...
-Hello from Ind OS User Mode (EL0)!
-[INFO ] proc: User process issued sys_exit(status: 0)
- [USER] Returned to AArch64 EL1 Kernel Mode.
-[INFO ] proc: Process 1 exited cleanly with status 0
-[STAGE:21_SYSCALL_DISPATCH_READY] Sprint SP-11 Processes & Loading Milestone REACHED
---------------------------------------------------
- [PROC] Sprint SP-11 Processes & Loading Milestone REACHED.
- [PROC] Process Abstraction, INDBIN Loader, Real EL0 User Mode,
- [PROC] and SVC #0 System Call Dispatch Verified.
-==================================================
-[STAGE:22_SCHEDULER_INIT] Preemptive priority scheduler initialized
-[INFO ] sched: Advisory sched_hint LatencySensitive received for PID 1
-[INFO ] sched: Multi-level priority classes initialized (5 levels, 10ms time slice, sched_hint advisory stub active)
-[STAGE:23_PREEMPTIVE_MULTITASKING] Concurrent user processes scheduled & preempted
-[INFO ] sched: Enqueuing Process 1 ('proc_alpha', PID: 1, Priority: Normal) and Process 2 ('proc_beta', PID: 2, Priority: Normal)
---------------------------------------------------
- [SCHED] Starting Preemptive Scheduler with 2 Concurrent User Processes...
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
-[BETA]  Process 2 executing in EL0 (iter 1)
-[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[ALPHA] Process 1 executing in EL0 (iter 1)
-[INFO ] sched: Advisory sched_hint LatencySensitive received for PID 1
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
@@ -223,4 +114,27 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
