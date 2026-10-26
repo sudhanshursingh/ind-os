@@ -1,0 +1,14 @@
+{
+  "sprint": "SP-02",
+  "title": "Specification Skeleton",
+  "timestamp_utc": "2026-10-26T11:54:12Z",
+  "status": "PASS",
+  "invariants_count": 16,
+  "file_hashes": {
+    "docs/architecture/boot-spec.md": "c7e2a5a25808917d541ad31931a5cc5ecbb50bea4f063dca46368d5a46adc082",
+    "docs/architecture/interrupt-spec.md": "9787ef764f017f08529ed7cdac2e49643d929180a3a5d498ad17478a91f687fb",
+    "docs/architecture/invariants-register.md": "7606ca507ac0da14ae560f2cdd487b0476d47ac846b22657f1f0becc64e8a8d4",
+    "docs/architecture/memory-spec.md": "badea922daea49d1cc935d5919918088e977fa06fdac206c53a8e008c5846055",
+    "docs/architecture/scheduler-spec.md": "08745a36d1828875ce8884b5b2d47ed35e32710a38c4e40a864398880ee97121"
+  }
+}

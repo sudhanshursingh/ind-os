@@ -1,18 +1,31 @@
 {
   "sprint": "SP-00",
   "title": "Repository & Governance Bootstrap",
-  "timestamp_utc": "2026-10-26T11:44:28Z",
+  "timestamp_utc": "2026-10-26T11:54:12Z",
   "status": "PASS",
-  "tracked_files_count": 9,
+  "tracked_files_count": 22,
   "file_hashes": {
     "CODEOWNERS": "c36dc33715b520c2a140c84bdfcad17fb2c28886db8f19c630c7baeb519a480c",
     "CONTRIBUTING.md": "06ad41908948ba92d7abcb09fe1cc1dc91eaf5c1562bea262610919e2e83b5ad",
     "Ind_OS_Development_Bible_v1.0.0.0.md": "25e6e35e71982d239bbde46e12a393f881a8ee18c577a11750c290af7f8d84f8",
+    "Ind_OS_Development_Bible_v1.0.0.0_Part2.md": "5ba03c49eaa903d2fab0e0a093d9559e185c3129871636a43c81a96200eed7fa",
+    "Makefile": "4bf8a9f01e670e9300f1f92b1dbea3b9e292f624fe751855c46e301b49c704fb",
     "README.md": "726293f8d71639c3c9337cf7c1d3f77ac6d7909fb8854cab419b31c9d467da58",
+    "rust-toolchain.toml": "6485d578ec4a53771c5f0c7e1ca32cf7375f0f1051e78d5681598071e50fdda7",
+    "tools/Containerfile": "541b8dd17bdabc79914612b77382a033c13a3bc8ae718bf44fa0179e3927748b",
+    "tools/bootstrap.sh": "373c25564c631441ab229363591a18a9de25de4c31c98274b67bda6e413aa26a",
     "ci/check_commit_msg.py": "a6236041721190167ad9ad14cb50499f67f6a98a14eb7596886bf6300bfe6c48",
     "ci/verify_sp00.py": "6990e1813e62c0ca9bd3c9eb0d3c50e20aee70a182c09a54cc85800eabf23c98",
+    "ci/verify_sp01.py": "5d14d9c652ad94ddfbb2a24e47421aa97d63e61d8b730c8626ac1f93a29c446c",
+    "ci/verify_sp02.py": "5e2987ff6ccfa50bbfe16a91acfabcb8bf8e7c7c6ef482024ae4f1a1c0d22042",
     "docs/DECISIONS/DEC-001-founder-reasoning.md": "7d2ab2ca34c942388714dc12c06e9579145d60ca2d0d1b87b4d0711f1fe0b3a9",
     "docs/DECISIONS/register.md": "1792f28252487b32b080332ce087b2eeef7022dc70932ddacb41f2624e29b6a2",
+    "docs/architecture/boot-spec.md": "c7e2a5a25808917d541ad31931a5cc5ecbb50bea4f063dca46368d5a46adc082",
+    "docs/architecture/interrupt-spec.md": "9787ef764f017f08529ed7cdac2e49643d929180a3a5d498ad17478a91f687fb",
+    "docs/architecture/invariants-register.md": "7606ca507ac0da14ae560f2cdd487b0476d47ac846b22657f1f0becc64e8a8d4",
+    "docs/architecture/memory-spec.md": "badea922daea49d1cc935d5919918088e977fa06fdac206c53a8e008c5846055",
+    "docs/architecture/qemu-boot-path-spike.md": "4cd31b832978f5c26bb26b3d188fd9dde023e41545e878d0b453f305ee0fe184",
+    "docs/architecture/scheduler-spec.md": "08745a36d1828875ce8884b5b2d47ed35e32710a38c4e40a864398880ee97121",
     "docs/engineering/licensing-and-sbom.md": "8d4b368b663d026888006c2cf08d886019fe96a82e802263e87344dd8f724b09"
   }
 }

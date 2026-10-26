@@ -10,6 +10,7 @@ check:
 	@echo "Running Ind OS CI repository & commit checks..."
 	@python3 ci/verify_sp00.py
 	@python3 ci/verify_sp01.py
+	@python3 ci/verify_sp02.py
 
 clean:
 	@rm -rf build/
