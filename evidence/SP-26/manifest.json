@@ -1,7 +1,7 @@
 {
   "sprint": "SP-26",
   "title": "User-Mode Driver Framework (Device Manager, IRQ Broker, DMA/IOMMU Broker, Driver Protocol over IPC)",
-  "timestamp": "2026-10-26T20:44:43Z",
+  "timestamp": "2026-10-26T20:49:38Z",
   "status": "PASSED",
   "artifacts": {
     "docs/architecture/driver-framework-spec.md": "2fae663e9cd0ff290afc4248416f2b06314e6d98d03ad9b2b48e7e87e6e0ea05",

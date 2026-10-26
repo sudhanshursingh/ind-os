@@ -1,7 +1,7 @@
 {
   "sprint": "SP-13",
   "title": "IPC & Capability System",
-  "timestamp": 1793047481,
+  "timestamp": 1793047777,
   "status": "PASS",
   "deliverables": {
     "docs/architecture/capability-ipc-spec.md": "b1c4ca293f4361e02f6a64ec89070f5b9c5a66c9f3f47952011508d2414a294f",

@@ -1,7 +1,7 @@
 {
   "sprint": "SP-28",
   "title": "Symmetric Multi-Processing (SMP: Core Bring-up, Per-CPU Run Queues, Affinity, IPIs)",
-  "timestamp": "2026-10-26T20:44:43Z",
+  "timestamp": "2026-10-26T20:49:38Z",
   "status": "PASSED",
   "artifacts": {
     "docs/architecture/smp-core-spec.md": "93c731825f33d6284226cdb7df6ba82ac5fffc264bcaefbf78d6adbda7796888",

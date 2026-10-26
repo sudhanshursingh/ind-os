@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   9e1acd7f-dirty
+  Build Commit:   8fd38254-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 702, free 130370
-[DEBUG] mm: Allocated test frame 1 at 0x401be000
-[DEBUG] mm: Allocated test frame 2 at 0x401bf000
+[INFO ] mm: Physical frames: total 131072, reserved 706, free 130366
+[DEBUG] mm: Allocated test frame 1 at 0x401c2000
+[DEBUG] mm: Allocated test frame 2 at 0x401c3000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x401be000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x401c2000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x402be000
+[INFO ] mmu: Root L0 page table allocated at 0x402c2000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x402c5000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x402c9000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x402cf000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x402d3000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -115,13 +115,13 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [ALPHA] Process 1 completed successfully, exiting.
 [INFO ] proc: User process issued sys_exit(status: 0)
 [INFO ] sched: Process 1 ('proc_alpha') exited with status 0
 [INFO ] sched: Context switch on exit: activating PID 2 ('proc_beta')
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [BETA]  Process 2 resumed after yield/preemption (iter 2)
 [BETA]  Process 2 completed successfully, exiting.
 [INFO ] proc: User process issued sys_exit(status: 0)
@@ -189,7 +189,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 19610 ticks (313 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 21758 ticks (348 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
@@ -395,7 +395,7 @@ Hello from Ind OS User Mode (EL0)!
  [SMP] and Cross-Core IPI Messaging via GIC SGIs (INV-SMP-003) Verified.
 ==================================================
 [STAGE:90_MEM_PRESSURE_MONITOR] Multi-tier memory pressure detection & monotonic threshold transitions verified (INV-OOM-002)
-[INFO ] mm_pressure: Initial memory pressure state: Normal (Free: 130042 / Total: 131072 frames, INV-OOM-002 PASSED)
+[INFO ] mm_pressure: Initial memory pressure state: Normal (Free: 130038 / Total: 131072 frames, INV-OOM-002 PASSED)
 [STAGE:91_CACHE_RECLAMATION] Voluntary and involuntary cache/vnode reclamation callbacks verified (INV-OOM-002)
 [INFO ] mm_pressure: Reclamation hooks verified: 64 voluntary frames, 384 involuntary frames reclaimed (INV-OOM-002 PASSED)
 [STAGE:92_SWAP_DECISION_SPIKE] Swap decision spike: swap to flash disallowed (DEF/PEN) to preserve real-time bounds and prevent flash wear
@@ -412,4 +412,20 @@ Hello from Ind OS User Mode (EL0)!
  [OOM] Voluntary and Involuntary Cache Reclamation Hooks,
  [OOM] Flash Swap Decision Spike: Disallowed/Penalized (DEF/PEN),
  [OOM] and Deterministic Non-Model-Controlled OOM Policy (INV-OOM-001) Verified.
+==================================================
+[STAGE:95_TELEMETRY_BUFFER_INIT] Kernel Telemetry ring buffer initialized, capacity and sequential indices verified
+[INFO ] telem: Kernel Telemetry buffer online: capacity 64 records, sequential ring indices verified
+[STAGE:96_TELEMETRY_EVENT_LOGGING] Scheduler, IPC, memory, and security events logged with monotonic sequence numbering
+[INFO ] telem: Telemetry logging verified: 4 events (sched, ipc, mem, sec) emitted with monotonic seq numbers (1..4)
+[STAGE:97_TELEMETRY_READONLY_ENFORCEMENT] Userspace write-attempt denial verified: EPERM strictly returned on unprivileged write (REQ-KRN-113)
+[INFO ] telem: Write denial test PASSED: User-mode write rejected with EPERM (REQ-KRN-113 PASSED)
+[STAGE:98_TELEMETRY_AIS_CONSUMPTION] Simulated AIS daemon reading telemetry stream in FIFO order verified
+[INFO ] telem: AIS consumption simulation verified: 4 events read in FIFO order without buffer destruction (REQ-KRN-113 PASSED)
+[STAGE:99_TELEMETRY_API_READY] Sprint SP-30 Kernel Telemetry API v1 Milestone REACHED
+--------------------------------------------------
+ [TELEM] Sprint SP-30 Kernel Telemetry API v1 Milestone REACHED.
+ [TELEM] Circular Telemetry Ring Buffer (Capacity 64),
+ [TELEM] High-Frequency Scheduler/IPC/Mem/Sec Event Schemas,
+ [TELEM] Strict Userspace Write Denial Enforcement (REQ-KRN-113),
+ [TELEM] and Non-Destructive AIS Telemetry Stream Consumption Verified.
 ==================================================

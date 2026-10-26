@@ -28,6 +28,7 @@ pub mod smp;
 pub mod sync;
 pub mod syscall;
 pub mod task;
+pub mod telemetry;
 pub mod vfs;
 
 use alloc::boxed::Box;
@@ -2499,6 +2500,135 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [OOM] Voluntary and Involuntary Cache Reclamation Hooks,");
     println!(" [OOM] Flash Swap Decision Spike: Disallowed/Penalized (DEF/PEN),");
     println!(" [OOM] and Deterministic Non-Model-Controlled OOM Policy (INV-OOM-001) Verified.");
+    println!("==================================================");
+
+    // =========================================================================
+    // Phase 4: Sprint SP-30 — Kernel Telemetry API v1 (REQ-KRN-113)
+    // =========================================================================
+    use telemetry::{TelemetryEventKind, TELEMETRY_BUFFER, RING_CAPACITY, write_telemetry_guarded};
+
+    // Stage 95: Telemetry Ring Buffer Initialization
+    stage_marker!("95_TELEMETRY_BUFFER_INIT", "Kernel Telemetry ring buffer initialized, capacity and sequential indices verified");
+    {
+        let mut telem = TELEMETRY_BUFFER.lock();
+        telem.clear();
+        assert_eq!(telem.capacity(), 64);
+        assert_eq!(telem.head_seq(), 1);
+        assert_eq!(telem.total_emitted(), 0);
+        assert_eq!(telem.oldest_available_seq(), 1);
+        assert!(telem.read_event(0).is_none());
+        assert!(telem.read_event(1).is_none());
+
+        log_info!("telem", "Kernel Telemetry buffer online: capacity {} records, sequential ring indices verified", RING_CAPACITY);
+    }
+
+    // Stage 96: Multi-Category Event Logging
+    stage_marker!("96_TELEMETRY_EVENT_LOGGING", "Scheduler, IPC, memory, and security events logged with monotonic sequence numbering");
+    {
+        let mut telem = TELEMETRY_BUFFER.lock();
+
+        // 1. Scheduler context switch event
+        let s1 = telem.emit(101, TelemetryEventKind::SchedulerSwitch { prev_pid: 1, next_pid: 10, priority: 3 });
+        assert_eq!(s1, 1);
+
+        // 2. Synchronous IPC transfer event
+        let s2 = telem.emit(102, TelemetryEventKind::IpcTransfer { sender_pid: 10, receiver_pid: 20, endpoint_id: 201 });
+        assert_eq!(s2, 2);
+
+        // 3. Memory pressure event
+        let s3 = telem.emit(103, TelemetryEventKind::MemoryPressure { level: 1, free_frames: 20_000, total_frames: 100_000 });
+        assert_eq!(s3, 3);
+
+        // 4. Security violation event
+        let s4 = telem.emit(104, TelemetryEventKind::SecurityViolation { source_pid: 99, violation_code: 0x0401 });
+        assert_eq!(s4, 4);
+
+        assert_eq!(telem.total_emitted(), 4);
+        assert_eq!(telem.head_seq(), 5);
+
+        // Verify content integrity
+        let ev1 = telem.read_event(1).expect("Read event 1");
+        assert_eq!(ev1.seq, 1);
+        assert_eq!(ev1.timestamp_ticks, 101);
+        match ev1.kind {
+            TelemetryEventKind::SchedulerSwitch { prev_pid, next_pid, priority } => {
+                assert_eq!(prev_pid, 1);
+                assert_eq!(next_pid, 10);
+                assert_eq!(priority, 3);
+            }
+            _ => panic!("Expected SchedulerSwitch event"),
+        }
+
+        let ev4 = telem.read_event(4).expect("Read event 4");
+        assert_eq!(ev4.seq, 4);
+        match ev4.kind {
+            TelemetryEventKind::SecurityViolation { source_pid, violation_code } => {
+                assert_eq!(source_pid, 99);
+                assert_eq!(violation_code, 0x0401);
+            }
+            _ => panic!("Expected SecurityViolation event"),
+        }
+
+        log_info!("telem", "Telemetry logging verified: 4 events (sched, ipc, mem, sec) emitted with monotonic seq numbers (1..4)");
+    }
+
+    // Stage 97: Read-Only Enforcement & Userspace Write Denial Test (REQ-KRN-113)
+    stage_marker!("97_TELEMETRY_READONLY_ENFORCEMENT", "Userspace write-attempt denial verified: EPERM strictly returned on unprivileged write (REQ-KRN-113)");
+    {
+        use capability::{CapRights, CapType, Capability};
+        use syscall::EPERM;
+
+        let user_pid = 10;
+        let ro_cap = Capability::new(CapType::Endpoint(501), CapRights::READ, 0x501);
+        let write_cap = Capability::new(CapType::Endpoint(501), CapRights::READ.union(CapRights::WRITE), 0x501);
+
+        // 1. User-mode process with READ capability attempts write: must be rejected with EPERM
+        let res1 = write_telemetry_guarded(user_pid, &ro_cap, b"ILLEGAL_TELEMETRY_OVERWRITE");
+        assert_eq!(res1, Err(EPERM), "Unprivileged write without WRITE rights must fail with EPERM (REQ-KRN-113)");
+
+        // 2. User-mode process attempting write even if claiming WRITE rights: must be rejected with EPERM (zero ambient authority)
+        let res2 = write_telemetry_guarded(user_pid, &write_cap, b"SPOOFED_TELEMETRY_INJECTION");
+        assert_eq!(res2, Err(EPERM), "User-mode write to telemetry must be rejected regardless of capability (REQ-KRN-113)");
+
+        // 3. Kernel internal write (PID 0) with WRITE capability succeeds
+        let res3 = write_telemetry_guarded(0, &write_cap, b"KERNEL_AUTHORIZED_TELEMETRY_WRITE");
+        assert!(res3.is_ok(), "Kernel internal write must be allowed");
+
+        log_info!("telem", "Write denial test PASSED: User-mode write rejected with EPERM (REQ-KRN-113 PASSED)");
+    }
+
+    // Stage 98: AIS Telemetry Consumption Simulation (REQ-AI-112, REQ-KRN-113)
+    stage_marker!("98_TELEMETRY_AIS_CONSUMPTION", "Simulated AIS daemon reading telemetry stream in FIFO order verified");
+    {
+        let telem = TELEMETRY_BUFFER.lock();
+
+        // AIS daemon reads batch starting at seq 1, up to 10 events
+        let (batch, next_seq) = telem.read_batch(1, 10);
+        assert_eq!(batch.len(), 4, "AIS consumer must retrieve all 4 events");
+        assert_eq!(next_seq, 5, "Next sequence pointer must advance to 5");
+
+        // Verify FIFO order and event categories
+        assert_eq!(batch[0].seq, 1);
+        assert_eq!(batch[1].seq, 2);
+        assert_eq!(batch[2].seq, 3);
+        assert_eq!(batch[3].seq, 4);
+
+        // Verify non-destructive consumption: reading again returns identical events
+        let (batch_repeat, _) = telem.read_batch(1, 4);
+        assert_eq!(batch_repeat.len(), 4);
+        assert_eq!(batch_repeat[0].seq, 1);
+
+        log_info!("telem", "AIS consumption simulation verified: 4 events read in FIFO order without buffer destruction (REQ-KRN-113 PASSED)");
+    }
+
+    // Stage 99: Sprint SP-30 Milestone Reached
+    stage_marker!("99_TELEMETRY_API_READY", "Sprint SP-30 Kernel Telemetry API v1 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [TELEM] Sprint SP-30 Kernel Telemetry API v1 Milestone REACHED.");
+    println!(" [TELEM] Circular Telemetry Ring Buffer (Capacity 64),");
+    println!(" [TELEM] High-Frequency Scheduler/IPC/Mem/Sec Event Schemas,");
+    println!(" [TELEM] Strict Userspace Write Denial Enforcement (REQ-KRN-113),");
+    println!(" [TELEM] and Non-Destructive AIS Telemetry Stream Consumption Verified.");
     println!("==================================================");
 
     // Park CPU

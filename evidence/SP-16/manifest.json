@@ -1,7 +1,7 @@
 {
   "sprint": "SP-16",
   "title": "IPC Core (Endpoints, Rights Transfer, Notifications, Deadlines & Latency Benchmark)",
-  "timestamp": 1793047482,
+  "timestamp": 1793047777,
   "status": "PASS",
   "deliverables": {
     "docs/architecture/ipc-core-spec.md": {

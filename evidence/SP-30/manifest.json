@@ -1,0 +1,29 @@
+{
+  "sprint": "SP-30",
+  "name": "Kernel Telemetry API v1",
+  "status": "PASSED",
+  "date": "2026-10-27",
+  "specifications": [
+    "docs/architecture/kernel-telemetry-spec.md"
+  ],
+  "requirements_satisfied": [
+    "REQ-KRN-113",
+    "REQ-AI-112"
+  ],
+  "deliverables": [
+    "docs/architecture/kernel-telemetry-spec.md",
+    "docs/evidence/SP-30-validation.md",
+    "docs/evidence/golden-boot-sp30.log",
+    "kernel/src/telemetry/event.rs",
+    "kernel/src/telemetry/ring_buffer.rs",
+    "kernel/src/telemetry/mod.rs",
+    "ci/verify_sp30.py"
+  ],
+  "metrics": {
+    "ring_capacity": 64,
+    "event_categories": 4,
+    "write_denial_enforced": true,
+    "ais_read_fifo": true,
+    "unsafe_blocks_in_telemetry": 0
+  }
+}
