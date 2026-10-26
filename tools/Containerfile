@@ -1,0 +1,43 @@
+# Ind OS Development Environment Containerfile (Host-as-Code)
+# Provides deterministic, bit-identical build environment across any host machine.
+# Target: ARM64 QEMU virt development platform (DEF-002, SP-01)
+
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV RUSTUP_HOME=/opt/rust/rustup
+ENV CARGO_HOME=/opt/rust/cargo
+ENV PATH="/opt/rust/cargo/bin:${PATH}"
+
+# Install pinned system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    ca-certificates \
+    python3 \
+    python3-pip \
+    clang-18 \
+    lld-18 \
+    llvm-18 \
+    qemu-system-arm \
+    gdb-multiarch \
+    device-tree-compiler \
+    make \
+    bc \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Clang / LLD default symlinks
+RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 100 && \
+    update-alternatives --install /usr/bin/lld lld /usr/bin/lld-18 100 && \
+    update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/lld-18 100
+
+# Install pinned Rust toolchain (1.82.0)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.82.0 --profile minimal && \
+    rustup target add aarch64-unknown-none aarch64-unknown-linux-musl && \
+    rustup component add rust-src clippy rustfmt llvm-tools-preview
+
+WORKDIR /workspace
+
+CMD ["/bin/bash"]

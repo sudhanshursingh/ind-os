@@ -1,0 +1,22 @@
+# Ind OS Rust Toolchain Specification
+# Pinned for Phase 0–4: aarch64-unknown-none bare-metal target (DEF-002)
+
+[toolchain]
+channel = "1.82.0"
+components = [
+    "rustc",
+    "cargo",
+    "clippy",
+    "rustfmt",
+    "rust-src",
+    "llvm-tools-preview"
+]
+targets = [
+    "aarch64-unknown-none",         # IndK bare-metal kernel target
+    "aarch64-unknown-linux-musl",   # IndUS static userspace target
+    "x86_64-unknown-linux-musl"     # Host unit tests / simulation
+]
+profile = "minimal"
+
+[env]
+RUSTFLAGS = "-C target-cpu=generic -C panic=abort -C overflow-checks=on"

@@ -1,0 +1,13 @@
+{
+  "sprint": "SP-01",
+  "title": "Toolchain & Environment Bootstrap",
+  "timestamp_utc": "2026-10-26T11:47:14Z",
+  "status": "PASS",
+  "file_hashes": {
+    "Makefile": "e5828c24bba5b66b0aa7ee0f4ec2eb3cb181daf4f5accd1a4aa80473e3501889",
+    "docs/architecture/qemu-boot-path-spike.md": "4cd31b832978f5c26bb26b3d188fd9dde023e41545e878d0b453f305ee0fe184",
+    "rust-toolchain.toml": "6485d578ec4a53771c5f0c7e1ca32cf7375f0f1051e78d5681598071e50fdda7",
+    "tools/Containerfile": "541b8dd17bdabc79914612b77382a033c13a3bc8ae718bf44fa0179e3927748b",
+    "tools/bootstrap.sh": "373c25564c631441ab229363591a18a9de25de4c31c98274b67bda6e413aa26a"
+  }
+}
