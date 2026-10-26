@@ -1,0 +1,18 @@
+{
+  "sprint": "SP-32",
+  "files": {
+    "docs/architecture/init-service-spec.md": "94ac48570a135ec45672a2c3289bee4cb2b9b9c42d2aa6e0881339e5cf2fee0a",
+    "docs/evidence/SP-32-validation.md": "73cd0085683d5165fcc5872140d0c9416199073c8ee92a7eac6d16b95508283b",
+    "docs/evidence/golden-boot-sp32.log": "308e63f2f61df9af1a326eb84429359751b14af4b162555394f5eeda3054189e",
+    "userspace/init/Cargo.toml": "8b7f6ce708dbdde17d57900f65de19b83b2c68022d7a8377d6e2e82550dd8b42",
+    "userspace/init/src/lib.rs": "9b96ad995db9e993118dba905173f068660b22684e63db08d145e3925c905867",
+    "userspace/init/src/main.rs": "e2dec56a01e33bab195ff0d7d6d274ef79c4fc0f079b81c4c7efa00a8ccf6dc9",
+    "userspace/init/src/manifest.rs": "daab12428d1d7fce1fc30fe7020a9cdb94d1e591fb74c312cb13aa0cde5cbbcc",
+    "userspace/init/src/graph.rs": "2bd4299fdbd5b80768cf0f87ebb9386d7f79dba4ba2e2209bd3af10bf734a2ae",
+    "userspace/init/src/supervisor.rs": "af001547bdea07cc13ea79ead12d7270eaebb336a8e0d7dd4d7430370c70c1b9",
+    "userspace/init/src/logger.rs": "cd7174c3cfce577f40210ef2952b477508fafa6f4c20cb1193e7f73354b40281",
+    "kernel/src/userspace/mod.rs": "db004695059a36754e2cc2c692d6b2d5d69b18f361a01f52ca752b061584c3b3",
+    "kernel/src/userspace/init.rs": "b0f3ccde4e4e12d4708457a99afabd447538ce0c76749fd768f08e1d8f22d0de",
+    "evidence/SP-32/test_result.json": "40da61f68e3ddfe62b2ce98e4d712f7875e3300303ec7ea5a6c668d44bf30f63"
+  }
+}

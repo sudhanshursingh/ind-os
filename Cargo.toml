@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "kernel",
+    "userspace/init",
 ]
 resolver = "2"
 

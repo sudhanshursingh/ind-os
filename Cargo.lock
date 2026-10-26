@@ -5,3 +5,7 @@ version = 3
 [[package]]
 name = "indk-core"
 version = "0.1.0"
+
+[[package]]
+name = "indus-init"
+version = "0.1.0"

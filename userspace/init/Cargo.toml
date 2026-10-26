@@ -1,0 +1,18 @@
+[package]
+name = "indus-init"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
+description = "Ind OS Root Userspace Init Process (PID 1) (REQ-USE-201)"
+license = "GPL-2.0-only"
+
+[lib]
+name = "indus_init"
+path = "src/lib.rs"
+
+[[bin]]
+name = "init"
+path = "src/main.rs"
+
+[dependencies]
+# Zero external crates: from scratch (Rule N-01)
