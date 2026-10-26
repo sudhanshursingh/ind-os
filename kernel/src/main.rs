@@ -7,6 +7,7 @@
 extern crate alloc;
 
 pub mod arch;
+pub mod audit;
 pub mod capability;
 pub mod console;
 pub mod drivers;
@@ -1351,11 +1352,121 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [ENF] and Dual-Check Capability Enforcement (REQ-SEC-001) Verified.");
     println!("==================================================");
 
-    // Park CPU until SP-20 (Audit v1: Hash-Chained Log & Tamper Test)
+    // Stage 49: Cryptographic Audit Log Initialization (INV-AUD-001)
+    stage_marker!("49_AUDIT_LOG_INIT", "Append-only SHA-256 hash-chained audit log online");
+    {
+        use audit::AUDIT_LOG;
+        let mut log = AUDIT_LOG.lock();
+        log.init();
+        assert_eq!(log.len(), 1, "Genesis entry must be present");
+        let genesis = log.get_entry(0).expect("Genesis entry must exist");
+        assert_eq!(genesis.prev_hash, [0u8; 32], "Genesis prev_hash must be zero");
+        assert_eq!(genesis.compute_hash(), genesis.entry_hash, "Genesis hash must be valid");
+        assert!(log.verify_integrity().is_ok(), "Genesis chain must be valid");
+        log_info!("audit", "Cryptographic audit log online: Genesis block hash verified (INV-AUD-001)");
+    }
+
+    // Stage 50: Security Event Logging & Chaining
+    stage_marker!("50_AUDIT_EVENT_LOGGING", "Recording security lifecycle events with SHA-256 hash chaining");
+    {
+        use audit::{AuditEventType, AUDIT_LOG};
+        use capability::rights::CapRights;
+
+        let mut log = AUDIT_LOG.lock();
+
+        // 1. Log Capability Grant
+        let seq1 = log.record(
+            AuditEventType::CapabilityGrant,
+            1,
+            101,
+            CapRights::READ.union(CapRights::WRITE),
+            1000,
+        ).expect("Log grant");
+        assert_eq!(seq1, 1);
+
+        // 2. Log Policy Evaluation Allow
+        let seq2 = log.record(
+            AuditEventType::PolicyAllow,
+            1,
+            101,
+            CapRights::READ,
+            1005,
+        ).expect("Log allow");
+        assert_eq!(seq2, 2);
+
+        // 3. Log Policy Evaluation Deny
+        let seq3 = log.record(
+            AuditEventType::PolicyDeny,
+            2,
+            101,
+            CapRights::WRITE,
+            1010,
+        ).expect("Log deny");
+        assert_eq!(seq3, 3);
+
+        // 4. Log Capability Delegation
+        let seq4 = log.record(
+            AuditEventType::CapabilityDelegate,
+            1,
+            101,
+            CapRights::READ,
+            1015,
+        ).expect("Log delegate");
+        assert_eq!(seq4, 4);
+
+        assert_eq!(log.len(), 5, "Total audit entries must be 5 (Genesis + 4 events)");
+
+        // Verify cryptographic hash chaining across all recorded events
+        assert!(log.verify_integrity().is_ok(), "Audit log hash chain integrity must be valid");
+        log_info!("audit", "Logged 4 security events; hash chain valid and monotonic (INV-AUD-001)");
+    }
+
+    // Stage 51: Cryptographic Tamper Test (INV-AUD-001)
+    stage_marker!("51_AUDIT_TAMPER_TEST", "Cryptographic tamper resistance test: 1-bit mutation detection");
+    {
+        use audit::AUDIT_LOG;
+        let mut log = AUDIT_LOG.lock();
+
+        // Save original entry 2
+        let original_entry = *log.get_entry(2).expect("Entry 2 exists");
+
+        // Artificially mutate 1 byte in entry 2's hash
+        let tamper_res = log.tamper_flip_byte(2, 7);
+        assert!(tamper_res.is_ok(), "Tamper flip must succeed");
+
+        // Verify integrity MUST fail
+        let integrity_check = log.verify_integrity();
+        match integrity_check {
+            Err((corrupted_idx, reason)) => {
+                assert_eq!(corrupted_idx, 2, "Tamper must be localized to index 2");
+                log_info!("audit", "Tamper detected at entry #{}: {} (INV-AUD-001 verified)", corrupted_idx, reason);
+            }
+            Ok(()) => panic!("Integrity check passed unexpectedly on tampered audit record!"),
+        }
+
+        // Restore original entry
+        let restore_res = log.restore_entry(2, original_entry);
+        assert!(restore_res.is_ok(), "Restore must succeed");
+
+        // Verify integrity passes again
+        assert!(log.verify_integrity().is_ok(), "Integrity must pass after restoring genuine entry");
+        log_info!("audit", "Tamper test passed: 1-bit mutation detected and localized (INV-AUD-001 PASSED)");
+    }
+
+    // Stage 52: Sprint SP-20 Milestone Reached
+    stage_marker!("52_AUDIT_V1_READY", "Sprint SP-20 Audit v1 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [AUD] Sprint SP-20 Audit v1 Milestone REACHED.");
+    println!(" [AUD] Cryptographic Append-Only Audit Log, SHA-256 Hash Chaining,");
+    println!(" [AUD] Tamper Detection & Localization (INV-AUD-001) Verified.");
+    println!("==================================================");
+
+    // Park CPU
     loop {
         core::hint::spin_loop();
     }
 }
+
 
 
 

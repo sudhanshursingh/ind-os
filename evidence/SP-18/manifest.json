@@ -1,7 +1,7 @@
 {
   "sprint": "SP-18",
   "title": "Capabilities II (Delegation with Attenuation, Revocation Propagation, Capability-Leak Test Suite)",
-  "timestamp": "2026-10-26T18:43:58Z",
+  "timestamp": "2026-10-26T19:04:29Z",
   "invariants": {
     "INV-CAP-001": "Monotonic Rights Attenuation along delegation chains (R_child subset of R_parent)",
     "INV-CAP-002": "Global Revocation Propagation (transitive cross-namespace lineage tree invalidation)",

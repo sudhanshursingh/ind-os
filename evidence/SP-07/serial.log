@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   1761d66a-dirty
+  Build Commit:   f30cfbfa-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 483, free 130589
-[DEBUG] mm: Allocated test frame 1 at 0x400e3000
-[DEBUG] mm: Allocated test frame 2 at 0x400e4000
+[INFO ] mm: Physical frames: total 131072, reserved 493, free 130579
+[DEBUG] mm: Allocated test frame 1 at 0x400ed000
+[DEBUG] mm: Allocated test frame 2 at 0x400ee000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400e3000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x400ed000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x401e3000
+[INFO ] mmu: Root L0 page table allocated at 0x401ed000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401ea000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401f4000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401f4000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401fe000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -115,19 +115,21 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[ALPHA] Process 1 completed successfully, exiting.
-[INFO ] proc: User process issued sys_exit(status: 0)
-[INFO ] sched: Process 1 ('proc_alpha') exited with status 0
-[INFO ] sched: Context switch on exit: activating PID 2 ('proc_beta')
-[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [BETA]  Process 2 resumed after yield/preemption (iter 2)
 [BETA]  Process 2 completed successfully, exiting.
 [INFO ] proc: User process issued sys_exit(status: 0)
 [INFO ] sched: Process 2 ('proc_beta') exited with status 0
+[INFO ] sched: Context switch on exit: activating PID 1 ('proc_alpha')
+[ALPHA] Process 1 completed successfully, exiting.
+[INFO ] proc: User process issued sys_exit(status: 0)
+[INFO ] sched: Process 1 ('proc_alpha') exited with status 0
  [SCHED] All concurrent processes finished. Scheduler returned to kernel.
-[INFO ] sched: Multitasking verified: 11 context switches, 8 preemptions, 2 yields, 2 hints
+[INFO ] sched: Multitasking verified: 12 context switches, 9 preemptions, 2 yields, 2 hints
 [STAGE:24_SCHEDULER_READY] Sprint SP-12 Preemptive Scheduler Milestone REACHED
 --------------------------------------------------
  [SCHED] Sprint SP-12 Preemptive Scheduler Milestone REACHED.
@@ -189,7 +191,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 19898 ticks (318 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 16571 ticks (265 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
@@ -231,4 +233,34 @@ Hello from Ind OS User Mode (EL0)!
  [CAP] Multi-Hop Delegation with Monotonic Attenuation (INV-CAP-001),
  [CAP] Global Revocation Propagation Across Namespaces (INV-CAP-002),
  [CAP] Object-Table Coherence (INV-CAP-003), and Zero-Leak Suite (INV-CAP-LEAK-001) Verified.
+==================================================
+[STAGE:45_POLICY_ENGINE_INIT] ENF Policy Engine v1 initialized with declarative rule language
+[INFO ] enf: Loaded 4 declarative policy rules (v1 ruleset active, INV-ENF-002)
+[STAGE:46_POLICY_EVALUATION] Default-deny and deterministic precedence resolution verified
+[INFO ] enf: Default-deny verified for unknown subject (INV-ENF-001 PASSED): Default-Deny: No matching allow rule (INV-ENF-001)
+[INFO ] enf: Explicit allow matched rule #1 (PID 1 -> EP 101)
+[INFO ] enf: Deterministic precedence verified: Deny rule #3 overrides allow (INV-ENF-002 PASSED): Explicit Deny Rule Precedence (INV-ENF-002)
+[INFO ] enf: RequireConsent action verified for AIS Role 3 (rule #4)
+[STAGE:47_POLICY_CAP_INTEGRATION] Dual-check enforcement verified: token possession + policy authorization
+[INFO ] enf: Dual-check: PID 2 authorized for READ (token valid + policy allowed)
+[INFO ] enf: Dual-check: PID 2 WRITE blocked by standing policy despite possessing token (REQ-SEC-001 PASSED)
+[STAGE:48_POLICY_ENGINE_READY] Sprint SP-19 Policy Engine v1 Milestone REACHED
+--------------------------------------------------
+ [ENF] Sprint SP-19 Policy Engine v1 Milestone REACHED.
+ [ENF] Declarative Rule Language, Default-Deny (INV-ENF-001),
+ [ENF] Deterministic Precedence Resolution (INV-ENF-002),
+ [ENF] and Dual-Check Capability Enforcement (REQ-SEC-001) Verified.
+==================================================
+[STAGE:49_AUDIT_LOG_INIT] Append-only SHA-256 hash-chained audit log online
+[INFO ] audit: Cryptographic audit log online: Genesis block hash verified (INV-AUD-001)
+[STAGE:50_AUDIT_EVENT_LOGGING] Recording security lifecycle events with SHA-256 hash chaining
+[INFO ] audit: Logged 4 security events; hash chain valid and monotonic (INV-AUD-001)
+[STAGE:51_AUDIT_TAMPER_TEST] Cryptographic tamper resistance test: 1-bit mutation detection
+[INFO ] audit: Tamper detected at entry #2: Entry content hash mismatch: payload modified (INV-AUD-001 verified)
+[INFO ] audit: Tamper test passed: 1-bit mutation detected and localized (INV-AUD-001 PASSED)
+[STAGE:52_AUDIT_V1_READY] Sprint SP-20 Audit v1 Milestone REACHED
+--------------------------------------------------
+ [AUD] Sprint SP-20 Audit v1 Milestone REACHED.
+ [AUD] Cryptographic Append-Only Audit Log, SHA-256 Hash Chaining,
+ [AUD] Tamper Detection & Localization (INV-AUD-001) Verified.
 ==================================================

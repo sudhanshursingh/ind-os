@@ -131,19 +131,25 @@ while True:
         if out_file:
             out_file.write(text)
             out_file.flush()
-        if 'CAPABILITY_SYSTEM_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
+        if 'AUDIT_V1_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
             time.sleep(0.1)
-            try:
-                remaining = os.read(p.stdout.fileno(), 4096)
-                if remaining:
-                    t_rem = remaining.decode('utf-8', errors='replace')
-                    sys.stdout.write(t_rem)
-                    sys.stdout.flush()
-                    if out_file:
-                        out_file.write(t_rem)
-                        out_file.flush()
-            except Exception:
-                pass
+            while True:
+                r, _, _ = select.select([p.stdout], [], [], 0.05)
+                if r:
+                    try:
+                        rem = os.read(p.stdout.fileno(), 4096)
+                        if not rem:
+                            break
+                        t_rem = rem.decode('utf-8', errors='replace')
+                        sys.stdout.write(t_rem)
+                        sys.stdout.flush()
+                        if out_file:
+                            out_file.write(t_rem)
+                            out_file.flush()
+                    except Exception:
+                        break
+                else:
+                    break
             break
     elif p.poll() is not None:
         break

@@ -2,7 +2,7 @@
   "sprint": "SP-06",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Memory Discovery & Frame Allocator",
-  "timestamp_utc": "2026-10-26T18:43:49Z",
+  "timestamp_utc": "2026-10-26T18:59:38Z",
   "invariants_verified": [
     "INV-MEM-001",
     "INV-MEM-003"
@@ -19,12 +19,12 @@
   ],
   "artifacts": {
     "docs/evidence/golden-boot-sp06.log": "5413089f9aefe6b9a9569e2d55afa160b107b2c6ec02a663314b3a8cf9594199",
-    "evidence/SP-06/serial.log": "5c7ba196c14a644530af9c24a350f31e5bb5e80306545f034d855a6cf0a8204f",
+    "evidence/SP-06/serial.log": "2e7f8fe880dde54393f2eb3875aaa691b61628cbe980017efa8e0d1851ca1d04",
     "kernel/src/mm/address_space.rs": "8acb65e9509b69d561eb0646f1e928326d0b6afc1fcf2f8ffe431e74a8f27ccc",
     "kernel/src/mm/dtb.rs": "197e37498f7fad0a24c7993406088bac89750f445bdd578ce30de6db384506e9",
     "kernel/src/mm/frame.rs": "28893d896c3bc66f1bac28e3eff50eb7a878f58b58cf53b767797ad8aeebba15",
     "kernel/src/mm/mod.rs": "0d0c40fbc55b9ceb57f98787156d9af65fb35d77f3f8495473c7549815206e7d",
-    "kernel/target/aarch64-unknown-none/debug/indk": "b85d7687659ffe1eab75937b2677d4dedbecd6f1cb215471b59223d1be0912e0",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "7f16fe7e4ed45d469e669ae20e8b0bd49e66ebfb8b06dac1083fdf4a0a621899"
+    "kernel/target/aarch64-unknown-none/debug/indk": "ee4e33160b341e9324d0ec0c3be9b1e97e00a35890cf978676b5059223f041e5",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "18880ac3eb11c65ce4092172379e25c47045c65b20f0d877f01b74cd9473acfd"
   }
 }
