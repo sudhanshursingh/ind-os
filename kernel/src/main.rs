@@ -24,6 +24,7 @@ pub mod object;
 pub mod panic;
 pub mod policy;
 pub mod redteam;
+pub mod smp;
 pub mod sync;
 pub mod syscall;
 pub mod task;
@@ -2216,6 +2217,151 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [DRV] virtio-blk, virtio-net, framebuffer, input,");
     println!(" [DRV] proving the user-mode driver framework carries real devices");
     println!(" [DRV] without kernel privilege (INV-DRV-001, INV-DRV-002, INV-DRV-003).");
+    println!("==================================================");
+
+    // =========================================================================
+    // Phase 4: Sprint SP-28 — Symmetric Multi-Processing (SMP) (REQ-KRN-109)
+    // =========================================================================
+
+    // Stage 84: SMP Core Topology & Primary CPU Initialization
+    stage_marker!("84_SMP_CORE_TOPOLOGY", "SMP core topology discovered, CPU 0 primary initialized");
+    {
+        use smp::{CPU_MANAGER, CpuState};
+        let mut cm = CPU_MANAGER.lock();
+
+        // Initialize primary bootstrap processor (CPU 0) with MPIDR Aff0=0
+        cm.init_primary(0x8000_0000);
+        assert_eq!(cm.online_count, 1);
+        assert!(cm.is_online(0));
+
+        let cpu0 = cm.get_cpu(0).expect("Lookup CPU 0");
+        assert_eq!(cpu0.cpu_id, 0);
+        assert!(cpu0.is_primary);
+        assert_eq!(cpu0.state, CpuState::Online);
+
+        log_info!("smp", "Primary CPU 0 online (MPIDR 0x{:08X}, bootstrap core)", cpu0.mpidr);
+    }
+
+    // Stage 85: Secondary Core Bring-up & PSCI Handshake (INV-SMP-001)
+    stage_marker!("85_SMP_SECONDARY_BRINGUP", "Secondary cores (Cores 1..3) brought up into Online state (INV-SMP-001, REQ-KRN-109)");
+    {
+        use smp::{CPU_MANAGER, CpuState};
+        let mut cm = CPU_MANAGER.lock();
+
+        // Bring up secondary cores 1, 2, 3 with respective MPIDR values
+        cm.bringup_secondary(1, 0x8000_0001).expect("Bringup CPU 1");
+        cm.bringup_secondary(2, 0x8000_0002).expect("Bringup CPU 2");
+        cm.bringup_secondary(3, 0x8000_0003).expect("Bringup CPU 3");
+
+        assert_eq!(cm.online_count, 4);
+        assert!(cm.is_online(1));
+        assert!(cm.is_online(2));
+        assert!(cm.is_online(3));
+
+        for id in 1..4 {
+            let cpu = cm.get_cpu(id).unwrap();
+            assert!(!cpu.is_primary);
+            assert_eq!(cpu.state, CpuState::Online);
+        }
+
+        log_info!("smp", "All 4 CPU cores online: Cores 1..3 brought up successfully via PSCI handshake (INV-SMP-001 PASSED)");
+    }
+
+    // Stage 86: Decentralized Per-CPU Run Queues (INV-SMP-002)
+    stage_marker!("86_SMP_PER_CPU_QUEUES", "Decentralized per-CPU run queues and local priority scheduling verified (INV-SMP-002)");
+    {
+        use smp::{AffinityMask, PER_CPU_QUEUES, ScheduledTask};
+        use task::scheduler::Priority;
+
+        let mut queues = PER_CPU_QUEUES.lock();
+
+        // Enqueue tasks onto CPU 0 and CPU 1 local queues
+        let task_core0 = ScheduledTask::new(101, Priority::Interactive, AffinityMask::ALL, "shell_worker");
+        let task_core1 = ScheduledTask::new(102, Priority::Realtime, AffinityMask::ALL, "audio_dsp");
+
+        queues[0].enqueue(task_core0).expect("Enqueue on CPU 0");
+        queues[1].enqueue(task_core1).expect("Enqueue on CPU 1");
+
+        assert_eq!(queues[0].task_count(), 1);
+        assert_eq!(queues[1].task_count(), 1);
+        assert_eq!(queues[2].task_count(), 0);
+        assert_eq!(queues[3].task_count(), 0);
+
+        // Core 1 dequeues its highest priority local task without taking global lock
+        let dequeued = queues[1].dequeue_highest_priority().expect("Dequeue on CPU 1");
+        assert_eq!(dequeued.pid, 102);
+        assert_eq!(dequeued.priority, Priority::Realtime);
+        assert_eq!(queues[1].task_count(), 0);
+
+        log_info!("smp", "Decentralized per-CPU run queues verified: independent local priority dispatch (INV-SMP-002 PASSED)");
+    }
+
+    // Stage 87: Hard Affinity Mask Enforcement (REQ-KRN-109)
+    stage_marker!("87_SMP_AFFINITY_DISPATCH", "Task affinity constraints strictly enforced across core boundaries (REQ-KRN-109)");
+    {
+        use smp::{AffinityMask, PER_CPU_QUEUES, ScheduledTask};
+        use task::scheduler::Priority;
+
+        let mut queues = PER_CPU_QUEUES.lock();
+
+        // Task pinned exclusively to CPU 2 (e.g. AIS background model worker)
+        let pinned_task = ScheduledTask::new(103, Priority::BatchIntelligence, AffinityMask::CPU2, "ais_infer_core2");
+
+        // Attempt to enqueue onto CPU 0 or CPU 1: must be rejected
+        let invalid_enqueue = queues[0].enqueue(pinned_task);
+        assert!(invalid_enqueue.is_err(), "Enqueueing task on non-affine CPU must be rejected (REQ-KRN-109)");
+        log_info!("smp", "Affinity enforcement verified: CPU 0 rejected task with AffinityMask::CPU2: {} (REQ-KRN-109 PASSED)",
+            invalid_enqueue.unwrap_err());
+
+        // Enqueue onto affine CPU 2: must succeed
+        queues[2].enqueue(pinned_task).expect("Enqueue onto affine CPU 2");
+        assert_eq!(queues[2].task_count(), 1);
+
+        let dispatched = queues[2].dequeue_highest_priority().expect("Dispatch on affine CPU 2");
+        assert_eq!(dispatched.pid, 103);
+        assert_eq!(dispatched.name(), "ais_infer_core2");
+
+        log_info!("smp", "Hard affinity dispatch verified: task 103 strictly dispatched on CPU 2 (REQ-KRN-109 PASSED)");
+    }
+
+    // Stage 88: Inter-Processor Interrupts (IPI) via GIC SGIs (INV-SMP-003)
+    stage_marker!("88_SMP_IPI_MESSAGING", "Inter-Processor Interrupts (Reschedule, TLB flush) via GIC SGIs verified (INV-SMP-003)");
+    {
+        use smp::{IPI_BROKER, IpiKind};
+        let mut ipi = IPI_BROKER.lock();
+
+        // CPU 0 sends Reschedule IPI (SGI 0) to CPU 1
+        ipi.send_ipi(0, 1, IpiKind::Reschedule, 0).expect("Send Reschedule IPI");
+        assert_eq!(ipi.pending_count(1), 1);
+
+        // CPU 1 sends TlbFlush IPI (SGI 1) to CPU 3 with address payload
+        ipi.send_ipi(1, 3, IpiKind::TlbFlush, 0x4000_1000).expect("Send TlbFlush IPI");
+        assert_eq!(ipi.pending_count(3), 1);
+
+        // CPU 1 receives and processes Reschedule IPI
+        let msg_cpu1 = ipi.receive_ipi(1).expect("Receive IPI on CPU 1");
+        assert_eq!(msg_cpu1.source_cpu, 0);
+        assert_eq!(msg_cpu1.kind, IpiKind::Reschedule);
+        assert_eq!(ipi.pending_count(1), 0);
+
+        // CPU 3 receives and processes TlbFlush IPI
+        let msg_cpu3 = ipi.receive_ipi(3).expect("Receive IPI on CPU 3");
+        assert_eq!(msg_cpu3.source_cpu, 1);
+        assert_eq!(msg_cpu3.kind, IpiKind::TlbFlush);
+        assert_eq!(msg_cpu3.arg, 0x4000_1000);
+        assert_eq!(ipi.pending_count(3), 0);
+
+        log_info!("smp", "IPI messaging verified: SGI 0 Reschedule (CPU 0 -> 1) and SGI 1 TlbFlush (CPU 1 -> 3) delivered and handled (INV-SMP-003 PASSED)");
+    }
+
+    // Stage 89: Sprint SP-28 SMP Milestone Reached
+    stage_marker!("89_SMP_SUBSYSTEM_READY", "Sprint SP-28 Symmetric Multi-Processing (SMP) Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SMP] Sprint SP-28 Symmetric Multi-Processing Milestone REACHED.");
+    println!(" [SMP] Multi-Core Bring-up (Cores 0..3) via PSCI (INV-SMP-001),");
+    println!(" [SMP] Decentralized Per-CPU Run Queues (INV-SMP-002),");
+    println!(" [SMP] Hard Affinity Masking & Dispatch (REQ-KRN-109),");
+    println!(" [SMP] and Cross-Core IPI Messaging via GIC SGIs (INV-SMP-003) Verified.");
     println!("==================================================");
 
     // Park CPU

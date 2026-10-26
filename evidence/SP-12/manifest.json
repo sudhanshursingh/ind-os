@@ -2,7 +2,7 @@
   "sprint": "SP-12",
   "phase": "Phase 2 Core Kernel",
   "title": "Preemptive Scheduler & Context Switch (Priority Classes, Quantum Preemption, & sched_hint)",
-  "timestamp_utc": "2026-10-26T20:17:02Z",
+  "timestamp_utc": "2026-10-26T20:23:43Z",
   "specifications_verified": [
     "INDOS-SPEC-SCHED-01 (Priority classes, context switch, and sched_hint)",
     "INV-SCHED-001 (AArch64 atomic register & address space context switch)",
@@ -28,7 +28,7 @@
     "kernel/src/arch/aarch64/user_trap.s": "1570107c8bbc001cf01a980f327a5edffb4b1c469050f98f1d47e33afbb20592",
     "kernel/src/arch/aarch64/exceptions.s": "20315700bf24b76e17efb1265588dba5be614996447af3eb1e5a252a702f05f5",
     "docs/evidence/golden-boot-sp12.log": "5f028e42a881c98f4df146800f012b8ba85287e83ae03e35a6b67e531f9b779b",
-    "kernel/target/aarch64-unknown-none/debug/indk": "0b543894e4ad492a897ddc25b38a47f3a76ff25f60e71f7d3c3f20d4c8b6685a"
+    "kernel/target/aarch64-unknown-none/debug/indk": "3ed99dfba7c6ed33bc8c0c24bd98046dfc104583860110c0ace99112ebbf6ea5"
   },
   "test_result": "PASS",
   "qemu_execution": "SUCCESS"

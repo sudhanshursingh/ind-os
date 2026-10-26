@@ -1,12 +1,12 @@
 {
   "sprint": "SP-03",
   "title": "Evidence & Test Harness",
-  "timestamp_utc": "2026-10-26T20:16:49Z",
+  "timestamp_utc": "2026-10-26T20:23:30Z",
   "status": "PASS",
   "harness_self_test": "PASSED",
   "file_hashes": {
     "ci/golden_log_comparator.py": "337224fdb9542476cf548f1e4a83137619bd610ce8958d024023a46ab710d7fe",
     "ci/run_qemu_test.py": "a88cff13c12782ba37d8bf643dfe7b186c4bbe3ec9c8ac4f33ba808fd357a76f",
-    "tools/run_qemu.sh": "58c49da3241c14194ea79142c388158b8c419a63615269979a74a8afbf43af42"
+    "tools/run_qemu.sh": "3e21b206520d61e3a267ae08c1b18af632ac3bbe20899ff75fe3cced5f0f3679"
   }
 }

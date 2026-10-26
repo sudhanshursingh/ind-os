@@ -131,7 +131,7 @@ while True:
         if out_file:
             out_file.write(text)
             out_file.flush()
-        if 'REFERENCE_DRIVERS_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
+        if 'SMP_SUBSYSTEM_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
             time.sleep(0.1)
             while True:
                 r, _, _ = select.select([p.stdout], [], [], 0.05)

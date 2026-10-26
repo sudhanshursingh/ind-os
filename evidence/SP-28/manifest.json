@@ -1,0 +1,16 @@
+{
+  "sprint": "SP-28",
+  "title": "Symmetric Multi-Processing (SMP: Core Bring-up, Per-CPU Run Queues, Affinity, IPIs)",
+  "timestamp": "2026-10-26T20:23:44Z",
+  "status": "PASSED",
+  "artifacts": {
+    "docs/architecture/smp-core-spec.md": "93c731825f33d6284226cdb7df6ba82ac5fffc264bcaefbf78d6adbda7796888",
+    "docs/evidence/SP-28-validation.md": "f363fea1cb23f8397347039ea680b72fa0ca14a4e1addfd9f67de634e3562d77",
+    "docs/evidence/golden-boot-sp28.log": "38873a71795fa56970ba13cf2d0c1b44410fe357d8e148fff713637a06daa9d5",
+    "kernel/src/smp/core.rs": "014aa3a632acf54dd22c86aafb7d927e503bf6618638fef995e2ba014ed4503e",
+    "kernel/src/smp/runqueue.rs": "4d312e35fca3dc725c37e1b648b32f5fa8057259a685fd3f18240425a6b235f8",
+    "kernel/src/smp/ipi.rs": "00e5c48da82e99f7d3950bfafaee39bd381849ececfe953abb7f4b27f822a769",
+    "kernel/src/smp/mod.rs": "7e0656cf2bf3dfbad1a3fda13444bf9a9febe2ea1bd93a53e4bec9b07d587e81",
+    "ci/verify_sp28.py": "f7efe67e4a498ba53dd573b5f2656517e78d3b1cbfad0c1ad80512612a4947a7"
+  }
+}
