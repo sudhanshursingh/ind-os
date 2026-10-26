@@ -33,5 +33,11 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name="indos.suraksha.verifier.SurakshaBlockActivity"
+            android:label="Ind Suraksha Block Alert"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
     </application>
 </manifest>

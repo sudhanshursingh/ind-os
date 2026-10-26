@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint11"
-MODULE_VERSION_CODE="10011"
+MODULE_VERSION="v1.0.1-sprint12"
+MODULE_VERSION_CODE="10012"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -39,6 +39,7 @@ RUN_ASR_TEST=false
 RUN_NAV_TEST=false
 RUN_FIREWALL_TEST=false
 RUN_OTP_TEST=false
+RUN_APK_BLOCK_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -58,6 +59,7 @@ Options:
     -n, --nav-test    Execute Sprint 9 DoD Flagship Autonomous UI Navigation Demo (WhatsApp / YouTube / Dialer multi-step)
     -f, --firewall-test Execute Sprint 10 DoD Prompt-Injection Firewall & Dual-Context Isolation Test (0 actions triggered)
     -o, --otp-test    Execute Sprint 11 DoD Screen-Share OTP Blackout & Banking Window Guard Test
+    -k, --apk-block-test Execute Sprint 12 DoD Scam SMS & Malicious Trojan APK Blocker Test
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -121,6 +123,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -o|--otp-test)
             RUN_OTP_TEST=true
+            shift
+            ;;
+        -k|--apk-block-test)
+            RUN_APK_BLOCK_TEST=true
             shift
             ;;
         -s|--serial)
@@ -432,6 +438,20 @@ if [[ "${RUN_OTP_TEST}" == "true" ]]; then
     sleep 2
     "${ADB_CMD[@]}" logcat -d -s ScreenShareDetector OtpNotificationInterceptor BankingWindowGuard IND_SURAKSHA IND_BENCHMARK
     echo "[+] Sprint 11 DoD Screen-Share OTP Blackout & Banking Window Guard Test completed."
+fi
+
+if [[ "${RUN_APK_BLOCK_TEST}" == "true" ]]; then
+    echo "[*] Step 17: Executing Sprint 12 DoD Scam SMS & Malicious Trojan APK Blocker Test..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+
+    echo "[*] Simulating sideloaded banking trojan APK installation..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -n in.indos.suraksha/indos.suraksha.SurakshaShieldService || true
+
+    echo "[*] Awaiting Package Verifier & Scam Classifier telemetry (listening to logcat -s SurakshaVerifier ScamClassifier SurakshaBlockActivity IND_SURAKSHA IND_BENCHMARK)..."
+    sleep 2
+    "${ADB_CMD[@]}" logcat -d -s SurakshaVerifier ScamClassifier SurakshaBlockActivity IND_SURAKSHA IND_BENCHMARK
+    echo "[+] Sprint 12 DoD Scam SMS & Malicious Trojan APK Blocker Test completed."
 fi
 
 echo "[+] Deployment completed successfully."

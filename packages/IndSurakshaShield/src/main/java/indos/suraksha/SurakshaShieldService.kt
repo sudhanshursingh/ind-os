@@ -35,6 +35,8 @@ class SurakshaShieldService : Service() {
     lateinit var screenShareDetector: indos.suraksha.screenshare.ScreenShareDetector
     lateinit var otpInterceptor: indos.suraksha.screenshare.OtpNotificationInterceptor
     lateinit var bankingWindowGuard: indos.suraksha.screenshare.BankingWindowGuard
+    val scamClassifier = indos.suraksha.scam.ScamClassifier.getInstance()
+    val packageVerifier = indos.suraksha.verifier.SurakshaPackageVerifier.getInstance()
 
     override fun onCreate() {
         super.onCreate()
@@ -47,7 +49,7 @@ class SurakshaShieldService : Service() {
         createNotificationChannel()
         val notification = createNotification("Ind Suraksha Shield Active")
         startForeground(NOTIFICATION_ID, notification)
-        Log.i(TAG, "IndSurakshaShield service started (Sprint 11 Screen-Share OTP Blackout & Banking Guard active).")
+        Log.i(TAG, "IndSurakshaShield service started (Sprint 12 Scam Classifier & Malicious APK Blocker active).")
     }
 
     override fun onDestroy() {
