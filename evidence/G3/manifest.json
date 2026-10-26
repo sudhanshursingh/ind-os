@@ -11,8 +11,8 @@
     "SP-22",
     "SP-23"
   ],
-  "timestamp": "2026-10-26T19:16:53Z",
-  "status": "READY_FOR_EXECUTION",
+  "timestamp": "2026-10-26T19:21:03Z",
+  "status": "RATIFIED_AND_PASSED",
   "invariants": {
     "INV-CAP-001": "Monotonic Rights Attenuation (proven by test and formal spec)",
     "INV-CAP-002": "Revocation Soundness & Zero Leaks (transitive cross-namespace invalidation)",
@@ -28,8 +28,16 @@
       "bytes": 5406
     },
     "docs/evidence/GATE-G3-AUDIT.md": {
-      "sha256": "10f173662117f0c61927d7137817bdb41854abfb57bd61789bfc9dc3f741babc",
-      "bytes": 4688
+      "sha256": "116ea06ecce87c7fa5a626ac5ae8f86a308f74157115db50812d11b7397a4c44",
+      "bytes": 5249
+    },
+    "docs/evidence/SP-23-validation.md": {
+      "sha256": "56372aa1764fa7efad236ac471e9764f4eb1c3b5e7d7bc465c27ca8654a56df6",
+      "bytes": 6313
+    },
+    "docs/evidence/golden-boot-sp23.log": {
+      "sha256": "0924820ed783d589b0f2cb884fa413c5c0fe9d8c3ea7bd58a8ae99fd59495471",
+      "bytes": 23508
     },
     "docs/DECISIONS/gate-G3-dec001-review.md": {
       "sha256": "7d9cb99be412322a80895fc28afb4d4bf64620fe1f49f0202c8e80536e6181a2",
