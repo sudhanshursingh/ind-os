@@ -14,6 +14,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "indus-edit"
+version = "0.1.0"
+dependencies = [
+ "libindus",
+]
+
+[[package]]
 name = "indus-init"
 version = "0.1.0"
 

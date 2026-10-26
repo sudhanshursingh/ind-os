@@ -1,0 +1,23 @@
+{
+  "sprint": "SP-38",
+  "phase": "Phase 5 (Userspace & the Developer OS)",
+  "invariants": [
+    "INV-DEVX-001",
+    "INV-DEVX-002"
+  ],
+  "deliverables": {
+    "docs/architecture/developer-experience-spec.md": "95a4f6753e9837695d6cd955d9da6ca5da88125f44580be40c7e091db117c3f8",
+    "docs/evidence/SP-38-validation.md": "44b2c2b1d18a3a6deac00572810589030e36e45cc4e66ff10697c98d665a2423",
+    "docs/evidence/golden-boot-sp38.log": "a35273e07411f989014b78094503042002dae6910e441e70f691f6fbc0a9e6e8",
+    "userspace/edit/Cargo.toml": "ba91cc9e01a769d5443592fc1322d029cf0d209a58ebf1a290d9dc7270575028",
+    "userspace/edit/README.md": "897444cc291053b6048f82ddc98a23f4da75b40915046dc0e4139c02ba8609a2",
+    "userspace/edit/src/lib.rs": "c01a511872ce78f1a9ff68d0910b6481613d2b908dfa25e533e8b1e53cf5ac65",
+    "userspace/edit/src/main.rs": "be52746b380b43e13f7bbd520b51e9082e3ef1f78453d0a5bd5cafa044cc61ed",
+    "userspace/edit/src/types.rs": "22d230c25ddd672581161f53147cabc4961a3d627816d8236121d985f145f38d",
+    "userspace/edit/src/buffer.rs": "ae95a15a51e86f5b0a5577f907bea9bd59c0fb6b1d0ea5b2b4b10bcfe1908e57",
+    "userspace/edit/src/editor.rs": "407281bd670a6eaf2ae8d682fd4c0677d93afaffa58cc5e9159fd90219bdca4c",
+    "kernel/src/userspace/devx.rs": "f12e806bd8fa9c7d5769148274bee96f89c9cfffff7acd6101365d2578e27678"
+  },
+  "target": "aarch64-unknown-none",
+  "status": "PASS"
+}
