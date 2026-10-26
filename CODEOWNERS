@@ -1,0 +1,9 @@
+# Ind OS Codeowners
+# Every subsystem has clear ownership and oversight per Section 8.4
+
+*                  @sudhanshursingh
+/kernel/           @sudhanshursingh
+/userspace/        @sudhanshursingh
+/ais/              @sudhanshursingh
+/docs/DECISIONS/   @sudhanshursingh
+/Ind_OS_Development_Bible_v1.0.0.0.md @sudhanshursingh

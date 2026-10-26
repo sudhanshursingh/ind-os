@@ -1,0 +1,18 @@
+{
+  "sprint": "SP-00",
+  "title": "Repository & Governance Bootstrap",
+  "timestamp_utc": "2026-10-26T11:44:28Z",
+  "status": "PASS",
+  "tracked_files_count": 9,
+  "file_hashes": {
+    "CODEOWNERS": "c36dc33715b520c2a140c84bdfcad17fb2c28886db8f19c630c7baeb519a480c",
+    "CONTRIBUTING.md": "06ad41908948ba92d7abcb09fe1cc1dc91eaf5c1562bea262610919e2e83b5ad",
+    "Ind_OS_Development_Bible_v1.0.0.0.md": "25e6e35e71982d239bbde46e12a393f881a8ee18c577a11750c290af7f8d84f8",
+    "README.md": "726293f8d71639c3c9337cf7c1d3f77ac6d7909fb8854cab419b31c9d467da58",
+    "ci/check_commit_msg.py": "a6236041721190167ad9ad14cb50499f67f6a98a14eb7596886bf6300bfe6c48",
+    "ci/verify_sp00.py": "6990e1813e62c0ca9bd3c9eb0d3c50e20aee70a182c09a54cc85800eabf23c98",
+    "docs/DECISIONS/DEC-001-founder-reasoning.md": "7d2ab2ca34c942388714dc12c06e9579145d60ca2d0d1b87b4d0711f1fe0b3a9",
+    "docs/DECISIONS/register.md": "1792f28252487b32b080332ce087b2eeef7022dc70932ddacb41f2624e29b6a2",
+    "docs/engineering/licensing-and-sbom.md": "8d4b368b663d026888006c2cf08d886019fe96a82e802263e87344dd8f724b09"
+  }
+}
