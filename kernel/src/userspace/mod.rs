@@ -10,6 +10,7 @@ pub mod core_libs;
 pub mod devmgr;
 pub mod shell;
 pub mod logd;
+pub mod store;
 
 pub use init::{
     BootStageRecord, InitError, KernelInitSubsystem, RestartPolicy, Runlevel,
@@ -33,5 +34,10 @@ pub use shell::{
 pub use logd::{
     KernelDiagnosticCause, KernelDiagnosticRecord, KernelLogBus, KernelLogLevel,
     KernelLogMessage, KernelRedactionFilter, KernelWhyEngine, KERNEL_LOG_CAPACITY,
+};
+pub use store::{
+    KernelConsentRecord, KernelConsentState, KernelSettingEntry,
+    KernelSettingsAndConsentStore, KernelStoreError,
+    CAP_STORE_ADMIN as KERNEL_CAP_STORE_ADMIN, CAP_STORE_READ as KERNEL_CAP_STORE_READ,
 };
 

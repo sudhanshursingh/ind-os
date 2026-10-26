@@ -1,0 +1,26 @@
+{
+  "sprint": "SP-37",
+  "phase": "Phase 5 (Userspace & the Developer OS)",
+  "requirements": [
+    "REQ-USE-206"
+  ],
+  "invariants": [
+    "INV-STR-001",
+    "INV-STR-002"
+  ],
+  "deliverables": {
+    "docs/architecture/settings-consent-store-spec.md": "83d5499ca95ea61ffc8b03fe41eb52aee363b2fd5080dfe88e0d12c92239af6d",
+    "docs/evidence/SP-37-validation.md": "086a0a062901ebf54695b95726a2604dd98564bfc884cb48e003b98c78ab40c6",
+    "docs/evidence/golden-boot-sp37.log": "fbc581f7053d503362c9e285581d29fc07ff9d39772a38efbbe641c0398be90c",
+    "userspace/store/Cargo.toml": "05ab14b3262953abf4c8eb8ac194c1f85bc45ef3d080978357d44758533cec6f",
+    "userspace/store/README.md": "c904e74bf9ab43dc2c063c79b7336c63b97b4e1e43e017f146a4eeb2b827f9fc",
+    "userspace/store/src/lib.rs": "d1886736997393a2470523cc6833d7d931cd2f1b092df931daa0db5f06e41276",
+    "userspace/store/src/main.rs": "67786fd22043b5517914b121635deca71c273de99aa90cff6e4781abec39e36d",
+    "userspace/store/src/types.rs": "7339e6d76c9ad06c5bcc4e4cd8c015500ed320b701b60ba0486fcf7ab00a65ae",
+    "userspace/store/src/integrity.rs": "1cce161017f74816a67d0c516552fb5fb541447ae405251a907ad8f095858772",
+    "userspace/store/src/consent.rs": "cce5a9e4dfd528a33f779820bdba6d4ccc64b308771132834f479331c164793a",
+    "kernel/src/userspace/store.rs": "73ac33196e94b51b471a5d7419adb044d0535b4eb566ce4d22f5a2d8758c80ab"
+  },
+  "target": "aarch64-unknown-none",
+  "status": "PASS"
+}

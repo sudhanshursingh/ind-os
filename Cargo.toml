@@ -6,6 +6,7 @@ members = [
     "userspace/devmgr",
     "userspace/shell",
     "userspace/logd",
+    "userspace/store",
 ]
 resolver = "2"
 

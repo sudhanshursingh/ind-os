@@ -1,0 +1,18 @@
+[package]
+name = "indus-store"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
+description = "Ind OS Settings & Consent Store (REQ-USE-206)"
+license = "GPL-2.0-only"
+
+[lib]
+name = "indus_store"
+path = "src/lib.rs"
+
+[[bin]]
+name = "stored"
+path = "src/main.rs"
+
+[dependencies]
+libindus = { path = "../libindus" }
