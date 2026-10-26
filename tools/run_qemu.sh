@@ -44,11 +44,18 @@ if [[ ! -f "$KERNEL_PATH" ]]; then
     exit 2
 fi
 
+CONTAINER_NAME="indos-qemu-$$-$RANDOM"
+export CONTAINER_NAME
+trap 'docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true' EXIT INT TERM
+
+WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 QEMU_PREFIX=()
 if command -v qemu-system-aarch64 >/dev/null 2>&1; then
     QEMU_PREFIX=("qemu-system-aarch64")
 elif command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
-    QEMU_PREFIX=(docker run --rm -i -v "${PWD}:/workspace" -w /workspace indos-qemu qemu-system-aarch64)
+    sync 2>/dev/null || true
+    QEMU_PREFIX=(docker run --rm -i --name "$CONTAINER_NAME" -v "${WORKSPACE_ROOT}:/workspace" -w /workspace indos-qemu qemu-system-aarch64)
 else
     echo "❌ ERROR: Neither qemu-system-aarch64 nor docker daemon found." >&2
     echo "Please use tools/Containerfile or install QEMU system aarch64." >&2
@@ -92,7 +99,7 @@ if [[ -n "$LOG_PATH" ]]; then
 fi
 
 python3 -c "
-import subprocess, sys, time, select
+import os, subprocess, sys, time, select
 
 cmd = sys.argv[1:]
 log_path = '$LOG_PATH'
@@ -109,15 +116,35 @@ while True:
 
     rlist, _, _ = select.select([p.stdout], [], [], min(rem_time, 0.2))
     if rlist:
-        chunk = p.stdout.read1(4096) if hasattr(p.stdout, 'read1') else p.stdout.read(4096)
+        try:
+            chunk = os.read(p.stdout.fileno(), 4096)
+        except Exception:
+            chunk = b''
         if not chunk:
-            break
+            if p.poll() is not None:
+                break
+            time.sleep(0.05)
+            continue
         text = chunk.decode('utf-8', errors='replace')
         sys.stdout.write(text)
         sys.stdout.flush()
         if out_file:
             out_file.write(text)
             out_file.flush()
+        if 'CAPABILITY_SYSTEM_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
+            time.sleep(0.1)
+            try:
+                remaining = os.read(p.stdout.fileno(), 4096)
+                if remaining:
+                    t_rem = remaining.decode('utf-8', errors='replace')
+                    sys.stdout.write(t_rem)
+                    sys.stdout.flush()
+                    if out_file:
+                        out_file.write(t_rem)
+                        out_file.flush()
+            except Exception:
+                pass
+            break
     elif p.poll() is not None:
         break
 
@@ -129,6 +156,13 @@ try:
     p.wait(timeout=1)
 except Exception:
     pass
+
+c_name = os.environ.get('CONTAINER_NAME')
+if c_name:
+    try:
+        subprocess.run(['docker', 'rm', '-f', c_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
 
 sys.exit(0)
 " "${QEMU_CMD[@]}"

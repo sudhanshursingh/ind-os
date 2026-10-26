@@ -1,0 +1,37 @@
+{
+  "sprint": "SP-17",
+  "title": "Capabilities I (Unforgeable Tokens, Object-Table Integration, Mint/Grant/Revoke, Per-Process Namespaces)",
+  "timestamp": "2026-10-26T18:20:43Z",
+  "invariants": {
+    "INV-CAP-001": "Monotonic Rights Attenuation (target_rights subset enforced)",
+    "INV-CAP-002": "Revocation Soundness (transitive lineage tree invalidation)",
+    "INV-CAP-003": "Object-Table Reference Coherence (retain on mint/delegate, release on revoke)",
+    "INV-CAP-004": "Strict Per-Process Namespace Isolation (process-local handles)"
+  },
+  "files": {
+    "docs/architecture/capability-tokens-spec.md": {
+      "sha256": "4113db01173964365b9c77865356d67a1c70f62f58ac7bdada32c523cd5bc800",
+      "bytes": 5356
+    },
+    "docs/evidence/SP-17-validation.md": {
+      "sha256": "6fb8ff88c277a01ee8837d08d1a0443f0ad62bbb234bd23c843807509614199b",
+      "bytes": 8279
+    },
+    "docs/evidence/golden-boot-sp17.log": {
+      "sha256": "88cf50b0fde8ef3474e19d5a928c5f82694aab2483711ba8f141ff7e4b0a4ff8",
+      "bytes": 15915
+    },
+    "kernel/src/capability/namespace.rs": {
+      "sha256": "2f3ea3c206c0af241ba4959faeabd2fc02892b522d01a65975b546f1fa287a4e",
+      "bytes": 7904
+    },
+    "kernel/src/capability/table.rs": {
+      "sha256": "61a25c3cbdd3eef779262083d5360d3076feae5ee92c105a91c80a5e5be60aa1",
+      "bytes": 10690
+    },
+    "kernel/src/capability/mod.rs": {
+      "sha256": "81c84a6e40aa96b7705a4436c0a5ca5d279a8dd51e14e112063482695e48e256",
+      "bytes": 732
+    }
+  }
+}

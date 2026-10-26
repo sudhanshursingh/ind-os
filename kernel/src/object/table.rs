@@ -271,4 +271,24 @@ impl KObjectTable {
             _ => Err(EINVAL),
         }
     }
+
+    /// Returns the reference count of an object (INV-OBJ-002)
+    pub fn get_ref_count(&self, id: KObjectId) -> Result<u32, i64> {
+        let idx = id.index as usize;
+        if idx >= MAX_KOBJECTS {
+            return Err(EBADF);
+        }
+
+        let slot = &self.slots[idx];
+        if slot.generation != id.generation || slot.object.is_none() {
+            return Err(EBADF);
+        }
+
+        let obj = slot.object.as_ref().unwrap();
+        if obj.obj_type() != id.obj_type {
+            return Err(EINVAL);
+        }
+
+        Ok(slot.ref_count)
+    }
 }

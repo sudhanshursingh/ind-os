@@ -2,6 +2,7 @@
 //! Compliant with Bible §8.8 / §10 and Machine Invariants INV-CAP-001 & INV-CAP-002.
 
 use crate::capability::rights::CapRights;
+use crate::object::{KObjectId, KObjectTable};
 use crate::syscall::{EBADF, EINVAL, ENOMEM, EPERM};
 use crate::task::ProcessId;
 
@@ -12,7 +13,9 @@ pub const MAX_CAPABILITIES: usize = 64;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CapType {
     Empty,
-    Endpoint(u32), // Synchronous IPC Endpoint ID
+    Object(KObjectId), // Typed first-class kernel object handle (INV-CAP-003)
+    Endpoint(u32),     // Synchronous IPC Endpoint ID
+    Notification(u32), // Asynchronous notification ID
     Process(ProcessId),
     MemoryRegion { base: usize, size: usize },
     SyscallBitmap(u64),
@@ -50,9 +53,9 @@ impl Capability {
     }
 }
 
-/// Per-process Capability Table
+#[derive(Clone, Copy)]
 pub struct CapTable {
-    slots: [Capability; MAX_CAPABILITIES],
+    pub slots: [Capability; MAX_CAPABILITIES],
 }
 
 impl CapTable {
@@ -136,6 +139,43 @@ impl CapTable {
         self.insert(derived_cap)
     }
 
+    /// Mints a derived capability with monotonic rights attenuation and object reference tracking (INV-CAP-001, INV-CAP-003)
+    pub fn mint_object_cap(
+        &mut self,
+        src_handle: CapHandle,
+        target_rights: CapRights,
+        badge: u64,
+        obj_table: &mut KObjectTable,
+    ) -> Result<CapHandle, i64> {
+        let cap_type = {
+            let src = self.get(src_handle)?;
+            if !src.rights.contains(CapRights::GRANT) {
+                return Err(EPERM);
+            }
+            if !src.rights.can_attenuate_to(target_rights) {
+                return Err(EPERM);
+            }
+            src.cap_type
+        };
+
+        if let CapType::Object(kobj_id) = cap_type {
+            obj_table.retain(kobj_id)?;
+        }
+
+        let mut derived_cap = Capability::new(cap_type, target_rights, badge);
+        derived_cap.parent_slot = Some(src_handle);
+
+        match self.insert(derived_cap) {
+            Ok(h) => Ok(h),
+            Err(e) => {
+                if let CapType::Object(kobj_id) = cap_type {
+                    let _ = obj_table.release(kobj_id);
+                }
+                Err(e)
+            }
+        }
+    }
+
     /// Revokes a capability and recursively invalidates all derived child capabilities (INV-CAP-002)
     /// Returns the total number of capability slots invalidated.
     pub fn revoke(&mut self, handle: CapHandle) -> Result<usize, i64> {
@@ -173,6 +213,56 @@ impl CapTable {
         Ok(revoked_count)
     }
 
+    /// Revokes a capability and recursively invalidates all derived child capabilities (INV-CAP-002),
+    /// releasing KObject references in KObjectTable (INV-CAP-003).
+    /// Returns the total number of capability slots invalidated.
+    pub fn revoke_with_objects(
+        &mut self,
+        handle: CapHandle,
+        obj_table: &mut KObjectTable,
+    ) -> Result<usize, i64> {
+        let idx = handle as usize;
+        if idx >= MAX_CAPABILITIES || !self.slots[idx].is_valid {
+            return Err(EBADF);
+        }
+
+        let mut to_revoke = [false; MAX_CAPABILITIES];
+        to_revoke[idx] = true;
+
+        let mut cascade = true;
+        while cascade {
+            cascade = false;
+            for i in 0..MAX_CAPABILITIES {
+                if !to_revoke[i] && self.slots[i].is_valid {
+                    if let Some(parent) = self.slots[i].parent_slot {
+                        let parent_idx = parent as usize;
+                        if parent_idx < MAX_CAPABILITIES && to_revoke[parent_idx] {
+                            to_revoke[i] = true;
+                            cascade = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        let mut revoked_count = 0;
+        for i in 0..MAX_CAPABILITIES {
+            if to_revoke[i] && self.slots[i].is_valid {
+                let old_type = self.slots[i].cap_type;
+                self.slots[i].is_valid = false;
+                self.slots[i].cap_type = CapType::Empty;
+                self.slots[i].rights = CapRights::NONE;
+                revoked_count += 1;
+
+                if let CapType::Object(kobj_id) = old_type {
+                    let _ = obj_table.release(kobj_id);
+                }
+            }
+        }
+
+        Ok(revoked_count)
+    }
+
     /// Delegates a capability to another process's capability table with monotonic rights attenuation
     pub fn delegate_to(
         &self,
@@ -190,6 +280,39 @@ impl CapTable {
 
         let delegated_cap = Capability::new(src.cap_type, target_rights, src.badge);
         target_table.insert(delegated_cap)
+    }
+
+    /// Delegates an object capability to another capability table with monotonic rights attenuation
+    /// and object reference count increment (INV-CAP-001, INV-CAP-003)
+    pub fn delegate_object_to(
+        &self,
+        src_handle: CapHandle,
+        target_rights: CapRights,
+        target_table: &mut CapTable,
+        obj_table: &mut KObjectTable,
+    ) -> Result<CapHandle, i64> {
+        let src = self.get(src_handle)?;
+        if !src.rights.contains(CapRights::GRANT) {
+            return Err(EPERM);
+        }
+        if !src.rights.can_attenuate_to(target_rights) {
+            return Err(EPERM);
+        }
+
+        if let CapType::Object(kobj_id) = src.cap_type {
+            obj_table.retain(kobj_id)?;
+        }
+
+        let delegated_cap = Capability::new(src.cap_type, target_rights, src.badge);
+        match target_table.insert(delegated_cap) {
+            Ok(h) => Ok(h),
+            Err(e) => {
+                if let CapType::Object(kobj_id) = src.cap_type {
+                    let _ = obj_table.release(kobj_id);
+                }
+                Err(e)
+            }
+        }
     }
 
     /// Returns the number of currently active capability slots

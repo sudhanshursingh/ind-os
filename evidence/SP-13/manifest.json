@@ -1,16 +1,16 @@
 {
   "sprint": "SP-13",
   "title": "IPC & Capability System",
-  "timestamp": 1793033824,
+  "timestamp": 1793038843,
   "status": "PASS",
   "deliverables": {
     "docs/architecture/capability-ipc-spec.md": "b1c4ca293f4361e02f6a64ec89070f5b9c5a66c9f3f47952011508d2414a294f",
-    "kernel/src/capability/mod.rs": "0e026763143d84aeef78fe75e7dfdf176dfb947782d43a2f6417ee7019c13dd7",
+    "kernel/src/capability/mod.rs": "81c84a6e40aa96b7705a4436c0a5ca5d279a8dd51e14e112063482695e48e256",
     "kernel/src/capability/rights.rs": "18a51b1eda12b88a32414e1aa7049e693ddf413c8f18c5e418811f5bd738e1b3",
-    "kernel/src/capability/table.rs": "22b88d895a65d857549f21cd7897ef8a7101accad61244326ce0f8a21346daa2",
+    "kernel/src/capability/table.rs": "61a25c3cbdd3eef779262083d5360d3076feae5ee92c105a91c80a5e5be60aa1",
     "kernel/src/ipc/mod.rs": "53fb9e5db7560535a79b2ee2eeaa77392df5bddd49130c5dc9408f6f9114366a",
     "kernel/src/ipc/endpoint.rs": "75e456dae95c3ad7e97b34b2e60d50e8a7415b8babb982a85d6f52b10a3708bd",
-    "kernel/src/syscall/mod.rs": "d232ccab04de87f924c03608c3f34086d96a9d7a6eced8d2dd593d7a83934951",
+    "kernel/src/syscall/mod.rs": "b4eb00b9fbd5b061550a586c74796823c09a28e2165b7343f6f34ec5c8c2b9f0",
     "docs/evidence/golden-boot-sp13.log": "b9e9ed32cbb39343a347cf414433a4fe8f25bfd290b172511764b9fafbb407d2"
   },
   "invariants": {

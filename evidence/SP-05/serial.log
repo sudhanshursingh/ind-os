@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   cfa60da6-dirty
+  Build Commit:   5d59d621-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 454, free 130618
-[DEBUG] mm: Allocated test frame 1 at 0x400c6000
-[DEBUG] mm: Allocated test frame 2 at 0x400c7000
+[INFO ] mm: Physical frames: total 131072, reserved 473, free 130599
+[DEBUG] mm: Allocated test frame 1 at 0x400d9000
+[DEBUG] mm: Allocated test frame 2 at 0x400da000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400c6000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x400d9000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -44,7 +44,7 @@
 [DEBUG] irq: Critical section mask active (INV-INT-002)
 [INFO ] irq: Critical section RAII discipline verified (INV-INT-002 PASSED)
 [INFO ] timer: Awaiting periodic hardware timer ticks...
-[INFO ] timer: Periodic timer ticks verified (received 4 ticks, INV-IRQ-004 verified)
+[INFO ] timer: Periodic timer ticks verified (received 3 ticks, INV-IRQ-004 verified)
 [INFO ] irq: Spurious interrupt handling verified (spurious count: 0, INV-INT-001 verified)
 [STAGE:14_INTERRUPTS_READY] Sprint SP-08 Interrupts & Hardware Timers Milestone REACHED
 ==================================================
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x401c6000
+[INFO ] mmu: Root L0 page table allocated at 0x401d9000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401cd000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401e0000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401d7000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401ea000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -118,24 +118,16 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[ALPHA] Process 1 completed successfully, exiting.
+[INFO ] proc: User process issued sys_exit(status: 0)
+[INFO ] sched: Process 1 ('proc_alpha') exited with status 0
+[INFO ] sched: Context switch on exit: activating PID 2 ('proc_beta')
 [BETA]  Process 2 resumed after yield/preemption (iter 2)
 [BETA]  Process 2 completed successfully, exiting.
 [INFO ] proc: User process issued sys_exit(status: 0)
 [INFO ] sched: Process 2 ('proc_beta') exited with status 0
-[INFO ] sched: Context switch on exit: activating PID 1 ('proc_alpha')
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[ALPHA] Process 1 completed successfully, exiting.
-[INFO ] proc: User process issued sys_exit(status: 0)
-[INFO ] sched: Process 1 ('proc_alpha') exited with status 0
  [SCHED] All concurrent processes finished. Scheduler returned to kernel.
-[INFO ] sched: Multitasking verified: 15 context switches, 12 preemptions, 2 yields, 2 hints
+[INFO ] sched: Multitasking verified: 11 context switches, 8 preemptions, 2 yields, 2 hints
 [STAGE:24_SCHEDULER_READY] Sprint SP-12 Preemptive Scheduler Milestone REACHED
 --------------------------------------------------
  [SCHED] Sprint SP-12 Preemptive Scheduler Milestone REACHED.
@@ -197,11 +189,28 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 16511 ticks (264 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 18930 ticks (302 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
  [IPC] Sprint SP-16 IPC Core Milestone REACHED.
  [IPC] Synchronous Endpoints, Rights Transfer, Notifications (INV-IPC-003),
  [IPC] Deadlines & Timeouts (INV-IPC-004), and Round-Trip Latency < 10us (INV-IPC-002) Verified.
+==================================================
+[STAGE:38_CAPABILITY_TOKENS_INIT] Per-process capability namespaces initialized per Bible §8.9 / §14
+[INFO ] cap: Initialized per-process namespaces: PID 1 and PID 2 active (INV-CAP-004)
+[STAGE:39_CAP_OBJECT_INTEGRATION] KObject binding, monotonic attenuation, cross-namespace delegation & revocation verified
+[INFO ] cap: Created KObject (type: MemoryRegion, index: 5, generation: 2)
+[INFO ] cap: Installed Object Cap in PID 1 (handle: 0, ref_count: 2) (INV-CAP-003)
+[INFO ] cap: Monotonic attenuation verified: rights expansion rejected (INV-CAP-001 PASSED)
+[INFO ] cap: Delegated capability from PID 1 to PID 2 (handle: 0, ref_count: 5) (INV-CAP-003)
+[INFO ] cap: Per-process namespace isolation verified (INV-CAP-004 PASSED)
+[INFO ] cap: Cascading revocation invalidated 3 slots in PID 1; ref_count drops to 2 (INV-CAP-002, INV-CAP-003)
+[INFO ] cap: KObject successfully destroyed upon final reference release (INV-CAP-003 PASSED)
+[STAGE:40_CAPABILITY_SYSTEM_READY] Sprint SP-17 Capabilities I Milestone REACHED
+--------------------------------------------------
+ [CAP] Sprint SP-17 Capabilities I Milestone REACHED.
+ [CAP] Unforgeable Tokens, Object-Table Integration (INV-CAP-003),
+ [CAP] Monotonic Attenuation (INV-CAP-001), Revocation Soundness (INV-CAP-002),
+ [CAP] and Per-Process Namespaces (INV-CAP-004) Verified.
 ==================================================

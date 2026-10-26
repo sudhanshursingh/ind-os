@@ -27,6 +27,7 @@ pub const EBADF: i64 = -9;
 pub const ENOMEM: i64 = -12;
 pub const EFAULT: i64 = -14;
 pub const EBUSY: i64 = -16;
+pub const EEXIST: i64 = -17;
 pub const EINVAL: i64 = -22;
 pub const ENOSYS: i64 = -38;
 pub const ETIMEDOUT: i64 = -110;
