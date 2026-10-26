@@ -44,25 +44,34 @@ if [[ ! -f "$KERNEL_PATH" ]]; then
     exit 2
 fi
 
-QEMU_BIN="qemu-system-aarch64"
-if ! command -v "$QEMU_BIN" >/dev/null 2>&1; then
-    echo "❌ ERROR: $QEMU_BIN not found in PATH." >&2
+QEMU_PREFIX=()
+if command -v qemu-system-aarch64 >/dev/null 2>&1; then
+    QEMU_PREFIX=("qemu-system-aarch64")
+elif command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    QEMU_PREFIX=(docker run --rm -i -v "${PWD}:/workspace" -w /workspace indos-qemu qemu-system-aarch64)
+else
+    echo "❌ ERROR: Neither qemu-system-aarch64 nor docker daemon found." >&2
     echo "Please use tools/Containerfile or install QEMU system aarch64." >&2
     exit 127
 fi
 
-# QEMU virt configuration ratified in docs/architecture/qemu-boot-path-spike.md
-# Direct kernel ELF execution, GICv2, Cortex-A57, 512MB RAM, headless serial on stdio
+# If a .bin counterpart exists for an ELF, prefer .bin for direct Linux-style booting
+TARGET_IMAGE="$KERNEL_PATH"
+if [[ "$KERNEL_PATH" != *.bin && -f "${KERNEL_PATH}.bin" ]]; then
+    TARGET_IMAGE="${KERNEL_PATH}.bin"
+fi
+
 QEMU_CMD=(
-    "$QEMU_BIN"
+    "${QEMU_PREFIX[@]}"
     -machine virt,gic-version=2
     -cpu cortex-a57
     -smp 1
     -m 512M
     -nographic
-    -serial mon:stdio
+    -monitor none
+    -serial stdio
     -no-reboot
-    -kernel "$KERNEL_PATH"
+    -kernel "$TARGET_IMAGE"
 )
 
 if [[ ${#EXTRA_ARGS[@]} -gt 0 ]]; then
@@ -89,8 +98,13 @@ with open('$LOG_PATH', 'w', encoding='utf-8') as out_f:
         stdout, _ = p.communicate(timeout=$TIMEOUT_SECS)
         out_f.write(stdout)
         sys.stdout.write(stdout)
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as e:
         p.kill()
+        out = e.stdout if e.stdout else ''
+        if isinstance(out, bytes):
+            out = out.decode('utf-8', errors='replace')
+        out_f.write(out)
+        sys.stdout.write(out)
         sys.stderr.write('\n⚠️ QEMU process terminated after timeout ($TIMEOUT_SECS s).\n')
         sys.exit(124)
 sys.exit(p.returncode)

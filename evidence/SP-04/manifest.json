@@ -1,0 +1,27 @@
+{
+  "sprint": "SP-04",
+  "phase": "Phase 1: Kernel Bootstrap",
+  "milestone": "Boot Entry & Exception Vectors",
+  "timestamp_utc": "2026-10-26T12:46:45Z",
+  "invariants_verified": [
+    "INV-BOOT-001",
+    "INV-BOOT-002",
+    "INV-BOOT-003",
+    "INV-BOOT-004"
+  ],
+  "vector_table_address": "0x40084000",
+  "artifacts": {
+    "docs/evidence/golden-boot-sp04.log": "07235b99ba940db989442f210da7cf20fcb1144c06fbb272c09998235b9acfe2",
+    "evidence/SP-04/serial.log": "4d202728be419283189341f517c3f1978b5dcb555552a8e99c2da0a7bb48bdb5",
+    "kernel/Cargo.toml": "f49d43e452e5bfe14e8cd61dc096f85140be621f1173c601f2576f5267d14738",
+    "kernel/linker.ld": "cdc58bb7443c8238ab7041e750424aeac7a5609958e7ccb5e9b822806d32d873",
+    "kernel/src/arch/aarch64/boot.s": "159233f9a834cfc666cfea5dfca7c7c89d4e06a8bcdabfea5a591c21fcf6d5d8",
+    "kernel/src/arch/aarch64/exceptions.s": "b0c9f91280a670ac72b0c6b5dd686c2a9177caf7cd88b0a0946f13c52863801f",
+    "kernel/src/arch/aarch64/mod.rs": "e0b3f5f15b009440dc0ea44eab8b314d125b3c2c96a35198f0438c5ccd1579d4",
+    "kernel/src/arch/mod.rs": "1b4746b74f2d8d8b0dd404c6c105d782976b6d62b6226628854de007844213d6",
+    "kernel/src/main.rs": "cc7708e809589079166ee59f7ed64cb14ade9bfcaf4b5a838b62af4f88a2779a",
+    "kernel/src/panic.rs": "352f8a64fde3a9972d693ba47652e31aa82e426cf06706a6b32bd6d1df895c01",
+    "kernel/target/aarch64-unknown-none/debug/indk": "ca46cbbe01d4935cccaef2450141e804d9177153365c6961f1123f3083480828",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "85f53497c13f61062b958ec48b123224ca9ecabfb13ee557c86e8cd4e41caa7e"
+  }
+}

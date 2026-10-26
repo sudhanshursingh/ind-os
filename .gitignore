@@ -1,0 +1,13 @@
+# Target build artifacts
+target/
+**/target/
+build/
+*.bin
+
+# Temporary test/debug outputs
+*.dtb
+evidence/test_boot.log
+
+# OS artifacts
+.DS_Store
+Thumbs.db

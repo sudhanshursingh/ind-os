@@ -1,0 +1,23 @@
+[package]
+name = "indk"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
+description = "Ind OS Microkernel (IndK) for ARM64 Bare-Metal"
+license = "GPL-2.0-only"
+
+[dependencies]
+# Zero external crates: from scratch (Rule N-01)
+
+[profile.dev]
+panic = "abort"
+opt-level = 1
+debug = true
+overflow-checks = true
+
+[profile.release]
+panic = "abort"
+opt-level = 3
+lto = true
+codegen-units = 1
+overflow-checks = true

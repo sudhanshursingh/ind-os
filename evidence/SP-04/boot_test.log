@@ -1,0 +1,11 @@
+
+==================================================
+ [BOOT] IndK ARM64 Microkernel Starting...
+==================================================
+ [BOOT] Vector table (VBAR_EL1) online.
+ [BOOT] Early kernel stack verified (INV-BOOT-002).
+ [BOOT] Device Tree Blob at: 0x48000000
+ [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).
+--------------------------------------------------
+ [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.
+==================================================
