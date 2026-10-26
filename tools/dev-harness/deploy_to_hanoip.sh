@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint17"
-MODULE_VERSION_CODE="10017"
+MODULE_VERSION="v1.0.1-sprint18"
+MODULE_VERSION_CODE="10018"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -45,6 +45,7 @@ RUN_DIGEST_TEST=false
 RUN_SUMMARY_TEST=false
 RUN_CLOUD_TEST=false
 RUN_SELINUX_INTEGRITY_TEST=false
+RUN_STRESS_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -70,6 +71,7 @@ Options:
     -u, --summary-test   Execute Sprint 14 DoD On-Screen Hindi 3-Bullet Translation & Summarization Test (<3s)
     -c, --cloud-test     Execute Sprint 15 DoD Air-Gap Isolation (0 bytes on wlan0) & 100-Sample PII Scrubber Test
     -y, --selinux-test   Execute Sprint 17 DoD SELinux Enforcing, Zero Sockets & Play Integrity UPI Test
+    -z, --stress-test    Execute Sprint 18 DoD 24-Hr Monkey & Voice Loop Stress Test (<45°C, 0 leaks)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -86,6 +88,7 @@ Examples:
     $0 --build --summary-test
     $0 --build --cloud-test
     $0 --build --selinux-test
+    $0 --build --stress-test
 EOF
     exit 0
 }
@@ -162,6 +165,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -y|--selinux-test)
             RUN_SELINUX_INTEGRITY_TEST=true
+            shift
+            ;;
+        -z|--stress-test)
+            RUN_STRESS_TEST=true
             shift
             ;;
         -s|--serial)
@@ -577,6 +584,12 @@ if [[ "${RUN_SELINUX_INTEGRITY_TEST}" == "true" ]]; then
     sleep 2
     "${ADB_CMD[@]}" logcat -d -s IndAirGapEnforcer IndPlayIntegrity IND_SURAKSHA IND_BENCHMARK
     echo "[+] Sprint 17 DoD SELinux Enforcing, Zero Sockets & Play Integrity UPI Test completed."
+fi
+
+if [[ "${RUN_STRESS_TEST}" == "true" ]]; then
+    echo "[*] Step 23: Executing Sprint 18 DoD 24-Hour Automated Stress & Stability Certification..."
+    "${REPO_ROOT}/tools/stress-test/stress_monkey_voice_loop.sh" 100 "${TARGET_SERIAL}"
+    echo "[+] Sprint 18 DoD Stress & Stability Test completed."
 fi
 
 echo "[+] Deployment completed successfully."
