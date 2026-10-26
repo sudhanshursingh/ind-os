@@ -1,7 +1,7 @@
 {
   "sprint": "SP-21",
   "title": "Consent Broker v1 (Trusted UI Channel, Isolated Display Plane, Hardware Input Mediation, Anti-Spoofing & Audit Linkage)",
-  "timestamp": "2026-10-26T21:33:25Z",
+  "timestamp": "2026-10-26T22:09:15Z",
   "invariants": {
     "INV-CON-001": "Unspoofable Consent Surface & Hardware Input Isolation (rejection of untrusted overlays and synthetic input)"
   },
