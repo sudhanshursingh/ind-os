@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==============================================================================
+     Ind OS — Settings Resource Overlays for About Phone Branding
+     PRD Reference: v1.0.1-BIBLE (Sprint 16)
+     ============================================================================== -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- OS Branding in About Phone -->
+    <string name="build_number" translatable="false">Ind OS v1.0.1-BIBLE (hanoip)</string>
+    <string name="lineage_platform_version" translatable="false">Ind OS v1.0.1-BIBLE</string>
+    <string name="model_info" translatable="false">Motorola Moto G60 (Ind OS Sovereign Edition)</string>
+    <string name="device_info_default" translatable="false">Ind OS Sovereign On-Device AI</string>
+    <string name="firmware_version" translatable="false">15.0 (Ind OS Native 1.5B Runtime)</string>
+</resources>

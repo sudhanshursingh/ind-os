@@ -1,6 +1,7 @@
 # ==============================================================================
 # Ind OS — Common Product Configuration
 # Reference: Motorola Moto G60 (hanoip) / LineageOS 22.x / AOSP 15
+# PRD Reference: v1.0.1-BIBLE (Sprint 16 — Zero-Bloat Product Makefile)
 # ==============================================================================
 
 # Ind OS Identity & Branding
@@ -16,6 +17,10 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.ind.founder=Sudhanshu_Raj_Singh \
     ro.ind.ai.native=true \
     ro.ind.airgap.enforced=true \
+    ro.ind.release.type=OFFICIAL \
+    ro.ind.target.device=hanoip \
+    ro.build.display.id=Ind\ OS\ $(IND_VERSION) \
+    ro.lineage.build.version=$(IND_VERSION) \
     ro.control_privapp_permissions=enforce
 
 # Include Ind OS Core Privileged Subsystems in ROM build
@@ -23,19 +28,32 @@ PRODUCT_PACKAGES += \
     IndNeuralCore \
     IndZeroTouch \
     IndSurakshaShield \
-    IndLauncher
+    IndLauncher \
+    IndDiagnosticClient
 
 # Copy Whitelisted Privileged Permissions XML
 PRODUCT_COPY_FILES += \
     vendor/ind/permissions/privapp-permissions-ind.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-ind.xml
 
+# Custom Ind OS Boot Animation (1080x2460 60fps)
+PRODUCT_COPY_FILES += \
+    vendor/ind/media/bootanimation.zip:$(TARGET_COPY_OUT_PRODUCT)/media/bootanimation.zip
+
+# Device Package Overlays (About Phone & Settings branding)
+DEVICE_PACKAGE_OVERLAYS += \
+    vendor/ind/overlay/common
+
 # Register Custom SELinux Policies
 BOARD_VENDOR_SEPOLICY_DIRS += vendor/ind/sepolicy
 
-# Purge Stock / Lineage Bloatware (D10 / Invariant 1: Keep OS memory <= 1150 MB)
+# Purge Stock / Lineage Bloatware (PRD Invariant 1: Keep OS idle memory <= 1150 MB)
+# Removes default browser, stock music, stock audio recorder, stock calendar, telemetry updater
 PRODUCT_PACKAGES_REMOVE += \
     Jelly \
     Eleven \
     LineageUpdater \
     Etar \
-    Recorder
+    Recorder \
+    Snap \
+    PhotoTable \
+    Exchange2
