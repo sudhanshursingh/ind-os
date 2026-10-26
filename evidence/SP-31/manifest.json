@@ -11,7 +11,7 @@
     "kernel/src/hal/platform/hanoip.rs": "97737c4f000bb021e2c5a4ab014894cf7b52a1fadb3f813070b956312ab1452e",
     "kernel/src/hal/platform/mod.rs": "943a0704a21e47f0db10f5a179dc1f157754ee0873efa2855c5945959266a727",
     "kernel/src/hal/mod.rs": "6f175e360a5b4849f1b556f8960be6feac85153453bc82469ddab3587f97d218",
-    "Cargo.toml": "b2c37374619fa5a25e5b5404731c16bc77a0ac33cf86c93c77e22c988d3033a9",
+    "Cargo.toml": "c5c5f99939f5eb541efe917cb6ac1995bd6753b01341c0983c0d5258ad5bab38",
     "kernel/Cargo.toml": "f07029a29cf477a5eb541c0713b949907c3c0a866c226f0e3cc0f4860b217f86",
     "evidence/SP-31/test_result.json": "d7d6f8b17fdf62166433a73aef199492df15902668d8a34d03d944157bd9bfd6"
   }

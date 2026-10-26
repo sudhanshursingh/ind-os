@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   9d7694f2-dirty
+  Build Commit:   b4e5e3eb-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 710, free 130362
-[DEBUG] mm: Allocated test frame 1 at 0x401c6000
-[DEBUG] mm: Allocated test frame 2 at 0x401c7000
+[INFO ] mm: Physical frames: total 131072, reserved 715, free 130357
+[DEBUG] mm: Allocated test frame 1 at 0x401cb000
+[DEBUG] mm: Allocated test frame 2 at 0x401cc000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x401c6000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x401cb000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x402c6000
+[INFO ] mmu: Root L0 page table allocated at 0x402cb000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x402cd000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x402d2000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x402d7000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x402dc000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -189,7 +189,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 17620 ticks (281 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 17744 ticks (283 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
@@ -395,7 +395,7 @@ Hello from Ind OS User Mode (EL0)!
  [SMP] and Cross-Core IPI Messaging via GIC SGIs (INV-SMP-003) Verified.
 ==================================================
 [STAGE:90_MEM_PRESSURE_MONITOR] Multi-tier memory pressure detection & monotonic threshold transitions verified (INV-OOM-002)
-[INFO ] mm_pressure: Initial memory pressure state: Normal (Free: 130034 / Total: 131072 frames, INV-OOM-002 PASSED)
+[INFO ] mm_pressure: Initial memory pressure state: Normal (Free: 130029 / Total: 131072 frames, INV-OOM-002 PASSED)
 [STAGE:91_CACHE_RECLAMATION] Voluntary and involuntary cache/vnode reclamation callbacks verified (INV-OOM-002)
 [INFO ] mm_pressure: Reclamation hooks verified: 64 voluntary frames, 384 involuntary frames reclaimed (INV-OOM-002 PASSED)
 [STAGE:92_SWAP_DECISION_SPIKE] Swap decision spike: swap to flash disallowed (DEF/PEN) to preserve real-time bounds and prevent flash wear
@@ -480,4 +480,22 @@ Hello from Ind OS User Mode (EL0)!
  [GATE-G4]   6. Standalone indk-core crate decoupled from mobile userspace (REQ-ARCH-101),
  [GATE-G4]   7. Performance baselines recorded & DEF-001/002 sunset ratified.
  [GATE-G4] AUTHORIZATION GRANTED: Proceed to Phase 5 (Dogfood & Developer OS v0.1).
+==================================================
+[STAGE:106_INIT_SERVICE_MANIFESTS] Declarative service manifests, runlevels, and capability grants verified
+[INFO ] init: Service manifests validated: 4 baseline services loaded across 4 runlevels (REQ-USE-201 PASSED)
+[STAGE:107_INIT_DEPENDENCY_GRAPH] DAG topological sorting and cycle detection verified
+[INFO ] init: Dependency graph verified: Topological ordering resolved [auditd -> vfs-indfs -> devmgr -> shell]
+[INFO ] init: Cycle detection verified: A <-> B cycle rejected with DependencyCycleDetected (INV-INIT-001 PASSED)
+[STAGE:108_INIT_CRASH_RESTART] Service crash supervision, fault containment, and exponential backoff verified
+[INFO ] init: Crash-restart verified: devmgr recovered with exponential backoff (20ms -> 40ms) (INV-INIT-002 PASSED)
+[STAGE:109_INIT_STRUCTURED_LOG_MIRROR] Structured boot logging and telemetry event mirroring verified
+[INFO ] init: Structured boot logging verified: 3 transition records captured and mirrored to telemetry (REQ-USE-201 PASSED)
+[STAGE:110_SP32_INIT_READY] Sprint SP-32 Userspace Init (PID 1) Milestone REACHED
+--------------------------------------------------
+ [SP-32] Sprint SP-32 Userspace Init (PID 1) Milestone REACHED.
+ [SP-32] - Declarative Service Manifests across 4 Runlevels (REQ-USE-201),
+ [SP-32] - Topological Dependency Graph & Cycle Detection (INV-INIT-001),
+ [SP-32] - Fault-Tolerant Service Supervision with Exponential Backoff (INV-INIT-002),
+ [SP-32] - Structured Boot Stage Mirroring to Kernel Telemetry Stream,
+ [SP-32] - Standalone indus-init userspace crate in workspace.
 ==================================================
