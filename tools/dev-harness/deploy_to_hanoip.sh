@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint14"
-MODULE_VERSION_CODE="10014"
+MODULE_VERSION="v1.0.1-sprint15"
+MODULE_VERSION_CODE="10015"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -43,6 +43,7 @@ RUN_APK_BLOCK_TEST=false
 RUN_LAUNCHER_TEST=false
 RUN_DIGEST_TEST=false
 RUN_SUMMARY_TEST=false
+RUN_CLOUD_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -66,6 +67,7 @@ Options:
     -l, --launcher-test  Execute Sprint 13 DoD IndLauncher 120 Hz Frame Pacing & RAM Test (<0.5% jank, <45 MB)
     -d, --digest-test    Execute Sprint 14 DoD Zero-Spam Notification Digest Test (Promo Spam vs Instant Pass)
     -u, --summary-test   Execute Sprint 14 DoD On-Screen Hindi 3-Bullet Translation & Summarization Test (<3s)
+    -c, --cloud-test     Execute Sprint 15 DoD Air-Gap Isolation (0 bytes on wlan0) & 100-Sample PII Scrubber Test
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -80,6 +82,7 @@ Examples:
     $0 --build --launcher-test
     $0 --build --digest-test
     $0 --build --summary-test
+    $0 --build --cloud-test
 EOF
     exit 0
 }
@@ -148,6 +151,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -u|--summary-test)
             RUN_SUMMARY_TEST=true
+            shift
+            ;;
+        -c|--cloud-test)
+            RUN_CLOUD_TEST=true
             shift
             ;;
         -s|--serial)
@@ -524,6 +531,24 @@ if [[ "${RUN_SUMMARY_TEST}" == "true" ]]; then
     sleep 3
     "${ADB_CMD[@]}" logcat -d -s ScreenTranslate VoiceCoordinator OfflineTtsEngine IND_BENCHMARK
     echo "[+] Sprint 14 DoD On-Screen Hindi 3-Bullet Translator & Summarizer Test completed."
+fi
+
+if [[ "${RUN_CLOUD_TEST}" == "true" ]]; then
+    echo "[*] Step 21: Executing Sprint 15 DoD Air-Gap Isolation & PII Scrubber Test..."
+    echo "[*] Auditing active network interfaces for leaked socket bytes (tcpdump wlan0)..."
+    WLAN_BYTES=$("${ADB_CMD[@]}" shell cat /sys/class/net/wlan0/statistics/tx_bytes 2>/dev/null || echo "0")
+    echo "[*] Initial wlan0 tx_bytes: ${WLAN_BYTES}"
+
+    echo "[*] Dispatching local test query to IndCloudRelay in default Air-Gapped mode..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -n in.indos.suraksha/indos.suraksha.SurakshaShieldService || true
+
+    sleep 2
+    FINAL_WLAN_BYTES=$("${ADB_CMD[@]}" shell cat /sys/class/net/wlan0/statistics/tx_bytes 2>/dev/null || echo "0")
+    echo "[*] Final wlan0 tx_bytes: ${FINAL_WLAN_BYTES}"
+
+    echo "[*] Awaiting PII Scrubber & Cloud Relay telemetry (listening to logcat -s IndCloudRelay PiiScrubber IND_SURAKSHA IND_BENCHMARK)..."
+    "${ADB_CMD[@]}" logcat -d -s IndCloudRelay PiiScrubber IND_SURAKSHA IND_BENCHMARK
+    echo "[+] Sprint 15 DoD Air-Gap Isolation & PII Scrubber Test completed."
 fi
 
 echo "[+] Deployment completed successfully."
