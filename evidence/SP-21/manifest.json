@@ -1,0 +1,38 @@
+{
+  "sprint": "SP-21",
+  "title": "Consent Broker v1 (Trusted UI Channel, Isolated Display Plane, Hardware Input Mediation, Anti-Spoofing & Audit Linkage)",
+  "timestamp": "2026-10-26T19:11:05Z",
+  "invariants": {
+    "INV-CON-001": "Unspoofable Consent Surface & Hardware Input Isolation (rejection of untrusted overlays and synthetic input)"
+  },
+  "files": {
+    "docs/architecture/consent-broker-spec.md": {
+      "sha256": "a9b9672e617375199911ae0a0d67165251de8df6121b9afd0723e72a693ceac9",
+      "bytes": 5593
+    },
+    "docs/evidence/SP-21-validation.md": {
+      "sha256": "024ff8e57b115cd6bc8f9b6e939ca33bc6e0720cc20c8f23ce4fb7c14c2eaa59",
+      "bytes": 6227
+    },
+    "docs/evidence/golden-boot-sp21.log": {
+      "sha256": "fda9007413d1086fcbd84ea2487b0d651df297c234a54e6a7842c74a8e8406a8",
+      "bytes": 21307
+    },
+    "kernel/src/consent/record.rs": {
+      "sha256": "0cc846a925538ff631cd7f7f53a9c5c3a68504b7b99f4aea4d8e225adc59f76a",
+      "bytes": 1150
+    },
+    "kernel/src/consent/surface.rs": {
+      "sha256": "45e4a7b7d20beea2a6b26e3f6951e09eab2ece9e013b0d7cd605b714f52c10c5",
+      "bytes": 2368
+    },
+    "kernel/src/consent/broker.rs": {
+      "sha256": "b74f68c89bb156535da82de631d1de0af61133efb95a9c585430692aeee7bac9",
+      "bytes": 5287
+    },
+    "kernel/src/consent/mod.rs": {
+      "sha256": "a7252f13c60747e2ab70259ca0c3af2cf140e1a49857607dc053996e4cea8c34",
+      "bytes": 520
+    }
+  }
+}

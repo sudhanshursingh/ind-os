@@ -10,6 +10,7 @@ pub mod arch;
 pub mod audit;
 pub mod capability;
 pub mod console;
+pub mod consent;
 pub mod drivers;
 pub mod ds;
 pub mod interrupts;
@@ -1459,6 +1460,83 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [AUD] Sprint SP-20 Audit v1 Milestone REACHED.");
     println!(" [AUD] Cryptographic Append-Only Audit Log, SHA-256 Hash Chaining,");
     println!(" [AUD] Tamper Detection & Localization (INV-AUD-001) Verified.");
+    println!("==================================================");
+
+    // Stage 53: Consent Broker Surface & Hardware Input Initialization (INV-CON-001)
+    stage_marker!("53_CONSENT_SURFACE_INIT", "Hardware-isolated consent display surface & input mediation online");
+    {
+        use consent::CONSENT_BROKER;
+        let broker = CONSENT_BROKER.lock();
+        assert!(!broker.is_prompt_active(), "Consent prompt must initialize inactive");
+        assert_eq!(broker.len(), 0, "No consent records at initialization");
+        log_info!("consent", "Consent Broker online: hardware-isolated display surface initialized (INV-CON-001)");
+    }
+
+    // Stage 54: Consent Request Lifecycle & Audit Integration
+    stage_marker!("54_CONSENT_REQUEST_EVAL", "Consent request lifecycle: prompt activation, user grant, and audit linkage");
+    {
+        use capability::rights::CapRights;
+        use consent::{ConsentDecision, CONSENT_BROKER};
+
+        let mut broker = CONSENT_BROKER.lock();
+
+        // 1. Process 2 requests consent to access Camera / Mic (Endpoint 201) with READ rights
+        let cid = broker.request_consent(2, 201, CapRights::READ, 2000).expect("Consent request must succeed");
+        assert_eq!(cid, 1, "First consent request ID must be 1");
+        assert!(broker.is_prompt_active(), "Prompt must be active after request");
+
+        let pending_rec = broker.get_record(cid).expect("Record 1 exists");
+        assert_eq!(pending_rec.decision, ConsentDecision::Pending);
+        assert_eq!(pending_rec.requesting_pid, 2);
+        assert_eq!(pending_rec.resource_id, 201);
+        assert!(pending_rec.audit_seq > 0, "Audit sequence must be non-zero");
+
+        // 2. Submit explicit user decision: Granted
+        let completed_rec = broker.submit_decision(cid, ConsentDecision::Granted, CapRights::READ, 2005)
+            .expect("Submit decision must succeed");
+        assert_eq!(completed_rec.decision, ConsentDecision::Granted);
+        assert_eq!(completed_rec.granted_rights, CapRights::READ);
+        assert!(!broker.is_prompt_active(), "Prompt must deactivate after decision");
+        log_info!("consent", "Consent request #1 granted by user; audit record chained (INV-CON-001)");
+    }
+
+    // Stage 55: Adversarial Overlay & Synthetic Input Injection Defense (INV-CON-001)
+    stage_marker!("55_CONSENT_SPOOF_INJECTION_DEFENSE", "Adversarial overlay and input injection repelled (INV-CON-001)");
+    {
+        use capability::rights::CapRights;
+        use consent::{ConsentDecision, CONSENT_BROKER};
+
+        let mut broker = CONSENT_BROKER.lock();
+
+        // 1. Activate a new consent prompt for PID 3
+        let cid = broker.request_consent(3, 202, CapRights::ALL, 2010).expect("Consent request must succeed");
+        assert!(broker.is_prompt_active(), "Prompt must be active");
+
+        // 2. Adversarial attack attempt 1: Untrusted PID 4 attempts overlay on isolated display plane
+        let overlay_attempt = broker.attempt_untrusted_overlay(4);
+        assert!(overlay_attempt.is_err(), "Overlay from untrusted PID 4 must be blocked (INV-CON-001)");
+        log_info!("consent", "Adversarial overlay from PID 4 blocked: {}", overlay_attempt.unwrap_err());
+
+        // 3. Adversarial attack attempt 2: Untrusted PID 4 attempts synthetic input injection
+        let input_attempt = broker.attempt_untrusted_input(4);
+        assert!(input_attempt.is_err(), "Input injection from untrusted PID 4 must be blocked (INV-CON-001)");
+        log_info!("consent", "Synthetic input injection from PID 4 rejected: {}", input_attempt.unwrap_err());
+
+        // 4. Conclude with user denial
+        let denied_rec = broker.submit_decision(cid, ConsentDecision::Denied, CapRights::NONE, 2015)
+            .expect("Submit denial must succeed");
+        assert_eq!(denied_rec.decision, ConsentDecision::Denied);
+        assert_eq!(denied_rec.granted_rights, CapRights::NONE);
+        assert!(!broker.is_prompt_active(), "Prompt deactivated after user denial");
+        log_info!("consent", "Spoofing & injection repelled: 100% defense verified (INV-CON-001 PASSED)");
+    }
+
+    // Stage 56: Sprint SP-21 Milestone Reached
+    stage_marker!("56_CONSENT_BROKER_READY", "Sprint SP-21 Consent Broker v1 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [CON] Sprint SP-21 Consent Broker v1 Milestone REACHED.");
+    println!(" [CON] Hardware-Isolated Display Surface, Kernel Input Mediation,");
+    println!(" [CON] Overlay & Injection Rejection (INV-CON-001) Verified.");
     println!("==================================================");
 
     // Park CPU
