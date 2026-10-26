@@ -20,6 +20,9 @@ pub enum CapType {
     MemoryRegion { base: usize, size: usize },
     SyscallBitmap(u64),
     File(u64),         // Capability-mediated VFS node ID (REQ-KRN-106)
+    Device(u32),       // Capability-governed device binding (REQ-KRN-107, INV-DRV-001)
+    Interrupt(u32),    // Capability-authenticated IRQ subscription & ACK (INV-DRV-002)
+    DmaWindow(u32),    // Capability-bounded DMA/IOMMU memory window (INV-DRV-003)
 }
 
 /// Unforgeable capability access control token

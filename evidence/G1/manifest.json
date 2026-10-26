@@ -1,7 +1,7 @@
 {
   "gate": "G1",
   "phase": "Phase 1: Kernel Bootstrap (SP-04 through SP-09)",
-  "timestamp_utc": "2026-10-26T19:57:59Z",
+  "timestamp_utc": "2026-10-26T20:08:50Z",
   "founder_signoff": "APPROVED & RATIFIED",
   "phase_lead_signoff": "APPROVED & RATIFIED",
   "dec001_reexamination": "CONTINUE",
@@ -19,7 +19,7 @@
     "docs/evidence/boot-time-budget.md": "b3248f56869d9686a98d09db272fb4645e5e7b6007271464f75febaaddb1a368",
     "evidence/G1/cold_boots/summary.json": "52dfc12b8fab646f4a91a9e07cebf1c33b734fae3d71e7224a3bddd2f38a27d7",
     "evidence/G1/corrupt_rejection_report.json": "b6fcc9add2ceaaf9b04f600d2d653a65936744f29904c08e348bb379af2688b4",
-    "kernel/target/aarch64-unknown-none/debug/indk": "dc03bd89a10bf53fe872eaef1cc7c1583d545cf4424a3eb282e4c70f42e748e1",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "80ebe1f0e39d83eccf0f5d974459b12ee93b73a75fbe950d7fda247adee2ee0a"
+    "kernel/target/aarch64-unknown-none/debug/indk": "2418263ac928781a1c4553aca9178387c2ffdf7fc4485da48afb8f214c013789",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "99b735f53ec85032d97a6669578728b073d801964c956f1389431d4bccf6520a"
   }
 }

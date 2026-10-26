@@ -1,0 +1,18 @@
+{
+  "sprint": "SP-26",
+  "title": "User-Mode Driver Framework (Device Manager, IRQ Broker, DMA/IOMMU Broker, Driver Protocol over IPC)",
+  "timestamp": "2026-10-26T20:08:55Z",
+  "status": "PASSED",
+  "artifacts": {
+    "docs/architecture/driver-framework-spec.md": "2fae663e9cd0ff290afc4248416f2b06314e6d98d03ad9b2b48e7e87e6e0ea05",
+    "docs/evidence/SP-26-validation.md": "10c23185245b76fd36976a9ba5cc528c80a005e22d8fea003807ed5e864f5683",
+    "docs/evidence/golden-boot-sp26.log": "70046d3f79858ca63dd2f1d4eba3b83c0467ea9fbfd7e0b60f1debe82376516f",
+    "kernel/src/driver_framework/device_manager.rs": "c8c200bb7958869a7171d6d6c5867007013d2d7fd43065b5bf608d73e21bfe40",
+    "kernel/src/driver_framework/irq_broker.rs": "59393b73a32640ff2a58c00082627bf47348c1c26e6827d3ac108d0147d9a165",
+    "kernel/src/driver_framework/dma_broker.rs": "413e89e1bcb4b265640f402e6a81267f362d57bcb0c34c79f44d9d958710e4b4",
+    "kernel/src/driver_framework/protocol.rs": "90ab2bed96e514a77372481cf4d01fed1fb5e2d410506abd9deea2ee739e3c88",
+    "kernel/src/driver_framework/mod.rs": "654ec3ec266e7bc830e95dc5f31360b72d740b3f8854b9a671db96b21c2cacee",
+    "kernel/src/capability/table.rs": "7bdfb42384fa6b07d2927a5243c63785d8bc99ec776d8a8386a995d49d78a4ca",
+    "ci/verify_sp26.py": "dd2bd03219d1503620544bcd444dd4c1f1feb86e65e3f6d8393c80cf684894a8"
+  }
+}

@@ -12,6 +12,7 @@ pub mod capability;
 pub mod console;
 pub mod consent;
 pub mod drivers;
+pub mod driver_framework;
 pub mod ds;
 pub mod interrupts;
 pub mod ipc;
@@ -1895,6 +1896,168 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [FS] tmpfs, IndFS Journaling WAL (INV-FS-002),");
     println!(" [FS] End-to-End CRC32C Anti-Bitrot (INV-FS-001),");
     println!(" [FS] and Deterministic fsck Recovery Verified.");
+    println!("==================================================");
+
+    // =========================================================================
+    // Phase 4: Sprint SP-26 — User-Mode Driver Framework (REQ-KRN-107)
+    // =========================================================================
+    use crate::capability::{CapRights, CapType, Capability};
+
+    // Stage 72: Device Manager Initialization & Device Discovery
+    stage_marker!("72_DEVICE_MANAGER_INIT", "Device Manager online, peripheral registration and discovery verified");
+    let virtio_blk_id;
+    let virtio_net_id;
+    {
+        use driver_framework::{DEVICE_MANAGER, DeviceType};
+        let mut dm = DEVICE_MANAGER.lock();
+
+        // Register hardware/virtio devices on QEMU ARM64 virt platform
+        virtio_blk_id = dm.register_device("virtio-blk", 0x1AF4, DeviceType::Block, 0x0A00_0000, 0x1000, 48)
+            .expect("Register virtio-blk");
+        virtio_net_id = dm.register_device("virtio-net", 0x1AF4, DeviceType::Net, 0x0A00_0200, 0x1000, 49)
+            .expect("Register virtio-net");
+
+        assert_eq!(virtio_blk_id, 1);
+        assert_eq!(virtio_net_id, 2);
+        assert_eq!(dm.device_count, 2);
+
+        let blk_dev = dm.get_device(virtio_blk_id).expect("Lookup virtio-blk");
+        assert_eq!(blk_dev.name(), "virtio-blk");
+        assert_eq!(blk_dev.irq_line, 48);
+
+        log_info!("drv", "Device Manager online: 2 devices registered (virtio-blk MMIO 0x{:08X}, virtio-net MMIO 0x{:08X})",
+            blk_dev.mmio_base, dm.get_device(virtio_net_id).unwrap().mmio_base);
+    }
+
+    // Stage 73: User-Mode Driver Registration & Capability Enforcement (INV-DRV-001)
+    stage_marker!("73_USER_MODE_DRIVER_REGISTRATION", "Driver capability binding and unprivileged access rejection verified (INV-DRV-001)");
+    let driver_pid = 10; // User-mode block driver PID
+    let driver_ep_id = 201; // Driver IPC endpoint
+    let blk_cap = Capability::new(CapType::Device(virtio_blk_id), CapRights::READ.union(CapRights::WRITE).union(CapRights::GRANT), 0xBD01);
+    let irq_cap = Capability::new(CapType::Interrupt(48), CapRights::READ.union(CapRights::WRITE), 0x1048);
+    {
+        use driver_framework::{DEVICE_MANAGER, DeviceState};
+        let mut dm = DEVICE_MANAGER.lock();
+
+        // 1. Unprivileged binding rejection: Attempt binding without capability or invalid capability
+        let invalid_cap = Capability::new(CapType::Device(99), CapRights::READ, 0);
+        let unauth_bind = dm.bind_driver(virtio_blk_id, driver_pid, driver_ep_id, &invalid_cap);
+        assert!(unauth_bind.is_err(), "Unprivileged driver binding must be rejected (INV-DRV-001)");
+        log_info!("drv", "Unprivileged driver binding rejected: {} (INV-DRV-001 PASSED)", unauth_bind.unwrap_err());
+
+        // 2. Authenticated binding with valid device capability
+        dm.bind_driver(virtio_blk_id, driver_pid, driver_ep_id, &blk_cap).expect("Authenticated binding");
+        dm.activate_device(virtio_blk_id, driver_pid, &blk_cap).expect("Activate device");
+
+        let dev = dm.get_device(virtio_blk_id).unwrap();
+        assert_eq!(dev.state, DeviceState::Active);
+        assert_eq!(dev.bound_driver_pid, Some(driver_pid));
+        assert_eq!(dev.bound_endpoint, Some(driver_ep_id));
+
+        log_info!("drv", "User-mode driver PID {} authenticated and bound to device '{}' (INV-DRV-001 PASSED)",
+            driver_pid, dev.name());
+    }
+
+    // Stage 74: IRQ Broker Interception & Asynchronous Notification (INV-DRV-002)
+    stage_marker!("74_IRQ_BROKER_DELIVERY", "Hardware IRQ masking, IPC delivery, and authenticated IRQ_ACK verified (INV-DRV-002)");
+    {
+        use driver_framework::{IRQ_BROKER, IrqState};
+        let mut broker = IRQ_BROKER.lock();
+
+        // 1. Driver subscribes to IRQ 48 using authenticated interrupt capability
+        broker.subscribe(48, driver_pid, driver_ep_id, &irq_cap).expect("Subscribe to IRQ 48");
+
+        // 2. Hardware interrupt fires at EL1: broker masks line and dispatches notification
+        let notify_ep = broker.dispatch_irq(48).expect("Dispatch IRQ 48");
+        assert_eq!(notify_ep, driver_ep_id);
+        assert!(broker.subscriptions[0].masked, "IRQ line must be masked upon dispatch (INV-DRV-002)");
+        assert_eq!(broker.subscriptions[0].state, IrqState::Pending);
+        log_info!("drv", "IRQ 48 intercepted: line masked at GIC, asynchronous notification dispatched to EP {}", notify_ep);
+
+        // 3. Unauthenticated IRQ acknowledgment attempt rejected
+        let fake_cap = Capability::new(CapType::Interrupt(49), CapRights::WRITE, 0);
+        let unauth_ack = broker.acknowledge_irq(48, driver_pid, &fake_cap);
+        assert!(unauth_ack.is_err(), "Unauthenticated IRQ_ACK must be rejected (INV-DRV-002)");
+        log_info!("drv", "Unauthenticated IRQ_ACK rejected: {} (INV-DRV-002 PASSED)", unauth_ack.unwrap_err());
+
+        // 4. Authenticated IRQ acknowledgment: line unmasked
+        broker.acknowledge_irq(48, driver_pid, &irq_cap).expect("Authenticated IRQ_ACK");
+        assert!(!broker.subscriptions[0].masked, "IRQ line must be unmasked after valid ACK (INV-DRV-002)");
+        assert_eq!(broker.subscriptions[0].state, IrqState::Subscribed);
+        assert_eq!(broker.subscriptions[0].ack_count, 1);
+        log_info!("drv", "Authenticated IRQ_ACK verified: interrupt line unmasked, ready for next event (INV-DRV-002 PASSED)");
+    }
+
+    // Stage 75: SMMU / IOMMU DMA Window Isolation (INV-DRV-003)
+    stage_marker!("75_DMA_IOMMU_ISOLATION", "IOMMU-isolated DMA window allocation, bounds checking, and violation rejection verified (INV-DRV-003)");
+    let dma_win_id;
+    let dma_cap;
+    {
+        use driver_framework::{DMA_BROKER, DmaDirection};
+        let mut dma = DMA_BROKER.lock();
+
+        // 1. Allocate 4 KiB SMMU-isolated DMA window
+        dma_win_id = dma.allocate_window(driver_pid, 0x4800_0000, 0x1000_0000, 4096, DmaDirection::Bidirectional)
+            .expect("Allocate DMA window");
+        assert_eq!(dma_win_id, 1);
+
+        dma_cap = Capability::new(CapType::DmaWindow(dma_win_id), CapRights::READ.union(CapRights::WRITE), 0x5001);
+
+        // 2. Validate valid in-bounds DMA transfer
+        dma.validate_transfer(dma_win_id, driver_pid, 0, 512, DmaDirection::HostToDevice, &dma_cap)
+            .expect("Valid in-bounds DMA transfer");
+        log_info!("drv", "SMMU-isolated DMA window #{} (IOVA 0x10000000, 4096 bytes) validated for transfer", dma_win_id);
+
+        // 3. Out-of-bounds DMA tampering attempt rejected
+        let oob_transfer = dma.validate_transfer(dma_win_id, driver_pid, 4000, 512, DmaDirection::DeviceToHost, &dma_cap);
+        assert!(oob_transfer.is_err(), "Out-of-bounds DMA transfer must be rejected (INV-DRV-003)");
+        log_info!("drv", "Out-of-bounds DMA transfer rejected: {} (INV-DRV-003 PASSED)", oob_transfer.unwrap_err());
+
+        // 4. Unauthorized PID DMA attempt rejected
+        let foreign_pid = 99;
+        let rogue_dma = dma.validate_transfer(dma_win_id, foreign_pid, 0, 256, DmaDirection::HostToDevice, &dma_cap);
+        assert!(rogue_dma.is_err(), "Rogue PID DMA access must be rejected (INV-DRV-003)");
+        log_info!("drv", "Rogue PID DMA access rejected: {} (INV-DRV-003 PASSED)", rogue_dma.unwrap_err());
+    }
+
+    // Stage 76: Driver Protocol over IPC (REQ-KRN-107)
+    stage_marker!("76_DRIVER_PROTOCOL_IPC", "Register-based Driver Protocol over IPC request/response lifecycle verified (REQ-KRN-107)");
+    {
+        use driver_framework::{DriverMessage, DriverOp, DriverStatus};
+
+        // Client prepares an IO_READ request to the user-mode driver
+        let read_req = DriverMessage::new(DriverOp::IoRead, 0x9001, virtio_blk_id as u64, 0 /* sector */, 512 /* len */);
+        let ipc_msg = read_req.to_ipc_message();
+
+        // Driver receives and parses IPC message
+        let decoded_req = DriverMessage::from_ipc_message(&ipc_msg);
+        assert_eq!(decoded_req.op, DriverOp::IoRead);
+        assert_eq!(decoded_req.correlation_id, 0x9001);
+        assert_eq!(decoded_req.target_id, virtio_blk_id as u64);
+        assert_eq!(decoded_req.arg1, 0);
+        assert_eq!(decoded_req.arg2, 512);
+
+        // Driver services request and formats response
+        let resp = DriverMessage::io_response(decoded_req.correlation_id, DriverStatus::Ok, 512);
+        let resp_ipc = resp.to_ipc_message();
+        let decoded_resp = DriverMessage::from_ipc_message(&resp_ipc);
+
+        assert_eq!(decoded_resp.op, DriverOp::Status);
+        assert_eq!(decoded_resp.correlation_id, 0x9001);
+        assert_eq!(decoded_resp.target_id, DriverStatus::Ok.to_u64());
+        assert_eq!(decoded_resp.arg1, 512);
+
+        log_info!("drv", "Driver Protocol over IPC verified: IO_READ req/resp cycle (corr_id 0x9001, 512 bytes) (REQ-KRN-107 PASSED)");
+    }
+
+    // Stage 77: Sprint SP-26 Driver Framework Ready
+    stage_marker!("77_DRIVER_FRAMEWORK_READY", "Sprint SP-26 User-Mode Driver Framework Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [DRV] Sprint SP-26 User-Mode Driver Framework REACHED.");
+    println!(" [DRV] Device Manager & Capability Binding (INV-DRV-001),");
+    println!(" [DRV] IRQ Broker & Safe Line Masking (INV-DRV-002),");
+    println!(" [DRV] SMMU/IOMMU DMA Window Isolation (INV-DRV-003),");
+    println!(" [DRV] and Driver Protocol over IPC (REQ-KRN-107) Verified.");
     println!("==================================================");
 
     // Park CPU
