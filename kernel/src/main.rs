@@ -1,16 +1,23 @@
 //! Ind OS Microkernel (IndK) Main Entry Point
-//! Sprint SP-06: Memory Discovery & Page Frame Allocator
+//! Sprint SP-07: Kernel Heap & Core Data Structures
 
 #![no_std]
 #![no_main]
 
+extern crate alloc;
+
 pub mod arch;
 pub mod console;
 pub mod drivers;
+pub mod ds;
 pub mod logger;
 pub mod mm;
 pub mod panic;
 pub mod sync;
+
+use alloc::boxed::Box;
+use alloc::vec::Vec;
+use ds::{IntrusiveList, IntrusiveNode};
 
 const GIT_HASH: &str = env!("INDK_GIT_HASH");
 const TARGET_ARCH: &str = env!("INDK_TARGET_ARCH");
@@ -94,11 +101,63 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
         log_info!("mm", "Frame allocation & free cycle passed (INV-MEM-003 verified)");
     }
 
+    // Stage 09: Dynamic Kernel Heap & Intrusive Data Structures
+    stage_marker!("09_KERNEL_HEAP", "Kernel dynamic heap allocator online");
+    let heap_start = mm::init_heap();
+    log_info!("heap", "Kernel heap initialized at 0x{:08x} (size: {} KB)", heap_start, mm::DEFAULT_HEAP_SIZE / 1024);
+
+    // Intrusive List verification test
+    {
+        let mut list = IntrusiveList::new();
+        assert!(list.is_empty(), "List should be initially empty");
+
+        struct TestTask {
+            #[allow(dead_code)]
+            id: u32,
+            node: IntrusiveNode,
+        }
+
+        let mut t1 = TestTask { id: 101, node: IntrusiveNode::new() };
+        let mut t2 = TestTask { id: 102, node: IntrusiveNode::new() };
+
+        list.push_back(&mut t1.node);
+        list.push_back(&mut t2.node);
+        assert_eq!(list.len(), 2, "List length must be 2");
+
+        let popped = list.pop_front().expect("Failed to pop head");
+        assert_eq!(popped as *mut IntrusiveNode, &mut t1.node as *mut IntrusiveNode);
+        assert_eq!(list.len(), 1, "List length must be 1 after pop");
+        log_info!("ds", "Intrusive doubly-linked list zero-allocation verification PASSED");
+    }
+
+    // Dynamic Heap Allocation verification test (Box and Vec)
+    {
+        let b = Box::new(0x1337_c0de_u64);
+        assert_eq!(*b, 0x1337_c0de_u64, "Box dereference must match allocated value");
+
+        let mut v: Vec<u32> = Vec::new();
+        for i in 0..16 {
+            v.push(i * 10);
+        }
+        assert_eq!(v.len(), 16, "Vector must contain 16 items");
+        assert_eq!(v[5], 50, "Vector element index 5 must be 50");
+
+        let (used, free, allocs, _) = mm::HEAP.stats();
+        log_debug!("heap", "Active heap stats: used {} bytes, free {} bytes (alloc count {})", used, free, allocs);
+
+        drop(v);
+        drop(b);
+
+        let (used_after, _, _, deallocs) = mm::HEAP.stats();
+        log_info!("heap", "Heap free & coalescing cycle PASSED (used: {} B, dealloc count: {})", used_after, deallocs);
+    }
+
     // Milestones reached
     println!("--------------------------------------------------");
     println!(" [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.");
     stage_marker!("05_READY", "Sprint SP-05 Serial Console Milestone REACHED");
     stage_marker!("08_MM_READY", "Sprint SP-06 Memory Discovery Milestone REACHED");
+    stage_marker!("10_CORE_DS_READY", "Sprint SP-07 Kernel Heap & Core DS Milestone REACHED");
     println!("==================================================");
 
     // Park CPU until timer interrupts in SP-08

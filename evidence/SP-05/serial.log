@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   fe179826-dirty
+  Build Commit:   42434a27-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,18 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 419, free 130653
-[DEBUG] mm: Allocated test frame 1 at 0x400a3000
-[DEBUG] mm: Allocated test frame 2 at 0x400a4000
+[INFO ] mm: Physical frames: total 131072, reserved 422, free 130650
+[DEBUG] mm: Allocated test frame 1 at 0x400a6000
+[DEBUG] mm: Allocated test frame 2 at 0x400a7000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
+[STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
+[INFO ] heap: Kernel heap initialized at 0x400a6000 (size: 1024 KB)
+[INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
+[DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
+[INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
 --------------------------------------------------
  [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.
 [STAGE:05_READY] Sprint SP-05 Serial Console Milestone REACHED
 [STAGE:08_MM_READY] Sprint SP-06 Memory Discovery Milestone REACHED
+[STAGE:10_CORE_DS_READY] Sprint SP-07 Kernel Heap & Core DS Milestone REACHED
 ==================================================
