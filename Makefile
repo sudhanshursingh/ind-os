@@ -31,6 +31,7 @@ check:
 	@python3 ci/verify_sp05.py
 	@python3 ci/verify_sp06.py
 	@python3 ci/verify_sp07.py
+	@python3 ci/verify_sp08.py
 
 test-harness:
 	@echo "Running Ind OS Test Harness Self-Test..."

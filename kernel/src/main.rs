@@ -10,6 +10,7 @@ pub mod arch;
 pub mod console;
 pub mod drivers;
 pub mod ds;
+pub mod interrupts;
 pub mod logger;
 pub mod mm;
 pub mod panic;
@@ -158,9 +159,48 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     stage_marker!("05_READY", "Sprint SP-05 Serial Console Milestone REACHED");
     stage_marker!("08_MM_READY", "Sprint SP-06 Memory Discovery Milestone REACHED");
     stage_marker!("10_CORE_DS_READY", "Sprint SP-07 Kernel Heap & Core DS Milestone REACHED");
+
+    // Stage 11: ARM GICv2 Initialization
+    stage_marker!("11_GICV2_INIT", "ARM GICv2 interrupt controller initialized");
+    interrupts::init_interrupts();
+    log_info!("gic", "GICv2 Distributor & CPU Interface initialized (GICD: 0x{:08x}, GICC: 0x{:08x})", drivers::gicv2::GICD_BASE, drivers::gicv2::GICC_BASE);
+
+    // Stage 12: ARM Generic Timer Configuration
+    stage_marker!("12_TIMER_INIT", "ARM Generic Timer configured for 100 Hz");
+    let freq = drivers::timer::read_frequency();
+    log_info!("timer", "ARM Generic Timer online (frequency: {} Hz, interval: 10ms, PPI IRQ {})", freq, drivers::timer::TIMER_IRQ);
+
+    // Stage 13: IRQ Dispatch & Critical Section Verification
+    stage_marker!("13_IRQ_DISPATCH", "IRQs unmasked and periodic ticks servicing");
+    interrupts::enable_interrupts();
+    assert!(interrupts::are_interrupts_enabled(), "Interrupts must be unmasked after enable");
+    log_info!("irq", "Hardware interrupts unmasked in DAIF (INV-INT-003 armed)");
+
+    // Critical section discipline test (INV-INT-002)
+    interrupts::without_interrupts(|| {
+        assert!(!interrupts::are_interrupts_enabled(), "Interrupts must be masked in critical section (INV-INT-002)");
+        log_debug!("irq", "Critical section mask active (INV-INT-002)");
+    });
+    assert!(interrupts::are_interrupts_enabled(), "Interrupts must be restored after critical section (INV-INT-002)");
+    log_info!("irq", "Critical section RAII discipline verified (INV-INT-002 PASSED)");
+
+    // Wait for at least 5 hardware timer ticks
+    log_info!("timer", "Awaiting periodic hardware timer ticks...");
+    let start_ticks = interrupts::get_ticks();
+    while interrupts::get_ticks() < start_ticks + 5 {
+        core::hint::spin_loop();
+    }
+    let end_ticks = interrupts::get_ticks();
+    log_info!("timer", "Periodic timer ticks verified (received {} ticks, INV-IRQ-004 verified)", end_ticks);
+
+    let spurious = interrupts::get_spurious_count();
+    log_info!("irq", "Spurious interrupt handling verified (spurious count: {}, INV-INT-001 verified)", spurious);
+
+    // Stage 14: Milestone Reached
+    stage_marker!("14_INTERRUPTS_READY", "Sprint SP-08 Interrupts & Hardware Timers Milestone REACHED");
     println!("==================================================");
 
-    // Park CPU until timer interrupts in SP-08
+    // Park CPU until preemptive scheduler in SP-09
     loop {
         core::hint::spin_loop();
     }

@@ -1,0 +1,35 @@
+{
+  "sprint": "SP-08",
+  "phase": "Phase 1: Kernel Bootstrap",
+  "milestone": "Interrupts & Hardware Timers",
+  "timestamp_utc": "2026-10-26T13:32:39Z",
+  "invariants_enforced": [
+    "INV-INT-001 (Spurious IRQ 1023 filtered without panic)",
+    "INV-INT-002 (Critical section DAIF discipline)",
+    "INV-INT-003 (Deterministic IRQ dispatch & EOI protocol)",
+    "INV-INT-004 (Aligned kernel interrupt stack execution)",
+    "INV-IRQ-004 (100 Hz periodic scheduler tick)"
+  ],
+  "hardware_targets": {
+    "gic_version": 2,
+    "gicd_base": "0x08000000",
+    "gicc_base": "0x08010000",
+    "timer_ppi": 30,
+    "frequency_hz": 62500000
+  },
+  "stage_markers_verified": [
+    "11_GICV2_INIT",
+    "12_TIMER_INIT",
+    "13_IRQ_DISPATCH",
+    "14_INTERRUPTS_READY"
+  ],
+  "artifacts": {
+    "docs/evidence/golden-boot-sp08.log": "4df78633e59f211b2aecd6c18c343aca860c511dde942d6283b78ec0a8091859",
+    "evidence/SP-08/serial.log": "02c2c7037378d1b144f954b4aec68f1ca36d8451b623fb1d9adac1b53051ebca",
+    "kernel/src/drivers/gicv2.rs": "ca63feec998f2a18c52c62739164011b139980d7060a2ae6f44c6a0bc8c38d07",
+    "kernel/src/drivers/timer.rs": "1c32fd9f1db1f31a54903d8f5933e513f388ea44087fa5af60e4c2b0a8d7a3f8",
+    "kernel/src/interrupts/mod.rs": "232a0b0af7702fb40b714141e69441c08850b9c9eafad5fcb1b73bff799d393b",
+    "kernel/target/aarch64-unknown-none/debug/indk": "3c909c5fdbc87b51cb3f8235a9dfa0b5440caee900369db27d8c2b510d40fef4",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "0376b9be0d74ad18067d97ff3a30bb606ff9ea03205e7b04432d96b4f5710147"
+  }
+}

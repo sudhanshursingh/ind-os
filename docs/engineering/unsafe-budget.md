@@ -21,6 +21,9 @@
 | **UNSAFE-005** | `kernel/src/mm/dtb.rs` | FDT Parser | Raw byte pointer scanning and `read_unaligned` | Pointer bounded by `dtb_ptr + totalsize`. | ✅ AUDITED |
 | **UNSAFE-006** | `kernel/src/mm/mod.rs` | Memory Layout | Reading linker symbol address (`__kernel_image_end`) | Linker script guarantees valid symbol address. | ✅ AUDITED |
 | **UNSAFE-007** | `kernel/src/mm/heap.rs` | Kernel Heap | Heap memory slice binding & `GlobalAlloc` interface | Arena backed by verified contiguous physical frames. | ✅ AUDITED |
+| **UNSAFE-008** | `kernel/src/drivers/gicv2.rs` | MMIO | GICv2 distributor & CPU interface register access | Addresses `0x08000000` and `0x08010000` are valid MMIO pages. | ✅ AUDITED |
+| **UNSAFE-009** | `kernel/src/drivers/timer.rs` | Low-level Asm | ARM Generic Timer system register programming | Privileged EL1 execution; atomic countdown reload. | ✅ AUDITED |
+| **UNSAFE-010** | `kernel/src/interrupts/mod.rs` | Low-level Asm | DAIF interrupt mask manipulation & SP check | Architectural state changes for critical sections. | ✅ AUDITED |
 
 ---
 
