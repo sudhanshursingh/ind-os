@@ -1,0 +1,36 @@
+{
+  "sprint": "SP-11",
+  "phase": "Phase 2 Core Kernel",
+  "title": "Processes & Loading (PCB, INDBIN Native Loader, Real EL0 User Mode, & SVC Syscalls)",
+  "timestamp_utc": "2026-10-26T14:35:41Z",
+  "adr_recorded": "ADR-001 (docs/DECISIONS/ADR-001-binary-format.md)",
+  "invariants_verified": [
+    "INV-MEM-001 (Strict NULL trap zone [0..4MB] enforced)",
+    "INV-MEM-002 (PXN/UXN privilege protection on user code & data)",
+    "INV-BOOT-002 (16-byte stack alignment across user & kernel stacks)",
+    "INV-IRQ-004 (Timer interrupt handling during EL0 execution)"
+  ],
+  "deliverables": [
+    "docs/DECISIONS/ADR-001-binary-format.md",
+    "kernel/src/loader/indbin.rs",
+    "kernel/src/loader/mod.rs",
+    "kernel/src/task/process.rs",
+    "kernel/src/task/mod.rs",
+    "kernel/src/syscall/mod.rs",
+    "kernel/src/arch/aarch64/user_trap.s",
+    "docs/evidence/golden-boot-sp11.log"
+  ],
+  "sha256_checksums": {
+    "docs/DECISIONS/ADR-001-binary-format.md": "e9e9dc85ca35f80b1e8b9f62e44b91be098cb0ef059671528ef68a6eef5e24fc",
+    "kernel/src/loader/indbin.rs": "5b5351a1fd2581244a92f90a45abb14bd1f76ca7c5ac43c549355e65dfc0c5ac",
+    "kernel/src/loader/mod.rs": "73de4fb85fe483cbfd758199bd7a50b6c7e0d9f2e5ba2ef9920ade47fb9bc703",
+    "kernel/src/task/process.rs": "20515b712e40a3c1a8e3be41f639dbf1c762621699c6300c46e749e7b4714b1c",
+    "kernel/src/task/mod.rs": "70d11dd001e65594a4f405d4b87420798085bce66a86b5a825d5b26db6943f31",
+    "kernel/src/syscall/mod.rs": "9940dc470905ac2022242f7f39540707c17a4920646eb5f058f28531c4270a15",
+    "kernel/src/arch/aarch64/user_trap.s": "c659a9bf39913688d80436e1f9b790d07752c0d659c11879ab827a9815e6ad69",
+    "docs/evidence/golden-boot-sp11.log": "1ad85b833e209e7dab5f9f479f63451c2096cda2490f18c5df8f494dbd5b04ee",
+    "kernel/target/aarch64-unknown-none/debug/indk": "234d4e4dc0ec4bdf8fbebf60ad35e25de7002ef7fb42192b23ad8891623f9ce6"
+  },
+  "test_result": "PASS",
+  "qemu_execution": "SUCCESS"
+}

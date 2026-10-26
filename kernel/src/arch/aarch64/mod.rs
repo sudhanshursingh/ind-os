@@ -3,9 +3,10 @@
 
 use core::arch::global_asm;
 
-// Embed boot entry and exception vectors
+// Embed boot entry, exception vectors, and user mode traps
 global_asm!(include_str!("boot.s"));
 global_asm!(include_str!("exceptions.s"));
+global_asm!(include_str!("user_trap.s"));
 
 /// CPU Context preserved by `exceptions.s` on exception entry
 #[repr(C)]
@@ -26,4 +27,24 @@ pub struct ExceptionContext {
 #[no_mangle]
 pub extern "C" fn handle_early_exception(ctx: &ExceptionContext) -> ! {
     crate::panic::panic_exception(ctx);
+}
+
+/// Lower EL synchronous exception handler (SVC #0 system calls and faults)
+#[no_mangle]
+pub extern "C" fn handle_lower_el_sync(ctx: &mut crate::task::UserContext) {
+    let ec = (ctx.esr_el1 >> 26) & 0x3F;
+    if ec == 0x15 {
+        // SVC instruction in AArch64 state
+        crate::syscall::handle_syscall(ctx);
+    } else {
+        crate::panic::EarlyUart::write_str("\n[LOWER_EL_SYNC] Unhandled Lower EL Exception!\n");
+        crate::panic::EarlyUart::write_str("  EC:  ");
+        crate::panic::EarlyUart::write_hex_u64(ec);
+        crate::panic::EarlyUart::write_str("\n  ESR: ");
+        crate::panic::EarlyUart::write_hex_u64(ctx.esr_el1);
+        crate::panic::EarlyUart::write_str("\n  ELR: ");
+        crate::panic::EarlyUart::write_hex_u64(ctx.elr_el1);
+        crate::panic::EarlyUart::write_str("\n");
+        panic!("Unhandled lower EL exception");
+    }
 }

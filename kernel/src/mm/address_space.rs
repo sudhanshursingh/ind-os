@@ -48,7 +48,8 @@ pub struct AddressSpace {
 impl AddressSpace {
     /// Creates a new per-process address space with dedicated root translation table and ASID
     pub fn new(asid: u16) -> Result<Self, MemoryError> {
-        let page_table = PageTableManager::create_new()?;
+        let mut page_table = PageTableManager::create_new()?;
+        page_table.map_kernel_identity()?;
         Ok(Self { page_table, asid })
     }
 
@@ -93,7 +94,7 @@ impl AddressSpace {
         self.page_table.root_address()
     }
 
-    /// Activates this address space into TTBR0_EL1 with hardware ASID binding
+    /// Activates this address space into TTBR0_EL1 with hardware ASID binding and enables MMU
     pub fn activate(&self) {
         let ttbr0 = ((self.asid as u64) << 48) | (self.root_table_address() as u64);
         // SAFETY: TTBR0_EL1 is loaded with verified physical L0 table address and valid ASID.
@@ -106,5 +107,6 @@ impl AddressSpace {
                 options(nostack)
             );
         }
+        crate::mm::page_table::enable_mmu();
     }
 }

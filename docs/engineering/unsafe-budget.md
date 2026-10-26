@@ -26,6 +26,8 @@
 | **UNSAFE-010** | `kernel/src/interrupts/mod.rs` | Low-level Asm | DAIF interrupt mask manipulation & SP check | Architectural state changes for critical sections. | ✅ AUDITED |
 | **UNSAFE-011** | `kernel/src/mm/page_table.rs` | Virtual Memory | Page table dereference & TLB invalidation | Page tables backed by verified contiguous 4KB frames. | ✅ AUDITED |
 | **UNSAFE-012** | `kernel/src/mm/address_space.rs` | Virtual Memory | TTBR0_EL1 register loading & ISB barrier | Physical root table is 4KB aligned with valid ASID. | ✅ AUDITED |
+| **UNSAFE-013** | `kernel/src/loader/indbin.rs` | Binary Loader | Zeroing and copying segments to newly allocated frames | Frame pointers backed by verified physical allocator. | ✅ AUDITED |
+| **UNSAFE-014** | `kernel/src/task/mod.rs` | Process Subsystem | Context save/restore and user mode entry trampoline | Callee-saved context and stack pointer strictly preserved. | ✅ AUDITED |
 
 ---
 

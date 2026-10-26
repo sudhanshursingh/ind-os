@@ -66,13 +66,11 @@ vec_curr_el_spx_serror:
  * ---------------------------------------------------------------- */
 .align 7
 vec_lower_el_a64_sync:
-    mov x0, #0x20
-    b common_exception_entry
+    b common_lower_el_sync_entry
 
 .align 7
 vec_lower_el_a64_irq:
-    mov x0, #0x21
-    b common_exception_entry
+    b common_irq_entry
 
 .align 7
 vec_lower_el_a64_fiq:

@@ -39,6 +39,7 @@ pub struct PageTableFlags(pub u64);
 
 impl PageTableFlags {
     pub const KERNEL_CODE: Self = Self(PTE_VALID | PTE_PAGE | PTE_ATTR_NORMAL | PTE_AP_RO_KERNEL | PTE_SH_INNER | PTE_AF | PTE_UXN);
+    pub const KERNEL_BOOT: Self = Self(PTE_VALID | PTE_PAGE | PTE_ATTR_NORMAL | PTE_AP_RW_KERNEL | PTE_SH_INNER | PTE_AF | PTE_UXN);
     pub const KERNEL_DATA: Self = Self(PTE_VALID | PTE_PAGE | PTE_ATTR_NORMAL | PTE_AP_RW_KERNEL | PTE_SH_INNER | PTE_AF | PTE_PXN | PTE_UXN);
     pub const KERNEL_RODATA: Self = Self(PTE_VALID | PTE_PAGE | PTE_ATTR_NORMAL | PTE_AP_RO_KERNEL | PTE_SH_INNER | PTE_AF | PTE_PXN | PTE_UXN);
     pub const DEVICE_MMIO: Self = Self(PTE_VALID | PTE_PAGE | PTE_ATTR_DEVICE | PTE_AP_RW_KERNEL | PTE_SH_INNER | PTE_AF | PTE_PXN | PTE_UXN);
@@ -302,6 +303,32 @@ impl PageTableManager {
         Ok(())
     }
 
+    /// Maps kernel identity regions (RAM, DTB, UART, GIC) so that EL1 continues executing when MMU is active
+    pub fn map_kernel_identity(&mut self) -> Result<(), MemoryError> {
+        // 1. Map lower RAM: 0x4000_0000 .. 0x4040_0000 (4 MB covers kernel image, bss, stack, heap, and tables)
+        let mut addr = 0x4000_0000;
+        while addr < 0x4040_0000 {
+            self.map_page(addr, addr, PageTableFlags::KERNEL_BOOT)?;
+            addr += PAGE_SIZE;
+        }
+
+        // 2. Map DTB: 0x4800_0000 .. 0x4810_0000 (1 MB)
+        addr = 0x4800_0000;
+        while addr < 0x4810_0000 {
+            self.map_page(addr, addr, PageTableFlags::KERNEL_BOOT)?;
+            addr += PAGE_SIZE;
+        }
+
+        // 3. Map UART MMIO (0x0900_0000)
+        self.map_page(0x0900_0000, 0x0900_0000, PageTableFlags::DEVICE_MMIO)?;
+
+        // 4. Map GIC MMIO (0x0800_0000 and 0x0801_0000)
+        self.map_page(0x0800_0000, 0x0800_0000, PageTableFlags::DEVICE_MMIO)?;
+        self.map_page(0x0801_0000, 0x0801_0000, PageTableFlags::DEVICE_MMIO)?;
+
+        Ok(())
+    }
+
     fn get_or_create_next_level(entry: &mut PageTableEntry) -> Result<usize, MemoryError> {
         if entry.is_valid() {
             Ok(entry.phys_addr())
@@ -347,5 +374,39 @@ impl PageTableManager {
                 options(nostack)
             );
         }
+    }
+}
+
+/// Enables the AArch64 hardware MMU with 48-bit Virtual Addressing and 4KB Granule
+pub fn enable_mmu() {
+    // SAFETY: Configures MAIR, TCR, flushes TLB, and enables SCTLR_EL1.M translation.
+    unsafe {
+        // 1. Program MAIR_EL1: Attr 0 = Device-nGnRE (0x04), Attr 1 = Normal WB Cacheable (0xFF)
+        let mair: u64 = 0x0000_0000_0000_FF04;
+        asm!("msr mair_el1, {}", in(reg) mair, options(nostack));
+
+        // 2. Program TCR_EL1: 48-bit VA, 4KB Granule, 40-bit IPS, Inner Shareable, Normal Cacheable
+        let tcr: u64 = 0x0000_0002_0090_3510;
+        asm!("msr tcr_el1, {}", in(reg) tcr, options(nostack));
+
+        // 3. Invalidate TLBs
+        asm!(
+            "tlbi vmalle1is",
+            "dsb ish",
+            "isb",
+            options(nostack)
+        );
+
+        // 4. Enable MMU in SCTLR_EL1
+        let mut sctlr: u64;
+        asm!("mrs {}, sctlr_el1", out(reg) sctlr, options(nostack));
+        sctlr |= 1; // Bit 0: MMU enable (M)
+        sctlr |= 1 << 12; // Bit 12: Instruction cache enable (I)
+        asm!(
+            "msr sctlr_el1, {}",
+            "isb",
+            in(reg) sctlr,
+            options(nostack)
+        );
     }
 }

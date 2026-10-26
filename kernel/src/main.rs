@@ -11,10 +11,13 @@ pub mod console;
 pub mod drivers;
 pub mod ds;
 pub mod interrupts;
+pub mod loader;
 pub mod logger;
 pub mod mm;
 pub mod panic;
 pub mod sync;
+pub mod syscall;
+pub mod task;
 
 use alloc::boxed::Box;
 use alloc::vec::Vec;
@@ -309,7 +312,54 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [MMU] Strict NULL-Trap ([0..4MB]), PXN/UXN Protection, and CoW Verified.");
     println!("==================================================");
 
-    // Park CPU until Phase 2 (SP-11 System Call Subsystem & SP-12 Scheduler)
+    // Stage 19: Process Abstraction & INDBIN Loader Initialization
+    stage_marker!("19_PROCESS_SUBSYSTEM_INIT", "Process abstraction & INDBIN loader initialized");
+    let hello_image = loader::build_indbin_image(
+        0x0040_0000,
+        0x0040_0000,
+        &loader::HELLO_USER_CODE,
+        0,
+        &[],
+        16384,
+    );
+    let parsed_header = loader::parse_header(&hello_image).expect("Failed to parse valid INDBIN header");
+    assert_eq!(parsed_header.entry_point, 0x0040_0000);
+    log_info!("proc", "INDBIN header verified (magic 0x{:08x}, entry: 0x{:08x}, text size: {} B)", 
+        u32::from_le_bytes(parsed_header.magic), parsed_header.entry_point, parsed_header.text_size);
+
+    // Verify INV-MEM-001 NULL trap enforcement in loader
+    let bad_image = loader::build_indbin_image(0x0000_1000, 0x0000_1000, &loader::HELLO_USER_CODE, 0, &[], 16384);
+    let bad_res = loader::parse_header(&bad_image);
+    assert_eq!(bad_res, Err(loader::LoaderError::NullTrapViolation(0x0000_1000)));
+    log_info!("proc", "INV-MEM-001 verified: Loader rejected executable targeting NULL trap zone");
+
+    // Create user process (PID 1)
+    let user_proc = task::Process::create_from_indbin(1, "hello_user", &hello_image)
+        .expect("Failed to instantiate Process 1 from INDBIN");
+    assert_eq!(user_proc.state, task::ProcessState::Ready);
+    assert_eq!(user_proc.context.sp_el0, loader::USER_STACK_TOP as u64);
+    assert_eq!(user_proc.context.elr_el1, 0x0040_0000);
+    log_info!("proc", "Created Process 1 ('{}', PID: {}, entry: 0x{:08x}, sp: 0x{:016x})",
+        user_proc.name, user_proc.pid, user_proc.context.elr_el1, user_proc.context.sp_el0);
+
+    // Stage 20: First User-Mode Execution in Real EL0
+    stage_marker!("20_USER_MODE_HELLO", "Executing first user-mode process in EL0");
+    println!("--------------------------------------------------");
+    println!(" [USER] Dropping to AArch64 EL0 User Mode...");
+    let exit_code = task::run_user_process(user_proc);
+    println!(" [USER] Returned to AArch64 EL1 Kernel Mode.");
+    assert_eq!(exit_code, 0, "User process must exit with code 0");
+    log_info!("proc", "Process 1 exited cleanly with status {}", exit_code);
+
+    // Stage 21: Milestone Reached
+    stage_marker!("21_SYSCALL_DISPATCH_READY", "Sprint SP-11 Processes & Loading Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [PROC] Sprint SP-11 Processes & Loading Milestone REACHED.");
+    println!(" [PROC] Process Abstraction, INDBIN Loader, Real EL0 User Mode,");
+    println!(" [PROC] and SVC #0 System Call Dispatch Verified.");
+    println!("==================================================");
+
+    // Park CPU until Phase 2 (SP-12 Scheduler & Preemption)
     loop {
         core::hint::spin_loop();
     }

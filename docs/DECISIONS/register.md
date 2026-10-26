@@ -14,6 +14,7 @@
 | **DEC-002** | Core AI integration | 2026-10-26 | AIS is a native OS subsystem, advisory-only, bounded by Rule N-04 and Rule N-05. |
 | **DEC-003** | Multi-year horizon | 2026-10-26 | Quality gates govern progress; no calendar commitments without empirical evidence. |
 | **DEC-004** | Cryptography posture | 2026-10-26 | Vetted, audited external TLS library (`rustls` or equivalent) in non-TCB userspace position. |
+| **ADR-001** | Binary Format Strategy | 2026-10-26 | Native hardened micro-binary format (`INDBIN`) in kernel; ELF64 toolchain conversion (`docs/DECISIONS/ADR-001-binary-format.md`). |
 
 ---
 

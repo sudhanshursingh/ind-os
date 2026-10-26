@@ -2,7 +2,7 @@
   "sprint": "SP-05",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Serial Console & Leveled Logging",
-  "timestamp_utc": "2026-10-26T14:08:53Z",
+  "timestamp_utc": "2026-10-26T14:35:02Z",
   "requirements_verified": [
     "REQ-KRN-101"
   ],
@@ -22,17 +22,17 @@
   ],
   "artifacts": {
     "docs/evidence/golden-boot-sp05.log": "85bb5edc0abe2654d95958b185feaffe065d6ef8380a29fb043560892fd0ae40",
-    "evidence/SP-05/serial.log": "75dc24afa9cb99ce6801e40d402122e014c3af1b9c74ba070f5ecc6f62122599",
+    "evidence/SP-05/serial.log": "58a6431d67ecefb423785122f6460613a03eb6877c42c4a5dedd03d46e1f695d",
     "kernel/build.rs": "2f0bf375d40af02de56b667ef477e83b091129cedb4424c5762d3544ecd8d974",
     "kernel/src/console.rs": "3d0e7d4e0147b852f3b91b0d7c202cf425ff2544acb3263ca0b2731f95a82475",
     "kernel/src/drivers/mod.rs": "63c5168cb85e8cf0f5ba4131f7cd39f55c250034c070c57bb55af59515b7b1b0",
     "kernel/src/drivers/pl011.rs": "4fac7f0865618aa43e01abc46c8262bfa15ac11bf3a23d56a07c56e5ce2435e5",
     "kernel/src/logger.rs": "780582a317eddb567e5940231d44d8dd8a6c805d9fc3f3ce8afcd27240cd0df8",
-    "kernel/src/main.rs": "ddb947b7f4ab95c39235048ad9f54814cfba5f4825032e6953af0f3add29bad7",
+    "kernel/src/main.rs": "a540686dd6804c6f4b5b5ca5026b0edf9bf5345145c568b6cbc987ebb3b03ec6",
     "kernel/src/panic.rs": "8532f7434d33ed7c98c5eac90077e7269defd8e3eec5330ed4d3be06352ca9b1",
     "kernel/src/sync/mod.rs": "f51ff00a8055f117291180cb9a4543b91eb6b02d8fc8282e1653fad407ffa1f0",
     "kernel/src/sync/spinlock.rs": "58da9b25be2645e1052314e1ef466a0502d8bb0de39131ae4b4b9b4f7c81273e",
-    "kernel/target/aarch64-unknown-none/debug/indk": "d6a943886c2826c6cb7fe3db36d36942264472b95a63cec93d0cd400425481a2",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "8e1eab02fef4edc22d940410c581d69c493df0a44245e49adf1705c49b88e625"
+    "kernel/target/aarch64-unknown-none/debug/indk": "234d4e4dc0ec4bdf8fbebf60ad35e25de7002ef7fb42192b23ad8891623f9ce6",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "7b9c97151a5f8a341d609237cb1e4d72755a4b9830f0ee28af55bb524b47ec51"
   }
 }

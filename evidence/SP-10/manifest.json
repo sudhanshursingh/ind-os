@@ -2,7 +2,7 @@
   "sprint": "SP-10",
   "phase": "Phase 2 Core Kernel",
   "title": "Virtual Memory (AArch64 4-Level Page Tables, Per-Process Address Spaces & Memory Protection)",
-  "timestamp_utc": "2026-10-26T14:09:21Z",
+  "timestamp_utc": "2026-10-26T14:35:32Z",
   "invariants_verified": [
     "INV-MEM-001 (Strict NULL trap zone [0..4MB] unmapped)",
     "INV-MEM-002 (PXN and UXN execution protection)",
@@ -15,10 +15,10 @@
     "docs/evidence/golden-boot-sp10.log"
   ],
   "sha256_checksums": {
-    "kernel/src/mm/page_table.rs": "12aa197ce5455ef0abc889b9ac8a7af28f173d14e50abdef0f5c3d1311a28c69",
-    "kernel/src/mm/address_space.rs": "bb7b126aa9172d39c0f4b65c4e07fe8ec4f8b5f0a0335292c5d0a7dd715f6e30",
+    "kernel/src/mm/page_table.rs": "2fd5cf9d7fc24c8570f6586ada93795a05b65b04b93032058abe635382280470",
+    "kernel/src/mm/address_space.rs": "8acb65e9509b69d561eb0646f1e928326d0b6afc1fcf2f8ffe431e74a8f27ccc",
     "docs/evidence/golden-boot-sp10.log": "42dbfee46f2261cfada105d50196ed7c112a324203ca0b21e0fb49047b2ef526",
-    "kernel/target/aarch64-unknown-none/debug/indk": "d6a943886c2826c6cb7fe3db36d36942264472b95a63cec93d0cd400425481a2"
+    "kernel/target/aarch64-unknown-none/debug/indk": "234d4e4dc0ec4bdf8fbebf60ad35e25de7002ef7fb42192b23ad8891623f9ce6"
   },
   "test_result": "PASS",
   "qemu_execution": "SUCCESS"
