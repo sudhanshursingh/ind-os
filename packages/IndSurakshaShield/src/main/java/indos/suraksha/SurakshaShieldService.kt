@@ -32,16 +32,28 @@ class SurakshaShieldService : Service() {
     val firewall = indos.suraksha.firewall.PromptInjectionFirewall.INSTANCE
     val isolationEngine = indos.suraksha.isolation.DualContextIsolationEngine.INSTANCE
 
+    lateinit var screenShareDetector: indos.suraksha.screenshare.ScreenShareDetector
+    lateinit var otpInterceptor: indos.suraksha.screenshare.OtpNotificationInterceptor
+    lateinit var bankingWindowGuard: indos.suraksha.screenshare.BankingWindowGuard
+
     override fun onCreate() {
         super.onCreate()
         instance = this
+        screenShareDetector = indos.suraksha.screenshare.ScreenShareDetector.getInstance(this)
+        screenShareDetector.register()
+        otpInterceptor = indos.suraksha.screenshare.OtpNotificationInterceptor(screenShareDetector)
+        bankingWindowGuard = indos.suraksha.screenshare.BankingWindowGuard(screenShareDetector)
+
         createNotificationChannel()
         val notification = createNotification("Ind Suraksha Shield Active")
         startForeground(NOTIFICATION_ID, notification)
-        Log.i(TAG, "IndSurakshaShield service started (Sprint 10 Green/Amber/Red Enforcer active).")
+        Log.i(TAG, "IndSurakshaShield service started (Sprint 11 Screen-Share OTP Blackout & Banking Guard active).")
     }
 
     override fun onDestroy() {
+        if (::screenShareDetector.isInitialized) {
+            screenShareDetector.unregister()
+        }
         if (instance === this) {
             instance = null
         }

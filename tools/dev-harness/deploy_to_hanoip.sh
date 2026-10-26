@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint10"
-MODULE_VERSION_CODE="10010"
+MODULE_VERSION="v1.0.1-sprint11"
+MODULE_VERSION_CODE="10011"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -38,6 +38,7 @@ RUN_WAKE_TEST=false
 RUN_ASR_TEST=false
 RUN_NAV_TEST=false
 RUN_FIREWALL_TEST=false
+RUN_OTP_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -56,6 +57,7 @@ Options:
     -a, --asr-test    Execute Sprint 8 DoD Streaming Indic/Hinglish ASR + Voice Orb Test (<200 ms latency, offline TTS)
     -n, --nav-test    Execute Sprint 9 DoD Flagship Autonomous UI Navigation Demo (WhatsApp / YouTube / Dialer multi-step)
     -f, --firewall-test Execute Sprint 10 DoD Prompt-Injection Firewall & Dual-Context Isolation Test (0 actions triggered)
+    -o, --otp-test    Execute Sprint 11 DoD Screen-Share OTP Blackout & Banking Window Guard Test
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -115,6 +117,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -f|--firewall-test)
             RUN_FIREWALL_TEST=true
+            shift
+            ;;
+        -o|--otp-test)
+            RUN_OTP_TEST=true
             shift
             ;;
         -s|--serial)
@@ -409,6 +415,23 @@ if [[ "${RUN_FIREWALL_TEST}" == "true" ]]; then
     sleep 2
     "${ADB_CMD[@]}" logcat -d -s ActionPolicyEnforcer PromptFirewall DualContextIsolation IND_SURAKSHA IND_BENCHMARK
     echo "[+] Sprint 10 DoD Prompt-Injection Firewall & Dual-Context Isolation Test completed."
+fi
+
+if [[ "${RUN_OTP_TEST}" == "true" ]]; then
+    echo "[*] Step 16: Executing Sprint 11 DoD Screen-Share OTP Blackout & Banking Window Guard Test..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+
+    echo "[*] Ensuring Notification Listener access is granted..."
+    "${ADB_CMD[@]}" shell cmd notification set_notification_listener_access in.indos.suraksha/indos.suraksha.screenshare.OtpNotificationInterceptor true || true
+
+    echo "[*] Simulating AnyDesk/TeamViewer screen-share active during call..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -n in.indos.suraksha/indos.suraksha.SurakshaShieldService || true
+
+    echo "[*] Awaiting OTP Interceptor & Screen-Share telemetry (listening to logcat -s ScreenShareDetector OtpNotificationInterceptor BankingWindowGuard IND_SURAKSHA IND_BENCHMARK)..."
+    sleep 2
+    "${ADB_CMD[@]}" logcat -d -s ScreenShareDetector OtpNotificationInterceptor BankingWindowGuard IND_SURAKSHA IND_BENCHMARK
+    echo "[+] Sprint 11 DoD Screen-Share OTP Blackout & Banking Window Guard Test completed."
 fi
 
 echo "[+] Deployment completed successfully."
