@@ -291,4 +291,9 @@ impl KObjectTable {
 
         Ok(slot.ref_count)
     }
+
+    /// Returns the number of currently active KObjects in the table
+    pub fn active_count(&self) -> usize {
+        self.slots.iter().filter(|s| s.object.is_some()).count()
+    }
 }

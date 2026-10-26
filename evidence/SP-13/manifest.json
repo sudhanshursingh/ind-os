@@ -1,13 +1,13 @@
 {
   "sprint": "SP-13",
   "title": "IPC & Capability System",
-  "timestamp": 1793038843,
+  "timestamp": 1793040238,
   "status": "PASS",
   "deliverables": {
     "docs/architecture/capability-ipc-spec.md": "b1c4ca293f4361e02f6a64ec89070f5b9c5a66c9f3f47952011508d2414a294f",
     "kernel/src/capability/mod.rs": "81c84a6e40aa96b7705a4436c0a5ca5d279a8dd51e14e112063482695e48e256",
     "kernel/src/capability/rights.rs": "18a51b1eda12b88a32414e1aa7049e693ddf413c8f18c5e418811f5bd738e1b3",
-    "kernel/src/capability/table.rs": "61a25c3cbdd3eef779262083d5360d3076feae5ee92c105a91c80a5e5be60aa1",
+    "kernel/src/capability/table.rs": "764295359c1072d4381560f66081f07a980ba4a81e3b0aa53d2138157dcf62f9",
     "kernel/src/ipc/mod.rs": "53fb9e5db7560535a79b2ee2eeaa77392df5bddd49130c5dc9408f6f9114366a",
     "kernel/src/ipc/endpoint.rs": "75e456dae95c3ad7e97b34b2e60d50e8a7415b8babb982a85d6f52b10a3708bd",
     "kernel/src/syscall/mod.rs": "b4eb00b9fbd5b061550a586c74796823c09a28e2165b7343f6f34ec5c8c2b9f0",

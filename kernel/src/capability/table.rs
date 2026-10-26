@@ -28,7 +28,9 @@ pub struct Capability {
     pub rights: CapRights,
     pub badge: u64,
     pub is_valid: bool,
-    pub parent_slot: Option<u32>, // Lineage tracking for recursive revocation (INV-CAP-002)
+    pub parent_slot: Option<u32>, // Lineage tracking within table (INV-CAP-002)
+    pub parent_pid: Option<ProcessId>, // Process ID of parent capability (INV-CAP-002)
+    pub parent_handle: Option<CapHandle>, // Handle in parent's namespace (INV-CAP-002)
 }
 
 impl Capability {
@@ -39,6 +41,8 @@ impl Capability {
             badge: 0,
             is_valid: false,
             parent_slot: None,
+            parent_pid: None,
+            parent_handle: None,
         }
     }
 
@@ -49,6 +53,8 @@ impl Capability {
             badge,
             is_valid: true,
             parent_slot: None,
+            parent_pid: None,
+            parent_handle: None,
         }
     }
 }
@@ -252,6 +258,9 @@ impl CapTable {
                 self.slots[i].is_valid = false;
                 self.slots[i].cap_type = CapType::Empty;
                 self.slots[i].rights = CapRights::NONE;
+                self.slots[i].parent_slot = None;
+                self.slots[i].parent_pid = None;
+                self.slots[i].parent_handle = None;
                 revoked_count += 1;
 
                 if let CapType::Object(kobj_id) = old_type {

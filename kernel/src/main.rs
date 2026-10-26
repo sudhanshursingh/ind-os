@@ -1042,7 +1042,188 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [CAP] and Per-Process Namespaces (INV-CAP-004) Verified.");
     println!("==================================================");
 
-    // Park CPU until SP-18 (Capabilities II: CPtr & Syscall Routing)
+    // Stage 41: Multi-Hop Capability Delegation with Monotonic Attenuation (INV-CAP-001)
+    stage_marker!("41_CAP_DELEGATION_CHAIN", "Multi-hop cross-process delegation chain P1 -> P2 -> P3 -> P4 verified");
+    let (h_p1, kobj_chain_id) = {
+        use capability::{CapRights, NAMESPACE_REGISTRY};
+        use object::OBJECT_TABLE;
+        use syscall::EPERM;
+
+        let mut reg = NAMESPACE_REGISTRY.lock();
+        let mut objs = OBJECT_TABLE.lock();
+
+        // 1. Ensure namespaces for PID 3 and PID 4 are created
+        reg.create_namespace(3, 0x00FF_FFFF_0000_0003).expect("Failed to create namespace for PID 3");
+        reg.create_namespace(4, 0x00FF_FFFF_0000_0004).expect("Failed to create namespace for PID 4");
+
+        // 2. Allocate an Endpoint KObject for cross-process delegation
+        let kobj_id = objs.create_endpoint(201).expect("Failed to create Endpoint KObject");
+        assert_eq!(objs.get_ref_count(kobj_id).unwrap(), 1);
+
+        // 3. Install root capability into PID 1 with full rights (READ | WRITE | GRANT | CALL)
+        let root_rights = CapRights::ALL;
+        let ns1 = reg.get_mut(1).expect("Namespace 1 not found");
+        let h_root = ns1.install_object(kobj_id, root_rights, 0xC001, &mut objs).expect("Install root cap in PID 1 failed");
+        assert_eq!(objs.get_ref_count(kobj_id).unwrap(), 2);
+
+        // 4. Hop 1: P1 delegates to P2, attenuating to (READ | WRITE | GRANT)
+        let r_p2 = CapRights::READ.union(CapRights::WRITE).union(CapRights::GRANT);
+        let h_p2 = reg.delegate(1, h_root, 2, r_p2, Some(&mut objs)).expect("P1 -> P2 delegation failed");
+        assert_eq!(objs.get_ref_count(kobj_id).unwrap(), 3);
+        log_info!("cap", "Delegation Hop 1: P1 -> P2 attenuated to READ|WRITE|GRANT (INV-CAP-001)");
+
+        // 5. Hop 2: P2 delegates to P3, attenuating to (READ | GRANT)
+        let r_p3 = CapRights::READ.union(CapRights::GRANT);
+        let h_p3 = reg.delegate(2, h_p2, 3, r_p3, Some(&mut objs)).expect("P2 -> P3 delegation failed");
+        assert_eq!(objs.get_ref_count(kobj_id).unwrap(), 4);
+        log_info!("cap", "Delegation Hop 2: P2 -> P3 attenuated to READ|GRANT (INV-CAP-001)");
+
+        // 6. Test illegal rights expansion: P3 attempting to delegate WRITE to P4 must fail with EPERM (INV-CAP-001)
+        let illegal_expand = reg.delegate(3, h_p3, 4, CapRights::WRITE, Some(&mut objs));
+        assert_eq!(illegal_expand, Err(EPERM), "Rights expansion along delegation chain must fail with EPERM (INV-CAP-001)");
+
+        // 7. Hop 3: P3 delegates to P4, attenuating to READ only (drops GRANT)
+        let r_p4 = CapRights::READ;
+        let h_p4 = reg.delegate(3, h_p3, 4, r_p4, Some(&mut objs)).expect("P3 -> P4 delegation failed");
+        assert_eq!(objs.get_ref_count(kobj_id).unwrap(), 5);
+        log_info!("cap", "Delegation Hop 3: P3 -> P4 attenuated to READ (INV-CAP-001)");
+
+        // 8. Test unauthorized delegation: P4 (lacking GRANT) attempting to delegate must fail with EPERM (INV-CAP-001)
+        let illegal_delegate = reg.delegate(4, h_p4, 1, CapRights::READ, Some(&mut objs));
+        assert_eq!(illegal_delegate, Err(EPERM), "Delegation without GRANT must fail with EPERM (INV-CAP-001)");
+
+        log_info!("cap", "Multi-hop delegation chain verified (4 processes, 5 references, INV-CAP-001 PASSED)");
+        (h_root, kobj_id)
+    };
+
+    // Stage 42: Cross-Process Revocation Propagation (INV-CAP-002)
+    stage_marker!("42_CAP_REVOCATION_PROPAGATION", "Global cascading revocation along multi-hop chain P2 -> P3 -> P4 verified");
+    {
+        use capability::NAMESPACE_REGISTRY;
+        use object::OBJECT_TABLE;
+        use syscall::EBADF;
+
+        // Revoking P2's handle must propagate transitively to P3 and P4 (3 slots revoked)
+        // P1's root capability must remain valid (1 slot intact)
+        let revoked_count = {
+            let mut reg = NAMESPACE_REGISTRY.lock();
+            let mut objs = OBJECT_TABLE.lock();
+            // In PID 2, handle 0 is h_p2
+            let h_p2 = 0 as capability::CapHandle;
+            reg.revoke(2, h_p2, Some(&mut objs)).expect("Cross-process revocation failed")
+        };
+        assert_eq!(revoked_count, 3, "Revocation at P2 must cascade to P2, P3, and P4 (3 slots total)");
+
+        {
+            let reg = NAMESPACE_REGISTRY.lock();
+            let objs = OBJECT_TABLE.lock();
+
+            // P2, P3, and P4 must now fail with EBADF
+            assert_eq!(reg.get(2).unwrap().lookup(0), Err(EBADF), "P2 handle must be invalidated");
+            assert_eq!(reg.get(3).unwrap().lookup(0), Err(EBADF), "P3 handle must be invalidated");
+            assert_eq!(reg.get(4).unwrap().lookup(0), Err(EBADF), "P4 handle must be invalidated");
+
+            // P1's handle must remain valid
+            let cap_p1 = reg.get(1).unwrap().lookup(h_p1).expect("P1 root cap must remain valid");
+            assert_eq!(cap_p1.rights, capability::CapRights::ALL);
+
+            // Object reference count must drop from 5 to 2 (initial creator + P1)
+            assert_eq!(objs.get_ref_count(kobj_chain_id).unwrap(), 2, "Object ref count must drop to 2 after propagation");
+        }
+        log_info!("cap", "Cross-process revocation propagation verified: 3 slots revoked, ancestor intact (INV-CAP-002 PASSED)");
+
+        // Now revoke P1's handle and release creator ref -> clean destruction
+        {
+            let mut reg = NAMESPACE_REGISTRY.lock();
+            let mut objs = OBJECT_TABLE.lock();
+            let rev_p1 = reg.revoke(1, h_p1, Some(&mut objs)).expect("Revoke P1 failed");
+            assert_eq!(rev_p1, 1);
+            assert_eq!(objs.get_ref_count(kobj_chain_id).unwrap(), 1);
+
+            let destroyed = objs.release(kobj_chain_id).expect("Release creator ref failed");
+            assert!(destroyed, "KObject must be destroyed on final release");
+        }
+        log_info!("cap", "Root revocation & KObject cleanup verified (INV-CAP-002, INV-CAP-003 PASSED)");
+    }
+
+    // Stage 43: Capability-Leak & Lifecycle Test Suite (INV-CAP-LEAK-001)
+    stage_marker!("43_CAP_LEAK_SUITE", "Zero-leak audit, process termination cleanup & active slot balance verified");
+    {
+        use capability::{CapRights, NAMESPACE_REGISTRY};
+        use object::OBJECT_TABLE;
+
+        let baseline_caps = NAMESPACE_REGISTRY.lock().total_active_capabilities();
+        let baseline_objs = OBJECT_TABLE.lock().active_count();
+        log_info!("cap", "Capability leak baseline: {} active caps, {} active objects", baseline_caps, baseline_objs);
+
+        // Stress cycle: allocate objects, create complex delegation tree across PID 3 and PID 4
+        let test_kobj = OBJECT_TABLE.lock().create_endpoint(301).expect("Create test endpoint failed");
+        {
+            let mut reg = NAMESPACE_REGISTRY.lock();
+            let mut objs = OBJECT_TABLE.lock();
+
+            // Re-create PID 3 and PID 4 namespaces if needed
+            let _ = reg.create_namespace(3, 0x00FF_FFFF_0000_0003);
+            let _ = reg.create_namespace(4, 0x00FF_FFFF_0000_0004);
+
+            // Install in PID 3
+            let h3 = reg.get_mut(3).unwrap().install_object(test_kobj, CapRights::ALL, 0xD001, &mut objs).unwrap();
+            // Mint local child in PID 3
+            let h3_child = reg.get_mut(3).unwrap().mint(h3, CapRights::READ.union(CapRights::GRANT), 0xD002, Some(&mut objs)).unwrap();
+            // Delegate from PID 3 to PID 4
+            let h4 = reg.delegate(3, h3_child, 4, CapRights::READ, Some(&mut objs)).unwrap();
+            assert!((h4 as usize) < capability::MAX_CAPABILITIES);
+        }
+
+        // Verify active counts grew as expected
+        {
+            let active_caps = NAMESPACE_REGISTRY.lock().total_active_capabilities();
+            let active_objs = OBJECT_TABLE.lock().active_count();
+            assert_eq!(active_caps, baseline_caps + 3, "Expected 3 new active capability tokens");
+            assert_eq!(active_objs, baseline_objs + 1, "Expected 1 new active KObject");
+        }
+
+        // Test Process Termination Cleanup: Destroying PID 3's namespace must revoke all tokens
+        // in PID 3 AND transitively revoke PID 4's delegated token!
+        {
+            let mut reg = NAMESPACE_REGISTRY.lock();
+            let mut objs = OBJECT_TABLE.lock();
+            let destroyed_slots = reg.destroy_namespace(3, Some(&mut objs)).expect("Destroy namespace failed");
+            assert_eq!(destroyed_slots, 3, "Namespace destruction must clean up 2 local slots + 1 delegated slot in PID 4");
+        }
+
+        // Release creator reference
+        {
+            let mut objs = OBJECT_TABLE.lock();
+            let destroyed = objs.release(test_kobj).expect("Release test creator ref failed");
+            assert!(destroyed, "KObject must be destroyed on creator release");
+        }
+
+        // Destroy PID 4's namespace to return to initial baseline
+        {
+            let mut reg = NAMESPACE_REGISTRY.lock();
+            let mut objs = OBJECT_TABLE.lock();
+            let _ = reg.destroy_namespace(4, Some(&mut objs));
+        }
+
+        // Verify Zero-Leak Invariant: capability tokens and object slots match baseline perfectly!
+        let final_caps = NAMESPACE_REGISTRY.lock().total_active_capabilities();
+        let final_objs = OBJECT_TABLE.lock().active_count();
+        assert_eq!(final_caps, baseline_caps, "Zero capability leaks: active caps match baseline (INV-CAP-LEAK-001)");
+        assert_eq!(final_objs, baseline_objs, "Zero object leaks: active objects match baseline (INV-CAP-LEAK-001)");
+        log_info!("cap", "Capability leak suite: 0 leaked tokens, 0 leaked objects (INV-CAP-LEAK-001 PASSED)");
+    }
+
+    // Stage 44: Sprint SP-18 Milestone Reached
+    stage_marker!("44_CAPABILITY_II_READY", "Sprint SP-18 Capabilities II Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [CAP] Sprint SP-18 Capabilities II Milestone REACHED.");
+    println!(" [CAP] Multi-Hop Delegation with Monotonic Attenuation (INV-CAP-001),");
+    println!(" [CAP] Global Revocation Propagation Across Namespaces (INV-CAP-002),");
+    println!(" [CAP] Object-Table Coherence (INV-CAP-003), and Zero-Leak Suite (INV-CAP-LEAK-001) Verified.");
+    println!("==================================================");
+
+    // Park CPU until SP-19 (Policy Engine v1 / ENF)
     loop {
         core::hint::spin_loop();
     }

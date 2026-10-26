@@ -1,0 +1,37 @@
+{
+  "sprint": "SP-18",
+  "title": "Capabilities II (Delegation with Attenuation, Revocation Propagation, Capability-Leak Test Suite)",
+  "timestamp": "2026-10-26T18:43:58Z",
+  "invariants": {
+    "INV-CAP-001": "Monotonic Rights Attenuation along delegation chains (R_child subset of R_parent)",
+    "INV-CAP-002": "Global Revocation Propagation (transitive cross-namespace lineage tree invalidation)",
+    "INV-CAP-003": "Object-Table Reference Coherence & Anti-ABA Reclamation (retain/release binding)",
+    "INV-CAP-LEAK-001": "Zero Capability & Object Leakage (delta active slots == 0)"
+  },
+  "files": {
+    "docs/architecture/capability-delegation-revocation-spec.md": {
+      "sha256": "2228b9ccd89055fc09e90a63b79b8713c3a3a6bebb11a1128053c4d38adede77",
+      "bytes": 7435
+    },
+    "docs/evidence/SP-18-validation.md": {
+      "sha256": "e252cccef5930700c6d93225eb6f4284fa43e555185af73cdeb44c982f772911",
+      "bytes": 9594
+    },
+    "docs/evidence/golden-boot-sp18.log": {
+      "sha256": "37a2936b249878887805ef30f7396b961fc2d2d6cdacb9125d4e457c1417f5f2",
+      "bytes": 17424
+    },
+    "kernel/src/capability/namespace.rs": {
+      "sha256": "a4293d1f7c13b25dc16d99d4af19d7f4dc0762822ced3f0afaff4703da9ea779",
+      "bytes": 13197
+    },
+    "kernel/src/capability/table.rs": {
+      "sha256": "764295359c1072d4381560f66081f07a980ba4a81e3b0aa53d2138157dcf62f9",
+      "bytes": 11131
+    },
+    "kernel/src/capability/mod.rs": {
+      "sha256": "81c84a6e40aa96b7705a4436c0a5ca5d279a8dd51e14e112063482695e48e256",
+      "bytes": 732
+    }
+  }
+}

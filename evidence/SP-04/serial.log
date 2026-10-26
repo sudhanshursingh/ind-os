@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   5d59d621-dirty
+  Build Commit:   1761d66a-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 473, free 130599
-[DEBUG] mm: Allocated test frame 1 at 0x400d9000
-[DEBUG] mm: Allocated test frame 2 at 0x400da000
+[INFO ] mm: Physical frames: total 131072, reserved 483, free 130589
+[DEBUG] mm: Allocated test frame 1 at 0x400e3000
+[DEBUG] mm: Allocated test frame 2 at 0x400e4000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400d9000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x400e3000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x401d9000
+[INFO ] mmu: Root L0 page table allocated at 0x401e3000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401e0000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401ea000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401ea000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401f4000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -187,7 +187,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 16979 ticks (271 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 18395 ticks (294 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
@@ -211,4 +211,22 @@ Hello from Ind OS User Mode (EL0)!
  [CAP] Unforgeable Tokens, Object-Table Integration (INV-CAP-003),
  [CAP] Monotonic Attenuation (INV-CAP-001), Revocation Soundness (INV-CAP-002),
  [CAP] and Per-Process Namespaces (INV-CAP-004) Verified.
+==================================================
+[STAGE:41_CAP_DELEGATION_CHAIN] Multi-hop cross-process delegation chain P1 -> P2 -> P3 -> P4 verified
+[INFO ] cap: Delegation Hop 1: P1 -> P2 attenuated to READ|WRITE|GRANT (INV-CAP-001)
+[INFO ] cap: Delegation Hop 2: P2 -> P3 attenuated to READ|GRANT (INV-CAP-001)
+[INFO ] cap: Delegation Hop 3: P3 -> P4 attenuated to READ (INV-CAP-001)
+[INFO ] cap: Multi-hop delegation chain verified (4 processes, 5 references, INV-CAP-001 PASSED)
+[STAGE:42_CAP_REVOCATION_PROPAGATION] Global cascading revocation along multi-hop chain P2 -> P3 -> P4 verified
+[INFO ] cap: Cross-process revocation propagation verified: 3 slots revoked, ancestor intact (INV-CAP-002 PASSED)
+[INFO ] cap: Root revocation & KObject cleanup verified (INV-CAP-002, INV-CAP-003 PASSED)
+[STAGE:43_CAP_LEAK_SUITE] Zero-leak audit, process termination cleanup & active slot balance verified
+[INFO ] cap: Capability leak baseline: 0 active caps, 5 active objects
+[INFO ] cap: Capability leak suite: 0 leaked tokens, 0 leaked objects (INV-CAP-LEAK-001 PASSED)
+[STAGE:44_CAPABILITY_II_READY] Sprint SP-18 Capabilities II Milestone REACHED
+--------------------------------------------------
+ [CAP] Sprint SP-18 Capabilities II Milestone REACHED.
+ [CAP] Multi-Hop Delegation with Monotonic Attenuation (INV-CAP-001),
+ [CAP] Global Revocation Propagation Across Namespaces (INV-CAP-002),
+ [CAP] Object-Table Coherence (INV-CAP-003), and Zero-Leak Suite (INV-CAP-LEAK-001) Verified.
 ==================================================

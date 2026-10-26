@@ -1,7 +1,7 @@
 {
   "sprint": "SP-14",
   "title": "Kernel Object Model",
-  "timestamp": 1793038843,
+  "timestamp": 1793040238,
   "status": "PASS",
   "deliverables": {
     "docs/architecture/object-model-spec.md": {
@@ -21,8 +21,8 @@
       "sha256": "ebdea566cc472f45304bac331aeb0e3981d815f87299e214c48120205ec690c6"
     },
     "kernel/src/object/table.rs": {
-      "bytes": 9033,
-      "sha256": "d947981ba624acbace6f0f41e39d511383b820f8cb696555845c0668ea6b5cd6"
+      "bytes": 9216,
+      "sha256": "170d3df54cf71312b1e75f54b811dc48c7c158b395e7a3110000826e83400d7f"
     },
     "docs/evidence/golden-boot-sp14.log": {
       "bytes": 19358,
