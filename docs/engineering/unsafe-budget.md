@@ -24,6 +24,8 @@
 | **UNSAFE-008** | `kernel/src/drivers/gicv2.rs` | MMIO | GICv2 distributor & CPU interface register access | Addresses `0x08000000` and `0x08010000` are valid MMIO pages. | ✅ AUDITED |
 | **UNSAFE-009** | `kernel/src/drivers/timer.rs` | Low-level Asm | ARM Generic Timer system register programming | Privileged EL1 execution; atomic countdown reload. | ✅ AUDITED |
 | **UNSAFE-010** | `kernel/src/interrupts/mod.rs` | Low-level Asm | DAIF interrupt mask manipulation & SP check | Architectural state changes for critical sections. | ✅ AUDITED |
+| **UNSAFE-011** | `kernel/src/mm/page_table.rs` | Virtual Memory | Page table dereference & TLB invalidation | Page tables backed by verified contiguous 4KB frames. | ✅ AUDITED |
+| **UNSAFE-012** | `kernel/src/mm/address_space.rs` | Virtual Memory | TTBR0_EL1 register loading & ISB barrier | Physical root table is 4KB aligned with valid ASID. | ✅ AUDITED |
 
 ---
 

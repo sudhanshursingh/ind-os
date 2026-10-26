@@ -5,11 +5,13 @@ pub mod address_space;
 pub mod dtb;
 pub mod frame;
 pub mod heap;
+pub mod page_table;
 
 pub use address_space::*;
 pub use dtb::{DtbError, DtbParser, PhysicalMemoryRegion};
 pub use frame::{MemoryError, PageFrameAllocator, PhysFrame, PAGE_SIZE};
 pub use heap::{LockedHeap, DEFAULT_HEAP_SIZE};
+pub use page_table::{PageTable, PageTableEntry, PageTableFlags, PageTableManager};
 
 use crate::sync::Spinlock;
 

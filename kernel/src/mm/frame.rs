@@ -26,6 +26,8 @@ pub enum MemoryError {
     InvalidFrameAddress(usize),
     DoubleFree(usize),
     FrameNotAllocated(usize),
+    PageNotMapped,
+    PermissionDenied,
 }
 
 /// Early Page Frame Allocator using a flat bitmask

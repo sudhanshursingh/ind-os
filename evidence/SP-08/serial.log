@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   5193dbe4-dirty
+  Build Commit:   8ec54c9d-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 423, free 130649
-[DEBUG] mm: Allocated test frame 1 at 0x400a7000
-[DEBUG] mm: Allocated test frame 2 at 0x400a8000
+[INFO ] mm: Physical frames: total 131072, reserved 426, free 130646
+[DEBUG] mm: Allocated test frame 1 at 0x400aa000
+[DEBUG] mm: Allocated test frame 2 at 0x400ab000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400a7000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x400aa000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -53,4 +53,21 @@
  [BOOT] Gate G1 Criteria Met: 2048-byte vectors armed,
  [BOOT] 512MB RAM discovered, frame & heap allocators online,
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
+==================================================
+[STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
+[INFO ] mmu: Root L0 page table allocated at 0x401aa000
+[INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
+[INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
+[INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
+[STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401b1000)
+[INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
+[INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401b5000, RW)
+[INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
+[STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
+--------------------------------------------------
+ [MMU] Sprint SP-10 Virtual Memory Milestone REACHED.
+ [MMU] AArch64 4-Level Page Tables, Per-Process Address Spaces,
+ [MMU] Strict NULL-Trap ([0..4MB]), PXN/UXN Protection, and CoW Verified.
 ==================================================

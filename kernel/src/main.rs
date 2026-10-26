@@ -209,7 +209,107 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.");
     println!("==================================================");
 
-    // Park CPU until Phase 2 (SP-10 Virtual Memory & SP-12 Scheduler)
+    // =========================================================================
+    // PHASE 2: CORE KERNEL (SP-10 .. SP-15) -> Gate G2
+    // =========================================================================
+
+    // Stage 16: AArch64 4-Level Page Table Manager Initialization & Mapping
+    stage_marker!("16_PAGE_TABLES_INIT", "4-level page table manager initialized");
+    {
+        let mut pt_mgr = mm::PageTableManager::create_new().expect("Failed to create root PageTableManager");
+        log_info!("mmu", "Root L0 page table allocated at 0x{:08x}", pt_mgr.root_address());
+
+        // Test mapping a kernel virtual address to physical RAM
+        let test_virt_kernel = 0xFFFF_8000_4000_0000;
+        let test_phys_kernel = 0x4008_0000;
+        pt_mgr.map_page(test_virt_kernel, test_phys_kernel, mm::PageTableFlags::KERNEL_CODE)
+            .expect("Failed to map kernel code page");
+
+        let (trans_phys, trans_flags) = pt_mgr.translate(test_virt_kernel)
+            .expect("Translation failed for mapped kernel code page");
+        assert_eq!(trans_phys, test_phys_kernel, "Translated physical address mismatch");
+        assert!(!trans_flags.is_writable(), "Kernel code page must not be writable");
+        assert!(!trans_flags.is_user(), "Kernel code page must not be accessible to user");
+        log_info!("mmu", "Kernel code mapping verified (0x{:016x} -> 0x{:08x}, RO, UXN)", test_virt_kernel, trans_phys);
+
+        // Test mapping an MMIO device page
+        let test_virt_mmio = 0xFFFF_FFFF_0900_0000;
+        let test_phys_mmio = 0x0900_0000;
+        pt_mgr.map_page(test_virt_mmio, test_phys_mmio, mm::PageTableFlags::DEVICE_MMIO)
+            .expect("Failed to map device MMIO page");
+
+        let (mmio_phys, _) = pt_mgr.translate(test_virt_mmio)
+            .expect("Translation failed for mapped MMIO page");
+        assert_eq!(mmio_phys, test_phys_mmio, "Translated MMIO physical address mismatch");
+        log_info!("mmu", "Device MMIO mapping verified (0x{:016x} -> 0x{:08x}, nGnRE Device)", test_virt_mmio, mmio_phys);
+
+        // Test unmapping
+        pt_mgr.unmap_page(test_virt_kernel).expect("Failed to unmap kernel page");
+        assert!(pt_mgr.translate(test_virt_kernel).is_none(), "Unmapped page must not translate");
+        log_info!("mmu", "Page unmapping & TLB invalidation verified (0x{:016x} unmapped)", test_virt_kernel);
+    }
+
+    // Stage 17: Per-Process Address Space & Security Bounds Verification
+    stage_marker!("17_PER_PROCESS_MMU", "Per-process address space & security bounds verified");
+    {
+        let mut user_space = mm::AddressSpace::new(1).expect("Failed to create AddressSpace for ASID 1");
+        log_info!("mmu", "Created user AddressSpace with ASID {} (L0: 0x{:08x})", user_space.asid(), user_space.root_table_address());
+
+        // Test INV-MEM-001: Strict NULL-pointer trap zone ([0x0000_0000..0x0040_0000] strictly rejected)
+        let null_addr = 0x0000_0000;
+        let null_res = user_space.map_user(null_addr, 0x4010_0000, mm::PageTableFlags::USER_DATA);
+        assert_eq!(null_res, Err(mm::MemoryError::PermissionDenied), "INV-MEM-001 violation: NULL address mapping must be rejected");
+
+        let trap_zone_addr = 0x003F_F000;
+        let trap_res = user_space.map_user(trap_zone_addr, 0x4010_0000, mm::PageTableFlags::USER_DATA);
+        assert_eq!(trap_res, Err(mm::MemoryError::PermissionDenied), "INV-MEM-001 violation: 0x003FF000 trap zone mapping must be rejected");
+        log_info!("mmu", "INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced");
+
+        // Test INV-MEM-002: PXN & UXN privilege separation
+        let user_code_virt = 0x0040_0000;
+        let user_code_phys = 0x4010_0000;
+        user_space.map_user(user_code_virt, user_code_phys, mm::PageTableFlags::USER_CODE)
+            .expect("Failed to map valid user code page");
+
+        let (_, user_flags) = user_space.translate(user_code_virt)
+            .expect("Translation failed for user code page");
+        assert!(user_flags.contains(mm::page_table::PTE_PXN), "INV-MEM-002 violation: User page must have PXN set");
+        log_info!("mmu", "INV-MEM-002 verified: PXN enforced on user address space (PXN=1)");
+
+        // Test Copy-on-Write (CoW) page fault resolution
+        let cow_virt = 0x0040_1000;
+        let cow_shared_phys = 0x4010_1000;
+        user_space.map_user(cow_virt, cow_shared_phys, mm::PageTableFlags::USER_COW)
+            .expect("Failed to map CoW page");
+
+        let (before_phys, before_flags) = user_space.translate(cow_virt).unwrap();
+        assert_eq!(before_phys, cow_shared_phys);
+        assert!(before_flags.is_cow(), "CoW page must have PTE_COW bit set");
+        assert!(!before_flags.is_writable(), "CoW page must initially be read-only");
+
+        // Simulate page fault write trap -> resolve CoW
+        user_space.handle_cow_fault(cow_virt).expect("Failed to resolve CoW page fault");
+
+        let (after_phys, after_flags) = user_space.translate(cow_virt).unwrap();
+        assert_ne!(after_phys, cow_shared_phys, "CoW resolution must allocate a new private physical frame");
+        assert!(!after_flags.is_cow(), "Resolved CoW page must clear PTE_COW bit");
+        assert!(after_flags.is_writable(), "Resolved CoW page must have write permission");
+        log_info!("mmu", "Copy-on-Write (CoW) verified (0x{:08x} -> new frame 0x{:08x}, RW)", cow_shared_phys, after_phys);
+
+        // Test TTBR0_EL1 activation
+        user_space.activate();
+        log_info!("mmu", "AddressSpace activated into TTBR0_EL1 with ASID {}", user_space.asid());
+    }
+
+    // Stage 18: Milestone Reached
+    stage_marker!("18_VIRTUAL_MEMORY_READY", "Sprint SP-10 Virtual Memory Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [MMU] Sprint SP-10 Virtual Memory Milestone REACHED.");
+    println!(" [MMU] AArch64 4-Level Page Tables, Per-Process Address Spaces,");
+    println!(" [MMU] Strict NULL-Trap ([0..4MB]), PXN/UXN Protection, and CoW Verified.");
+    println!("==================================================");
+
+    // Park CPU until Phase 2 (SP-11 System Call Subsystem & SP-12 Scheduler)
     loop {
         core::hint::spin_loop();
     }

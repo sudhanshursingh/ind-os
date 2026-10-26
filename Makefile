@@ -33,6 +33,7 @@ check:
 	@python3 ci/verify_sp07.py
 	@python3 ci/verify_sp08.py
 	@python3 ci/verify_sp09.py
+	@python3 ci/verify_sp10.py
 
 gate-g1:
 	@echo "Running Ind OS Gate G1 Audit & Verification Suite..."

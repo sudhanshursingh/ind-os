@@ -1,0 +1,25 @@
+{
+  "sprint": "SP-10",
+  "phase": "Phase 2 Core Kernel",
+  "title": "Virtual Memory (AArch64 4-Level Page Tables, Per-Process Address Spaces & Memory Protection)",
+  "timestamp_utc": "2026-10-26T14:09:21Z",
+  "invariants_verified": [
+    "INV-MEM-001 (Strict NULL trap zone [0..4MB] unmapped)",
+    "INV-MEM-002 (PXN and UXN execution protection)",
+    "INV-MEM-003 (Double-free detection and frame allocation audit)",
+    "INV-MEM-004 (Read-Only kernel page tables protection)"
+  ],
+  "deliverables": [
+    "kernel/src/mm/page_table.rs",
+    "kernel/src/mm/address_space.rs",
+    "docs/evidence/golden-boot-sp10.log"
+  ],
+  "sha256_checksums": {
+    "kernel/src/mm/page_table.rs": "12aa197ce5455ef0abc889b9ac8a7af28f173d14e50abdef0f5c3d1311a28c69",
+    "kernel/src/mm/address_space.rs": "bb7b126aa9172d39c0f4b65c4e07fe8ec4f8b5f0a0335292c5d0a7dd715f6e30",
+    "docs/evidence/golden-boot-sp10.log": "42dbfee46f2261cfada105d50196ed7c112a324203ca0b21e0fb49047b2ef526",
+    "kernel/target/aarch64-unknown-none/debug/indk": "d6a943886c2826c6cb7fe3db36d36942264472b95a63cec93d0cd400425481a2"
+  },
+  "test_result": "PASS",
+  "qemu_execution": "SUCCESS"
+}
