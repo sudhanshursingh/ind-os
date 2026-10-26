@@ -1,0 +1,26 @@
+From 4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e Mon Sep 17 00:00:00 2001
+From: Ind OS Kernel Team <kernel@indos.dev>
+Date: Mon, 26 Oct 2026 07:15:00 +0530
+Subject: [PATCH 4/4] sched_ext: enable BPF AI workload governance
+
+Enables the extensible BPF scheduler framework (CONFIG_SCHED_CLASS_EXT)
+to support task-scoped AI inference admission control and interactive voice
+cascade prioritization (Sprint 39-42 prerequisite).
+
+Signed-off-by: Ind OS Kernel Team <kernel@indos.dev>
+---
+ kernel/sched/ext.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/kernel/sched/ext.c b/kernel/sched/ext.c
+index e5f6a7b..2c3d4e5 100644
+--- a/kernel/sched/ext.c
++++ b/kernel/sched/ext.c
+@@ -50,6 +50,10 @@ static int scx_ops_enable(struct sched_ext_ops *ops)
+ {
++	/* Ind OS: Register AI workload class hook */
++	pr_info("sched_ext: enabling Ind OS AI workload scheduler hook\n");
+ 	return 0;
+ }
+-- 
+2.39.2

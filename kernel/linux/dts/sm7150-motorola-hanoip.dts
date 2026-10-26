@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Device Tree Source for Motorola Moto G60 (hanoip)
+ * Qualcomm Snapdragon 732G (SM7150-AC)
+ *
+ * Ind OS Mainline Linux Baseline (Phase K0, Sprint 23)
+ */
+
+/dts-v1/;
+
+#include "sm7150.dtsi"
+#include "pm6150.dtsi"
+#include "pm6150l.dtsi"
+
+/ {
+	model = "Motorola Moto G60 (hanoip)";
+	compatible = "motorola,hanoip", "qcom,sm7150";
+	qcom,msm-id = <355 0x10000>;
+	qcom,board-id = <0x1000b 0>;
+
+	aliases {
+		serial0 = &uart3;
+		display0 = &mdss;
+	};
+
+	chosen {
+		bootargs = "console=ttyMSM0,115200n8 earlycon=msm_geni_serial,0x884000 androidboot.hardware=qcom loglevel=7 init=/init root=/dev/ram0 rw";
+		stdout-path = "serial0:115200n8";
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* Reserved 1.5 GB for OP-TEE / TrustZone & Ind Neural Core MMO domain */
+		optee_reserved: optee@9e000000 {
+			reg = <0x0 0x9e000000 0x0 0x60000000>;
+			no-map;
+		};
+
+		framebuffer_reserved: framebuffer@80000000 {
+			reg = <0x0 0x80000000 0x0 0x02000000>;
+			no-map;
+		};
+	};
+
+	vph_pwr: vph-pwr-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vph_pwr";
+		regulator-min-microvolt = <3700000>;
+		regulator-max-microvolt = <3700000>;
+		regulator-always-on;
+	};
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_dsi0 {
+	status = "okay";
+	vdda-supply = <&vreg_l1a_1p2>;
+
+	panel: panel@0 {
+		compatible = "novatek,nt36672c";
+		reg = <0>;
+
+		/* Novatek NT36672C 120Hz 1080x2460 IPS LCD panel */
+		reset-gpios = <&tlmm 44 GPIO_ACTIVE_LOW>;
+		backlight = <&backlight>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mdss_dsi0_out>;
+			};
+		};
+	};
+};
+
+&i2c4 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	touchscreen@38 {
+		compatible = "focaltech,fts8756";
+		reg = <0x38>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <28 IRQ_TYPE_LEVEL_LOW>;
+		reset-gpios = <&tlmm 29 GPIO_ACTIVE_LOW>;
+		touchscreen-size-x = <1080>;
+		touchscreen-size-y = <2460>;
+	};
+};
+
+&uart3 {
+	status = "okay";
+};

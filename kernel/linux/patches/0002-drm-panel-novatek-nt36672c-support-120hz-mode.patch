@@ -1,0 +1,31 @@
+From 2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c Mon Sep 17 00:00:00 2001
+From: Ind OS Kernel Team <kernel@indos.dev>
+Date: Mon, 26 Oct 2026 07:05:00 +0530
+Subject: [PATCH 2/4] drm/panel: novatek-nt36672c: support 120Hz high refresh mode
+
+Adds 120Hz display timing profiles (1080x2460 @ 120 fps) to the Novatek
+NT36672C DRM panel driver.
+
+Signed-off-by: Ind OS Kernel Team <kernel@indos.dev>
+---
+ drivers/gpu/drm/panel/panel-novatek-nt36672c.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/drivers/gpu/drm/panel/panel-novatek-nt36672c.c b/drivers/gpu/drm/panel/panel-novatek-nt36672c.c
+index 8f7e6d5..1a2b3c4 100644
+--- a/drivers/gpu/drm/panel/panel-novatek-nt36672c.c
++++ b/drivers/gpu/drm/panel/panel-novatek-nt36672c.c
+@@ -150,6 +150,30 @@ static const struct drm_display_mode nt36672c_120hz_mode = {
++	.clock = 345000,
++	.hdisplay = 1080,
++	.hsync_start = 1080 + 36,
++	.hsync_end = 1080 + 36 + 10,
++	.htotal = 1080 + 36 + 10 + 44,
++	.vdisplay = 2460,
++	.vsync_start = 2460 + 20,
++	.vsync_end = 2460 + 20 + 4,
++	.vtotal = 2460 + 20 + 4 + 16,
++	.flags = 0,
++};
+-- 
+2.39.2
