@@ -2,30 +2,46 @@
 # Ind OS — Native AI Inference Daemon SELinux Policy
 # Subsystem: ind-neural-core / Layer 3 Air-Gapped Daemon
 # Target Domain: u:r:ind_ai_daemon:s0
+# Reference: PRD v1.0.1-BIBLE (Phase 6, Sprint 17 — SELinux Enforcing)
 # ==============================================================================
 
 type ind_ai_daemon, domain, coredomain;
 type ind_ai_daemon_exec, exec_type, file_type, system_file_type;
 type ind_model_file, file_type, data_file_type, core_data_file_type;
+type ind_ai_service, service_manager_type;
 
 init_daemon_domain(ind_ai_daemon)
 
 # Binder IPC communication with System Server and Client Apps
 binder_use(ind_ai_daemon)
 binder_call(ind_ai_daemon, system_server)
+binder_call(ind_ai_daemon, appdomain)
 binder_service(ind_ai_daemon)
+
+# Register Service with ServiceManager
+add_service(ind_ai_daemon, ind_ai_service)
+allow { appdomain system_server } ind_ai_service:service_manager find;
 
 # Access to mmap-backed GGUF / ONNX quantized models
 allow ind_ai_daemon ind_model_file:dir r_dir_perms;
 allow ind_ai_daemon ind_model_file:file { read open getattr map };
 
-# Adreno GPU access (Vulkan compute pipeline)
+# Adreno GPU access (Vulkan compute pipeline) & ION memory
 allow ind_ai_daemon gpu_device:chr_file rw_file_perms;
 allow ind_ai_daemon ion_device:chr_file rw_file_perms;
+allow ind_ai_daemon dmabuf_system_heap_device:chr_file rw_file_perms;
 
-# Pipe and ashmem allocations for zero-copy buffers
+# Pipe and ashmem allocations for zero-copy IPC buffers
 allow ind_ai_daemon ashmem_device:chr_file rw_file_perms;
+allow ind_ai_daemon system_server:fd use;
+allow ind_ai_daemon appdomain:fd use;
 
-# CRITICAL SECURITY INVARIANT: forbid ALL network sockets
-# Ensures the on-device AI runtime has 0 network access at the kernel level
-neverallow ind_ai_daemon domain:{ tcp_socket udp_socket rawip_socket netlink_route_socket } *;
+# Allow reading vendor graphics configurations
+allow ind_ai_daemon vendor_file:file { read open getattr map };
+
+# ==============================================================================
+# CRITICAL HARD SECURITY INVARIANT: Forbid ALL Network Sockets
+# Ensures the on-device AI runtime has 0 network access at the Linux kernel level.
+# Any attempt to allocate network sockets will fail with EACCES and generate an AVC denial.
+# ==============================================================================
+neverallow ind_ai_daemon domain:{ socket tcp_socket udp_socket rawip_socket netlink_route_socket netlink_generic_socket } *;

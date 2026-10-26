@@ -46,6 +46,9 @@ DEVICE_PACKAGE_OVERLAYS += \
 # Register Custom SELinux Policies
 BOARD_VENDOR_SEPOLICY_DIRS += vendor/ind/sepolicy
 
+# Optional Sandboxed microG Integration
+$(call inherit-product-if-exists, vendor/ind/config/microg.mk)
+
 # Purge Stock / Lineage Bloatware (PRD Invariant 1: Keep OS idle memory <= 1150 MB)
 # Removes default browser, stock music, stock audio recorder, stock calendar, telemetry updater
 PRODUCT_PACKAGES_REMOVE += \

@@ -1,0 +1,7 @@
+# ==============================================================================
+# Ind OS — Service Context Labels for System Services
+# Reference: PRD v1.0.1-BIBLE (Phase 6, Sprint 17 — SELinux Enforcing)
+# ==============================================================================
+
+ind_ai_service                       u:object_r:ind_ai_service:s0
+in.indos.neural.aidl                 u:object_r:ind_ai_service:s0

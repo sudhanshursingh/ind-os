@@ -136,7 +136,39 @@ else
     exit 1
 fi
 
+# 6. Audit SELinux Policy & Socket Neverallow Invariant
+echo -e "\n[*] Step 6: Auditing SELinux Policy & Socket Isolation..."
+SEPOLICY_TE="${REPO_ROOT}/vendor/ind/sepolicy/ind_ai_daemon.te"
+SEPOLICY_SERVICE="${REPO_ROOT}/vendor/ind/sepolicy/service_contexts"
+if [[ ! -f "${SEPOLICY_TE}" || ! -f "${SEPOLICY_SERVICE}" ]]; then
+    echo -e "${RED}[-] Error: SELinux policy files missing!${NC}" >&2
+    exit 1
+fi
+
+if grep -q "neverallow ind_ai_daemon domain:{ socket" "${SEPOLICY_TE}"; then
+    echo -e "${GREEN}[+] SELinux neverallow rule forbids all network sockets for ind_ai_daemon.${NC}"
+else
+    echo -e "${RED}[-] Error: Missing neverallow socket isolation rule!${NC}" >&2
+    exit 1
+fi
+
+# 7. Audit Sandboxed microG Configuration
+echo -e "\n[*] Step 7: Auditing Sandboxed microG Configuration..."
+MICROG_MK="${REPO_ROOT}/vendor/ind/config/microg.mk"
+MICROG_XML="${REPO_ROOT}/vendor/ind/permissions/microg-permissions.xml"
+if [[ ! -f "${MICROG_MK}" || ! -f "${MICROG_XML}" ]]; then
+    echo -e "${RED}[-] Error: Sandboxed microG configuration files missing!${NC}" >&2
+    exit 1
+fi
+
+if grep -q "FAKE_PACKAGE_SIGNATURE" "${MICROG_XML}"; then
+    echo -e "${GREEN}[+] Sandboxed microG signature spoofing permissions whitelisted.${NC}"
+else
+    echo -e "${RED}[-] Error: microg-permissions.xml missing signature spoofing!${NC}" >&2
+    exit 1
+fi
+
 echo -e "\n${GREEN}==================================================================${NC}"
-echo -e "${GREEN} Sprint 16 DoD: All ROM Tree, Makefiles & Branding Gates PASSED!   ${NC}"
+echo -e "${GREEN} Sprint 16 & 17 DoD: All ROM Tree, Makefiles & SELinux Gates PASSED!${NC}"
 echo -e "${GREEN} Ready for lunch ind_hanoip-userdebug && mka bacon compilation.    ${NC}"
 echo -e "${GREEN}==================================================================${NC}"
