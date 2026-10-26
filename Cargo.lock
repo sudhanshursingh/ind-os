@@ -18,5 +18,12 @@ name = "indus-init"
 version = "0.1.0"
 
 [[package]]
+name = "indus-shell"
+version = "0.1.0"
+dependencies = [
+ "libindus",
+]
+
+[[package]]
 name = "libindus"
 version = "0.1.0"

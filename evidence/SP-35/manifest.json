@@ -1,0 +1,29 @@
+{
+  "sprint": "SP-35",
+  "phase": "Phase 5 (Userspace & the Developer OS)",
+  "requirements": [
+    "REQ-USE-201",
+    "REQ-USE-202",
+    "REQ-USE-203"
+  ],
+  "invariants": [
+    "INV-SH-001",
+    "INV-SH-002"
+  ],
+  "deliverables": {
+    "docs/architecture/shell-architecture-spec.md": "6649b7c8c44fa719ac2ba6eafecd0eea31fe27fa15b4bbd4c890e33b578fd66c",
+    "docs/evidence/SP-35-validation.md": "7d7b6a7387a0d4ef15d63bc5378ad49ab043ffefd014845c687a93d57eb0afe7",
+    "docs/evidence/golden-boot-sp35.log": "98366d797767af970d78d03eab560e53011fd478ad696532c23893225e58b0d0",
+    "userspace/shell/Cargo.toml": "0d9e678d1d3d84a276b85d911103817a78b9dd4191e0eef18b0892b258fdf482",
+    "userspace/shell/README.md": "c0857a2d227691bde498b029a9d90caac55ee474698f03f2fee10e61494f30ad",
+    "userspace/shell/src/lib.rs": "fd11544d92073910021f714e9e4d834864c451957a5485ec19c3092f4264971b",
+    "userspace/shell/src/main.rs": "8fc42b7ca39dccf21b85fdb1cba4ff19d8fba8d61aa4876ecc42f7c08347df14",
+    "userspace/shell/src/types.rs": "59838057b45b125e6c910998d5658e51b196f8ca2f9f696ea2911a6b82860fcd",
+    "userspace/shell/src/parser.rs": "04c3baa04de3e031a0f90e7f7bc1a0419823b9807fddf3b7fa0a8596f18dc401",
+    "userspace/shell/src/commands.rs": "6d564d6fdef513ecb786386072a655ff28554f393e4dd709cd3fc2befabfac71",
+    "userspace/shell/src/pipeline.rs": "3c7a4989faeb0a252c68ca29e4c2da2ac50875df540db7811199a3045df158cf",
+    "kernel/src/userspace/shell.rs": "f83a938ae6deadb814e1a8571b08a4f6986a85777e8d0551ed6347ebba83a766"
+  },
+  "target": "aarch64-unknown-none",
+  "status": "PASS"
+}

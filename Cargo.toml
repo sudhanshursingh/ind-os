@@ -4,6 +4,7 @@ members = [
     "userspace/init",
     "userspace/libindus",
     "userspace/devmgr",
+    "userspace/shell",
 ]
 resolver = "2"
 

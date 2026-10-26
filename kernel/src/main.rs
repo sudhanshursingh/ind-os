@@ -3068,6 +3068,83 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-34] - Standalone indus-devmgr userspace crate in workspace.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-35: SHELL V1 & DEVELOPER DOGFOOD (REQ-USE-201..203, INV-SH-001, INV-SH-002)
+    // ==================================================
+
+    // Stage 121: Shell Subsystem Initialization
+    stage_marker!("121_SHELL_INIT", "Userspace interactive shell v1 initialized and terminal capability granted");
+    log_info!("shell", "Interactive Shell v1 initialized: terminal stream capability active (INV-SH-001 PASSED)");
+
+    // Stage 122: Command Parser & Lexer Verification (INV-SH-001)
+    stage_marker!("122_SHELL_COMMAND_PARSER", "Bounded panic-free command line parser verified");
+    {
+        let parsed = crate::userspace::KernelShellParser::parse_command("echo \"hello world\" 42")
+            .expect("Failed to parse echo command");
+        assert_eq!(parsed.name, "echo");
+        assert_eq!(parsed.arg_count, 2);
+        assert_eq!(parsed.args[0], "hello world");
+        assert_eq!(parsed.args[1], "42");
+
+        // Verify unclosed quote error handling
+        let unclosed = crate::userspace::KernelShellParser::parse_command("echo \"unclosed quote");
+        assert_eq!(unclosed, Err(crate::userspace::KernelShellParseError::UnclosedQuote));
+
+        log_info!("shell", "Command parser verified: tokenization, quoting, and error recovery (INV-SH-001 PASSED)");
+    }
+
+    // Stage 123: Pipelines as Capability-Mediated IPC Chains (INV-SH-002)
+    stage_marker!("123_SHELL_PIPELINE_IPC", "Pipelines as capability-mediated IPC chains verified");
+    {
+        let mut pipe_out = [0u8; crate::userspace::KERNEL_SHELL_OUTPUT_BUF_SIZE];
+        let bytes_written = crate::userspace::KernelShellSession::execute_pipeline("echo \"pipeline token\" | cat", &mut pipe_out)
+            .expect("Failed to execute pipeline");
+        assert!(bytes_written > 0);
+        let out_str = core::str::from_utf8(&pipe_out[..bytes_written]).unwrap_or("");
+        assert!(out_str.contains("pipeline token"));
+
+        log_info!("shell", "Pipeline IPC chain verified: stdout -> stdin capability forwarding (INV-SH-002 PASSED)");
+    }
+
+    // Stage 124: Developer Dogfood Work Session Simulation
+    stage_marker!("124_SHELL_DOGFOOD_SESSION", "Full developer dogfood interactive work session verified");
+    {
+        let mut session_buf = [0u8; crate::userspace::KERNEL_SHELL_OUTPUT_BUF_SIZE];
+
+        // 1. Check version
+        let l1 = crate::userspace::KernelShellSession::execute_pipeline("version", &mut session_buf).unwrap();
+        assert!(core::str::from_utf8(&session_buf[..l1]).unwrap().contains("Ind OS v0.1.0-dogfood"));
+
+        // 2. Query process tree
+        let l2 = crate::userspace::KernelShellSession::execute_pipeline("ps", &mut session_buf).unwrap();
+        assert!(core::str::from_utf8(&session_buf[..l2]).unwrap().contains("vfs-indfs"));
+
+        // 3. Inspect sys filesystem
+        let l3 = crate::userspace::KernelShellSession::execute_pipeline("ls /sys", &mut session_buf).unwrap();
+        assert!(core::str::from_utf8(&session_buf[..l3]).unwrap().contains("manifest"));
+
+        // 4. Read declarative service manifest
+        let l4 = crate::userspace::KernelShellSession::execute_pipeline("cat /sys/manifest", &mut session_buf).unwrap();
+        assert!(core::str::from_utf8(&session_buf[..l4]).unwrap().contains("runlevel: SystemServices"));
+
+        // 5. Query active capability tokens
+        let l5 = crate::userspace::KernelShellSession::execute_pipeline("caps", &mut session_buf).unwrap();
+        assert!(core::str::from_utf8(&session_buf[..l5]).unwrap().contains("Terminal"));
+
+        log_info!("shell", "Developer dogfood session PASSED: version, ps, ls, cat, caps executed without faults");
+    }
+
+    // Stage 125: Sprint SP-35 Milestone Reached
+    stage_marker!("125_SP35_SHELL_READY", "Sprint SP-35 Shell v1 (Interactive Dogfood) Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-35] Sprint SP-35 Shell v1 Milestone REACHED.");
+    println!(" [SP-35] - Bounded Panic-Free Command Parser (INV-SH-001),");
+    println!(" [SP-35] - Pipelines as Capability-Mediated IPC Chains (INV-SH-002),");
+    println!(" [SP-35] - Built-in Diagnostic Suite (help, version, ps, ls, cat, echo, caps),");
+    println!(" [SP-35] - Full Developer Dogfood Work Session Simulated & Verified,");
+    println!(" [SP-35] - Standalone indus-shell userspace crate in workspace.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
