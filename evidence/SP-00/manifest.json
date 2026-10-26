@@ -1,7 +1,7 @@
 {
   "sprint": "SP-00",
   "title": "Repository & Governance Bootstrap",
-  "timestamp_utc": "2026-10-26T11:54:12Z",
+  "timestamp_utc": "2026-10-26T11:56:12Z",
   "status": "PASS",
   "tracked_files_count": 22,
   "file_hashes": {
@@ -15,9 +15,9 @@
     "tools/Containerfile": "541b8dd17bdabc79914612b77382a033c13a3bc8ae718bf44fa0179e3927748b",
     "tools/bootstrap.sh": "373c25564c631441ab229363591a18a9de25de4c31c98274b67bda6e413aa26a",
     "ci/check_commit_msg.py": "a6236041721190167ad9ad14cb50499f67f6a98a14eb7596886bf6300bfe6c48",
-    "ci/verify_sp00.py": "6990e1813e62c0ca9bd3c9eb0d3c50e20aee70a182c09a54cc85800eabf23c98",
-    "ci/verify_sp01.py": "5d14d9c652ad94ddfbb2a24e47421aa97d63e61d8b730c8626ac1f93a29c446c",
-    "ci/verify_sp02.py": "5e2987ff6ccfa50bbfe16a91acfabcb8bf8e7c7c6ef482024ae4f1a1c0d22042",
+    "ci/verify_sp00.py": "38aeddbb569e0d07b98c4f67a55a0eb5e3cdb803e1f37a2b47a1483554b3fac8",
+    "ci/verify_sp01.py": "615b28f786585bf8d9685fac43a49fa8c5aa360526ca99a7c62b878b150c2169",
+    "ci/verify_sp02.py": "7562914669ae450b524e233537e58f80655876c64944faee93d9c74a3bcf2218",
     "docs/DECISIONS/DEC-001-founder-reasoning.md": "7d2ab2ca34c942388714dc12c06e9579145d60ca2d0d1b87b4d0711f1fe0b3a9",
     "docs/DECISIONS/register.md": "1792f28252487b32b080332ce087b2eeef7022dc70932ddacb41f2624e29b6a2",
     "docs/architecture/boot-spec.md": "c7e2a5a25808917d541ad31931a5cc5ecbb50bea4f063dca46368d5a46adc082",

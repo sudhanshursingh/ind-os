@@ -109,10 +109,21 @@ def verify_sp02():
         "file_hashes": file_hashes,
     }
 
-    with open(manifest_path, "w", encoding="utf-8") as fh:
-        json.dump(manifest_data, fh, indent=2)
+    should_write = True
+    if os.path.exists(manifest_path):
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as existing_fh:
+                existing_data = json.load(existing_fh)
+                if existing_data.get("file_hashes") == file_hashes:
+                    should_write = False
+        except Exception:
+            should_write = True
 
-    print(f"\n• Generated Evidence Pack Manifest at: {manifest_path}")
+    if should_write:
+        with open(manifest_path, "w", encoding="utf-8") as fh:
+            json.dump(manifest_data, fh, indent=2)
+
+    print(f"\n• Evidence Pack Manifest up to date at: {manifest_path}")
     print("--------------------------------------------------")
     print("✅ Sprint SP-02 Definition of Done (DoD) Passed.")
     print("==================================================")
