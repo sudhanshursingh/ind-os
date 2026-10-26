@@ -1,0 +1,36 @@
+{
+  "sprint": "SP-19",
+  "title": "Policy Engine v1 (ENF: Declarative Rule Language, Default-Deny, Deterministic Precedence, Dual-Check Capability Access)",
+  "timestamp": "2026-10-26T18:53:04Z",
+  "invariants": {
+    "INV-ENF-001": "Default-Deny Security Model (absence of allow yields deterministic denial)",
+    "INV-ENF-002": "Deterministic Precedence & Versioned Rule Resolution (deny overrides allow, priority ordering)",
+    "REQ-SEC-001": "Dual-Check Capability Enforcement (capability token valid AND policy allows access)"
+  },
+  "files": {
+    "docs/architecture/policy-engine-spec.md": {
+      "sha256": "6885221c3266cfd48d62d465a1b9c4b5f067efae5a3a92d6746073d70cd164a9",
+      "bytes": 6039
+    },
+    "docs/evidence/SP-19-validation.md": {
+      "sha256": "33c428d0eab0d214a83734d75e285f40a15e339f10b3595cba850d5b2b3f3490",
+      "bytes": 7924
+    },
+    "docs/evidence/golden-boot-sp19.log": {
+      "sha256": "6e7ddf854a640d23609a1628c9ee375ad04685392d8d4f1940abf333ff020e67",
+      "bytes": 18833
+    },
+    "kernel/src/policy/rule.rs": {
+      "sha256": "f3d4e64b0178e0ce3dc7b11a20d281c7c1a14495ca7d883b19cb295c6785fe43",
+      "bytes": 8307
+    },
+    "kernel/src/policy/engine.rs": {
+      "sha256": "0aaea6ec57c8392887e2fb311caa666acc1b25763dacba43a047b0b87caf1ca6",
+      "bytes": 6368
+    },
+    "kernel/src/policy/mod.rs": {
+      "sha256": "720e08397867fd1772a66663348399fedbc1ab0ec1265a42623c609cbb4e0129",
+      "bytes": 590
+    }
+  }
+}

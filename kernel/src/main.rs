@@ -18,6 +18,7 @@ pub mod logger;
 pub mod mm;
 pub mod object;
 pub mod panic;
+pub mod policy;
 pub mod sync;
 pub mod syscall;
 pub mod task;
@@ -1223,7 +1224,134 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [CAP] Object-Table Coherence (INV-CAP-003), and Zero-Leak Suite (INV-CAP-LEAK-001) Verified.");
     println!("==================================================");
 
-    // Park CPU until SP-19 (Policy Engine v1 / ENF)
+    // Stage 45: Policy Engine Initialization & Declarative Rule Loading (Bible §6.3 / §8.9)
+    stage_marker!("45_POLICY_ENGINE_INIT", "ENF Policy Engine v1 initialized with declarative rule language");
+    {
+        use policy::POLICY_ENGINE;
+
+        let mut engine = POLICY_ENGINE.lock();
+        assert!(engine.default_deny, "Default-deny must be active by default (INV-ENF-001)");
+
+        // Load declarative, human-readable ruleset (Version 1)
+        let declarations = [
+            "ALLOW sub:pid:1 res:ep:101 rights:READ|WRITE prio:10 id:1 v:1",
+            "ALLOW sub:pid:2 res:ep:101 rights:READ prio:10 id:2 v:1",
+            "DENY sub:pid:2 res:ep:101 rights:WRITE prio:20 id:3 v:1",
+            "CONSENT sub:role:3 res:any rights:ALL prio:30 id:4 v:1",
+        ];
+        let loaded = engine.load_declarations(1, &declarations).expect("Failed to load policy declarations");
+        assert_eq!(loaded, 4, "Must load 4 declarative policy rules");
+        assert_eq!(engine.active_count(), 4);
+        assert_eq!(engine.active_version, 1);
+        log_info!("enf", "Loaded 4 declarative policy rules (v1 ruleset active, INV-ENF-002)");
+    }
+
+    // Stage 46: Policy Evaluation & Deterministic Precedence (INV-ENF-001, INV-ENF-002)
+    stage_marker!("46_POLICY_EVALUATION", "Default-deny and deterministic precedence resolution verified");
+    {
+        use capability::CapRights;
+        use policy::rule::{PolicyDecision, Resource, Subject};
+        use policy::POLICY_ENGINE;
+
+        let engine = POLICY_ENGINE.lock();
+
+        // 1. Verify Default-Deny (INV-ENF-001): Unknown subject/resource must be denied
+        let default_deny_dec = engine.evaluate(
+            &Subject::Process(99),
+            &Resource::Endpoint(500),
+            CapRights::READ,
+        );
+        match default_deny_dec {
+            PolicyDecision::Denied { rule_id, reason } => {
+                assert!(rule_id.is_none());
+                log_info!("enf", "Default-deny verified for unknown subject (INV-ENF-001 PASSED): {}", reason);
+            }
+            _ => panic!("Expected default-deny rejection for unlisted process"),
+        }
+
+        // 2. Verify Explicit Allow: PID 1 requesting READ|WRITE to Endpoint 101 matches rule #1
+        let allow_dec = engine.evaluate(
+            &Subject::Process(1),
+            &Resource::Endpoint(101),
+            CapRights::READ.union(CapRights::WRITE),
+        );
+        match allow_dec {
+            PolicyDecision::Allowed { rule_id } => {
+                assert_eq!(rule_id, 1);
+                log_info!("enf", "Explicit allow matched rule #{} (PID 1 -> EP 101)", rule_id);
+            }
+            _ => panic!("Expected rule #1 allow"),
+        }
+
+        // 3. Verify Deterministic Precedence (INV-ENF-002): PID 2 requesting WRITE to Endpoint 101
+        // Rule #2 allows READ (prio 10), but Rule #3 denies WRITE (prio 20) -> Deny MUST win!
+        let deny_precedence_dec = engine.evaluate(
+            &Subject::Process(2),
+            &Resource::Endpoint(101),
+            CapRights::WRITE,
+        );
+        match deny_precedence_dec {
+            PolicyDecision::Denied { rule_id, reason } => {
+                assert_eq!(rule_id, Some(3));
+                log_info!("enf", "Deterministic precedence verified: Deny rule #3 overrides allow (INV-ENF-002 PASSED): {}", reason);
+            }
+            _ => panic!("Expected explicit deny rule #3 precedence"),
+        }
+
+        // 4. Verify Consent Broker Trigger: Role 3 (AIS) triggers RequireConsent
+        let consent_dec = engine.evaluate(
+            &Subject::Role(3),
+            &Resource::Endpoint(101),
+            CapRights::ALL,
+        );
+        match consent_dec {
+            PolicyDecision::NeedsConsent { rule_id } => {
+                assert_eq!(rule_id, 4);
+                log_info!("enf", "RequireConsent action verified for AIS Role 3 (rule #{})", rule_id);
+            }
+            _ => panic!("Expected RequireConsent for Role 3"),
+        }
+    }
+
+    // Stage 47: Capability Token & Policy Engine Dual-Enforcement Integration
+    stage_marker!("47_POLICY_CAP_INTEGRATION", "Dual-check enforcement verified: token possession + policy authorization");
+    {
+        use capability::rights::CapRights;
+        use capability::table::{CapType, Capability};
+        use policy::POLICY_ENGINE;
+        use syscall::EPERM;
+
+        let engine = POLICY_ENGINE.lock();
+
+        // Process 2 possesses a token with READ | WRITE rights to Endpoint 101
+        let cap_p2 = Capability::new(
+            CapType::Endpoint(101),
+            CapRights::READ.union(CapRights::WRITE),
+            0xB001,
+        );
+
+        // A. Process 2 checks READ access: Token has READ + Policy allows READ -> OK!
+        let read_check = engine.check_capability_access(2, &cap_p2, CapRights::READ);
+        assert!(read_check.is_ok(), "READ access must succeed under valid token & allow policy");
+        log_info!("enf", "Dual-check: PID 2 authorized for READ (token valid + policy allowed)");
+
+        // B. Process 2 checks WRITE access: Token HAS WRITE, BUT policy explicitly DENIES WRITE!
+        // Access MUST be rejected with EPERM despite possessing the capability token!
+        let write_check = engine.check_capability_access(2, &cap_p2, CapRights::WRITE);
+        assert_eq!(write_check, Err(EPERM), "WRITE access must be rejected by standing policy (REQ-AI-002, INV-ENF-002)");
+        log_info!("enf", "Dual-check: PID 2 WRITE blocked by standing policy despite possessing token (REQ-SEC-001 PASSED)");
+    }
+
+    // Stage 48: Sprint SP-19 Milestone Reached
+    stage_marker!("48_POLICY_ENGINE_READY", "Sprint SP-19 Policy Engine v1 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [ENF] Sprint SP-19 Policy Engine v1 Milestone REACHED.");
+    println!(" [ENF] Declarative Rule Language, Default-Deny (INV-ENF-001),");
+    println!(" [ENF] Deterministic Precedence Resolution (INV-ENF-002),");
+    println!(" [ENF] and Dual-Check Capability Enforcement (REQ-SEC-001) Verified.");
+    println!("==================================================");
+
+    // Park CPU until SP-20 (Audit v1: Hash-Chained Log & Tamper Test)
     loop {
         core::hint::spin_loop();
     }
