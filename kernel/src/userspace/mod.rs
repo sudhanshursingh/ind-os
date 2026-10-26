@@ -6,9 +6,15 @@
 //! - Rule N-04: Zero unsafe code in new modules
 
 pub mod init;
+pub mod core_libs;
 
 pub use init::{
     BootStageRecord, InitError, KernelInitSubsystem, RestartPolicy, Runlevel,
     ServiceManifest, ServiceProcess, ServiceState, KERNEL_BASELINE_SERVICES,
     MAX_INIT_BOOT_LOGS, MAX_INIT_SERVICES,
+};
+pub use core_libs::{
+    AllocError, KernelCapToken, KernelIpcClient, KernelUserHeap,
+    CAP_RIGHTS_DELEGATE as CORE_CAP_DELEGATE, CAP_RIGHTS_READ as CORE_CAP_READ,
+    CAP_RIGHTS_WRITE as CORE_CAP_WRITE, IpcError as CoreIpcError,
 };

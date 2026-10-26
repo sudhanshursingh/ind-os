@@ -1,0 +1,14 @@
+[package]
+name = "libindus"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
+description = "Ind OS Core Userspace Foundation Library (REQ-USE-202)"
+license = "GPL-2.0-only"
+
+[lib]
+name = "indus_core"
+path = "src/lib.rs"
+
+[dependencies]
+# Zero external crates: from scratch (Rule N-01)

@@ -9,3 +9,7 @@ version = "0.1.0"
 [[package]]
 name = "indus-init"
 version = "0.1.0"
+
+[[package]]
+name = "libindus"
+version = "0.1.0"

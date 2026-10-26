@@ -1,0 +1,25 @@
+{
+  "sprint": "SP-33",
+  "phase": "Phase 5 (Userspace & the Developer OS)",
+  "requirements": [
+    "REQ-USE-202"
+  ],
+  "invariants": [
+    "INV-LIB-001",
+    "INV-LIB-002"
+  ],
+  "deliverables": {
+    "docs/architecture/core-libraries-spec.md": "a2958ff2250cc4ba29efc1634f5bb9019e41e89e8422c8d91698e2f7f4e6977a",
+    "docs/evidence/SP-33-validation.md": "5fe855f82b99645cdc7e20a87465dc5a07d01c185e5b8e573687f9cd59f3c270",
+    "docs/evidence/golden-boot-sp33.log": "fdcc4ec6a14dca6b87c88c767181d184a3199ef7ca2048d22fcde89fe1f24e7a",
+    "userspace/libindus/Cargo.toml": "b9b634baa5d73fc679bb5388ae945adfbd1f9f2a3b6e76971921d7c405f27975",
+    "userspace/libindus/README.md": "427043f36c930387c274628398bf3cc67d683e599d24cc2d5eae54cb5d28980d",
+    "userspace/libindus/src/lib.rs": "a113c109a9d9a6dbc760821e480495a5ebc85ec0bc51504d9a9129b3a41930d4",
+    "userspace/libindus/src/alloc.rs": "f60cf81047c99c1b77b18a94d4eb2ff5b0b17d183a12820ca34430abc11db50c",
+    "userspace/libindus/src/collections.rs": "87ab01d276a76dfd1c5c1522b2ca36a4b7fc5af87708a71429a44c1d9a62be55",
+    "userspace/libindus/src/ipc.rs": "de6d6a2f91ac2481d5417d1ea98dad49d20f70721b42f575dffb5dd37faef989",
+    "kernel/src/userspace/core_libs.rs": "1c6d9823bd800bf9dd39ad818e75a2d4244ba77915da815b99ec9945d3ba846b"
+  },
+  "target": "aarch64-unknown-none",
+  "status": "PASS"
+}
