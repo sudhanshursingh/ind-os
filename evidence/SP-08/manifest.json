@@ -2,7 +2,7 @@
   "sprint": "SP-08",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Interrupts & Hardware Timers",
-  "timestamp_utc": "2026-10-26T16:16:36Z",
+  "timestamp_utc": "2026-10-26T16:30:14Z",
   "invariants_enforced": [
     "INV-INT-001 (Spurious IRQ 1023 filtered without panic)",
     "INV-INT-002 (Critical section DAIF discipline)",
@@ -25,11 +25,11 @@
   ],
   "artifacts": {
     "docs/evidence/golden-boot-sp08.log": "4df78633e59f211b2aecd6c18c343aca860c511dde942d6283b78ec0a8091859",
-    "evidence/SP-08/serial.log": "6ef35d63248b798bce51c73135493b52986e651ad8c69d514b468d49dd9770ef",
+    "evidence/SP-08/serial.log": "0f90674e27ce5119610b69560cb437ea163460f46978af00f876cd6850c1078b",
     "kernel/src/drivers/gicv2.rs": "ca63feec998f2a18c52c62739164011b139980d7060a2ae6f44c6a0bc8c38d07",
     "kernel/src/drivers/timer.rs": "1c32fd9f1db1f31a54903d8f5933e513f388ea44087fa5af60e4c2b0a8d7a3f8",
     "kernel/src/interrupts/mod.rs": "b25c890571802159133caff24cfe6a895c7304c773890ab8680ed6eda5c91e75",
-    "kernel/target/aarch64-unknown-none/debug/indk": "8292d2f11252f789938112f3c1e17a37d43a60d50484fbe6c6987cead5253e4a",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "c5f04d209ea6fcdd4bf2bb3d36ff911909bab52936e1fccf1c330dd1e1eaf8d0"
+    "kernel/target/aarch64-unknown-none/debug/indk": "b25a01cb67534d508af5b3dda2b4eeb316727e4446e0e29b6cfabe0aedce0b19",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "39959d7d3c2b6c443da5de1e101fec1244c96bfbda797a8219a5f86b0bb6a955"
   }
 }

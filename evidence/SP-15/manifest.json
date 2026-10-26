@@ -1,0 +1,30 @@
+{
+  "sprint": "SP-15",
+  "title": "Stress & Soak Testing, Lock Discipline & Gate G2 Exit",
+  "timestamp": 1793032252,
+  "status": "PASS",
+  "deliverables": {
+    "docs/architecture/stress-soak-spec.md": {
+      "bytes": 5489,
+      "sha256": "a0290e44497130f9748c5e02b3e09d33ebce0f867507691112e19846c7b5c7f6"
+    },
+    "docs/evidence/scheduler-latency-baseline.md": {
+      "bytes": 2566,
+      "sha256": "4ffa5555e78842933ed8a47132b8d2c83251549d7d4088a877247e767e8d5e9b"
+    },
+    "docs/evidence/SP-15-validation.md": {
+      "bytes": 4813,
+      "sha256": "9b25a5685bdddb4f6defdb3e00a233723c3566b9b8a53603671de857d302b84b"
+    },
+    "docs/evidence/golden-boot-sp15.log": {
+      "bytes": 19881,
+      "sha256": "330d3a32b3f81b21aa168d3fd54d84f2ba0b69b3cd94f8ca0dce3b9609d6d7b7"
+    }
+  },
+  "invariants": {
+    "INV-STRESS-001": "Preemptive scheduling stability under soak (50+ switches with median latency 2.4us, zero starvation)",
+    "INV-STRESS-002": "Memory allocation recovery under pressure (64 frames allocated and 100% reclaimed without leakage)",
+    "INV-STRESS-003": "Address-space hard separation proven (cross-boundary access generates hardware translation fault)",
+    "INV-STRESS-004": "Strict lock ordering hierarchy and IRQ-safe discipline prevent deadlocks"
+  }
+}

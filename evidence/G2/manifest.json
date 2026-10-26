@@ -1,0 +1,47 @@
+{
+  "gate": "GATE-G2",
+  "phase": "Phase 2 \u2014 Core Kernel",
+  "timestamp": 1793032158,
+  "status": "PASS",
+  "deliverables": {
+    "docs/evidence/GATE-G2-AUDIT.md": {
+      "bytes": 5247,
+      "sha256": "b23605a816c4348bc70db7787d0cd04cc6b26a49c4dd225853cbd57e76dba656"
+    },
+    "docs/DECISIONS/gate-G2-dec001-review.md": {
+      "bytes": 2446,
+      "sha256": "66db28a1a03de73acc1c75aadc9b1a761678138dd6dc147b10737841952afdb6"
+    },
+    "docs/DECISIONS/gate-G2-def002-review.md": {
+      "bytes": 2048,
+      "sha256": "52e272157c9aaedb5c722c0ea6cd489acf031c67aa744770960555dea1043844"
+    },
+    "docs/evidence/scheduler-latency-baseline.md": {
+      "bytes": 2566,
+      "sha256": "4ffa5555e78842933ed8a47132b8d2c83251549d7d4088a877247e767e8d5e9b"
+    },
+    "docs/evidence/SP-15-validation.md": {
+      "bytes": 4813,
+      "sha256": "9b25a5685bdddb4f6defdb3e00a233723c3566b9b8a53603671de857d302b84b"
+    },
+    "docs/architecture/stress-soak-spec.md": {
+      "bytes": 5489,
+      "sha256": "a0290e44497130f9748c5e02b3e09d33ebce0f867507691112e19846c7b5c7f6"
+    },
+    "docs/evidence/golden-boot-sp15.log": {
+      "bytes": 19881,
+      "sha256": "330d3a32b3f81b21aa168d3fd54d84f2ba0b69b3cd94f8ca0dce3b9609d6d7b7"
+    }
+  },
+  "criteria": {
+    "G2-01": "Two+ isolated processes preempt under stress (56 switches, 53 preemptions)",
+    "G2-02": "Address-space separation proven (translation fault on unauthorized access)",
+    "G2-03": "Syscall ABI frozen (calls 0..9 with permission bitmap scaffolding)",
+    "G2-04": "Unsafe-budget review passed (density 1.49%, zero unsafe in security modules)",
+    "G2-05": "Scheduler latency baseline recorded (median 2.4us, p99 4.8us)",
+    "G2-06": "DEC-001 re-examination protocol minuted as CONTINUE",
+    "G2-07": "DEF-002 sunset review ratified memory-safe Rust for TCB",
+    "G2-08": "Rule N-01 zero external crate rule strictly preserved",
+    "G2-09": "Lock ordering hierarchy and IRQ-safe acquisition discipline verified"
+  }
+}

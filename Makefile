@@ -1,4 +1,4 @@
-.PHONY: all bootstrap check clean test-harness kernel qemu-boot
+.PHONY: all bootstrap check clean test-harness kernel qemu-boot gate-g1 gate-g2
 
 KERNEL_ELF = kernel/target/aarch64-unknown-none/debug/indk
 KERNEL_BIN = $(KERNEL_ELF).bin
@@ -38,10 +38,15 @@ check:
 	@python3 ci/verify_sp12.py
 	@python3 ci/verify_sp13.py
 	@python3 ci/verify_sp14.py
+	@python3 ci/verify_sp15.py
 
 gate-g1:
 	@echo "Running Ind OS Gate G1 Audit & Verification Suite..."
 	@python3 ci/verify_sp09.py
+
+gate-g2:
+	@echo "Running Ind OS Gate G2 Audit & Verification Suite..."
+	@python3 ci/verify_g2.py
 
 test-harness:
 	@echo "Running Ind OS Test Harness Self-Test..."
