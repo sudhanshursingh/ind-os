@@ -1,14 +1,13 @@
 {
   "sprint": "SP-00",
   "title": "Repository & Governance Bootstrap",
-  "timestamp_utc": "2026-10-26T11:59:15Z",
+  "timestamp_utc": "2026-10-26T12:16:26Z",
   "status": "PASS",
-  "tracked_files_count": 26,
+  "tracked_files_count": 25,
   "file_hashes": {
     "CODEOWNERS": "c36dc33715b520c2a140c84bdfcad17fb2c28886db8f19c630c7baeb519a480c",
     "CONTRIBUTING.md": "06ad41908948ba92d7abcb09fe1cc1dc91eaf5c1562bea262610919e2e83b5ad",
-    "Ind_OS_Development_Bible_v1.0.0.0.md": "25e6e35e71982d239bbde46e12a393f881a8ee18c577a11750c290af7f8d84f8",
-    "Ind_OS_Development_Bible_v1.0.0.0_Part2.md": "5ba03c49eaa903d2fab0e0a093d9559e185c3129871636a43c81a96200eed7fa",
+    "Ind_OS_Development_Bible_v1.0.0.0.md": "95a8c6583e56cb05c5b153642e9609fadbf607560688e66aaef5334b5f72bae2",
     "Makefile": "a387240735134d4ae4e6f65abbee692980d31cd2c79af8e6c1038becf76990c1",
     "README.md": "726293f8d71639c3c9337cf7c1d3f77ac6d7909fb8854cab419b31c9d467da58",
     "rust-toolchain.toml": "6485d578ec4a53771c5f0c7e1ca32cf7375f0f1051e78d5681598071e50fdda7",

@@ -4,7 +4,7 @@
 **Title:** Evidence & Test Harness  
 **Date:** 2026-10-26  
 **Status:** ✅ **PASS (Sprint Exit Criteria & Gate G0 Technical Criteria Satisfied)**  
-**Governing Document:** `Ind_OS_Development_Bible_v1.0.0.0.md` (INDOS-BIBLE-001) & `Ind_OS_Development_Bible_v1.0.0.0_Part2.md`  
+**Governing Document:** `Ind_OS_Development_Bible_v1.0.0.0.md` (INDOS-BIBLE-001 Consolidated Master)  
 **Evidence Pack:** `evidence/SP-03/manifest.json`
 
 ---

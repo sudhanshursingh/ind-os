@@ -4,7 +4,7 @@
 **Title:** Specification Skeleton  
 **Date:** 2026-10-26  
 **Status:** ✅ **PASS (Sprint Exit Criteria Satisfied)**  
-**Governing Document:** `Ind_OS_Development_Bible_v1.0.0.0.md` (INDOS-BIBLE-001) & `Ind_OS_Development_Bible_v1.0.0.0_Part2.md`  
+**Governing Document:** `Ind_OS_Development_Bible_v1.0.0.0.md` (INDOS-BIBLE-001 Consolidated Master)  
 **Evidence Pack:** `evidence/SP-02/manifest.json`
 
 ---
