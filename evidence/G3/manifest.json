@@ -1,0 +1,71 @@
+{
+  "gate": "GATE-G3",
+  "phase": "Phase 3 (The Security Spine: IPC + Capabilities + Audit)",
+  "sprints": [
+    "SP-16",
+    "SP-17",
+    "SP-18",
+    "SP-19",
+    "SP-20",
+    "SP-21",
+    "SP-22",
+    "SP-23"
+  ],
+  "timestamp": "2026-10-26T19:16:53Z",
+  "status": "READY_FOR_EXECUTION",
+  "invariants": {
+    "INV-CAP-001": "Monotonic Rights Attenuation (proven by test and formal spec)",
+    "INV-CAP-002": "Revocation Soundness & Zero Leaks (transitive cross-namespace invalidation)",
+    "INV-SEC-001": "Zero Ambient Authority (AST scanner + runtime probe)",
+    "INV-IPC-001": "Zero-Copy Synchronous Rendezvous Transfer",
+    "INV-IPC-002": "Bounded IPC Round-Trip Latency (< 10.0 us)",
+    "INV-AUD-001": "Cryptographic Append-Only Audit Integrity (SHA-256 hash chaining)",
+    "INV-CON-001": "Unspoofable Consent Surface & Hardware Input Mediation"
+  },
+  "files": {
+    "docs/architecture/formal-spec-groundwork.md": {
+      "sha256": "f5cdd6074988b7a0e6046abfc2e29c4ca76558f652f8a1a8e7d26cd9f24178df",
+      "bytes": 5406
+    },
+    "docs/evidence/GATE-G3-AUDIT.md": {
+      "sha256": "10f173662117f0c61927d7137817bdb41854abfb57bd61789bfc9dc3f741babc",
+      "bytes": 4688
+    },
+    "docs/DECISIONS/gate-G3-dec001-review.md": {
+      "sha256": "7d9cb99be412322a80895fc28afb4d4bf64620fe1f49f0202c8e80536e6181a2",
+      "bytes": 2267
+    },
+    "docs/architecture/adversarial-self-review-report.md": {
+      "sha256": "34aaaf67c72ce7530514c6789038e8dfd7620d1a669b2fb7b7e7b354ed9bd4e2",
+      "bytes": 4757
+    },
+    "docs/architecture/consent-broker-spec.md": {
+      "sha256": "a9b9672e617375199911ae0a0d67165251de8df6121b9afd0723e72a693ceac9",
+      "bytes": 5593
+    },
+    "docs/architecture/audit-log-spec.md": {
+      "sha256": "717d32318d36a14377c1d1c03fa853db86059329deb60e63a2a9f908d255c351",
+      "bytes": 6477
+    },
+    "docs/architecture/policy-engine-spec.md": {
+      "sha256": "6885221c3266cfd48d62d465a1b9c4b5f067efae5a3a92d6746073d70cd164a9",
+      "bytes": 6039
+    },
+    "docs/architecture/capability-delegation-revocation-spec.md": {
+      "sha256": "2228b9ccd89055fc09e90a63b79b8713c3a3a6bebb11a1128053c4d38adede77",
+      "bytes": 7435
+    },
+    "docs/architecture/capability-tokens-spec.md": {
+      "sha256": "4113db01173964365b9c77865356d67a1c70f62f58ac7bdada32c523cd5bc800",
+      "bytes": 5356
+    },
+    "docs/evidence/ipc-latency-baseline.md": {
+      "sha256": "6c33c5ba133f1a3bb4d403a22bb9d85733f036cc8e026bc4b9044f2d41e5dddd",
+      "bytes": 3243
+    },
+    "ci/check_zero_ambient_authority.py": {
+      "sha256": "fa02a6e24278f51dc53c51d0ce7bb6d7d9f3d0db9f31057338051a06d4fdcd1f",
+      "bytes": 1641
+    }
+  }
+}
