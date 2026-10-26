@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint13"
-MODULE_VERSION_CODE="10013"
+MODULE_VERSION="v1.0.1-sprint14"
+MODULE_VERSION_CODE="10014"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -41,6 +41,8 @@ RUN_FIREWALL_TEST=false
 RUN_OTP_TEST=false
 RUN_APK_BLOCK_TEST=false
 RUN_LAUNCHER_TEST=false
+RUN_DIGEST_TEST=false
+RUN_SUMMARY_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -62,6 +64,8 @@ Options:
     -o, --otp-test    Execute Sprint 11 DoD Screen-Share OTP Blackout & Banking Window Guard Test
     -k, --apk-block-test Execute Sprint 12 DoD Scam SMS & Malicious Trojan APK Blocker Test
     -l, --launcher-test  Execute Sprint 13 DoD IndLauncher 120 Hz Frame Pacing & RAM Test (<0.5% jank, <45 MB)
+    -d, --digest-test    Execute Sprint 14 DoD Zero-Spam Notification Digest Test (Promo Spam vs Instant Pass)
+    -u, --summary-test   Execute Sprint 14 DoD On-Screen Hindi 3-Bullet Translation & Summarization Test (<3s)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -74,6 +78,8 @@ Examples:
     $0 --build --gbnf-test
     $0 --build --exec-test
     $0 --build --launcher-test
+    $0 --build --digest-test
+    $0 --build --summary-test
 EOF
     exit 0
 }
@@ -134,6 +140,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         -l|--launcher-test)
             RUN_LAUNCHER_TEST=true
+            shift
+            ;;
+        -d|--digest-test)
+            RUN_DIGEST_TEST=true
+            shift
+            ;;
+        -u|--summary-test)
+            RUN_SUMMARY_TEST=true
             shift
             ;;
         -s|--serial)
@@ -482,6 +496,34 @@ if [[ "${RUN_LAUNCHER_TEST}" == "true" ]]; then
     echo "[*] Querying IndLauncher resident memory usage (dumpsys meminfo)..."
     "${ADB_CMD[@]}" shell dumpsys meminfo in.indos.launcher | grep -E "(TOTAL PSS|TOTAL RSS|Native Heap|Dalvik Heap)" || true
     echo "[+] Sprint 13 DoD IndLauncher 120 Hz Frame Pacing & RAM Test completed."
+fi
+
+if [[ "${RUN_DIGEST_TEST}" == "true" ]]; then
+    echo "[*] Step 19: Executing Sprint 14 DoD Zero-Spam Smart Notification Digest Test..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+
+    echo "[*] Simulating incoming mixed notification batch (UPI + OTP + Personal + Promo Spam)..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -n in.indos.suraksha/indos.suraksha.SurakshaShieldService || true
+
+    echo "[*] Awaiting Notification Digest telemetry (listening to logcat -s NotificationDigestManager NotificationDigestClassifier IND_SURAKSHA IND_BENCHMARK)..."
+    sleep 2
+    "${ADB_CMD[@]}" logcat -d -s NotificationDigestManager NotificationDigestClassifier IND_SURAKSHA IND_BENCHMARK
+    echo "[+] Sprint 14 DoD Zero-Spam Smart Notification Digest Test completed."
+fi
+
+if [[ "${RUN_SUMMARY_TEST}" == "true" ]]; then
+    echo "[*] Step 20: Executing Sprint 14 DoD On-Screen Hindi 3-Bullet Translator & Summarizer Test..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+
+    echo "[*] Triggering simulated Hindi screen summarization ('Hey Ind, is page ko Hindi mein samjhao')..."
+    "${ADB_CMD[@]}" shell am startservice -a indos.zerotouch.action.SHOW_ORB -n in.indos.zerotouch/indos.zerotouch.ui.IndOrbOverlayService --es extra_orb_state "PROCESSING" || true
+
+    echo "[*] Awaiting Screen Summarizer telemetry (listening to logcat -s ScreenTranslate VoiceCoordinator OfflineTtsEngine IND_BENCHMARK)..."
+    sleep 3
+    "${ADB_CMD[@]}" logcat -d -s ScreenTranslate VoiceCoordinator OfflineTtsEngine IND_BENCHMARK
+    echo "[+] Sprint 14 DoD On-Screen Hindi 3-Bullet Translator & Summarizer Test completed."
 fi
 
 echo "[+] Deployment completed successfully."

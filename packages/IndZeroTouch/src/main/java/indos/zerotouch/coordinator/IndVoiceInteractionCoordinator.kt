@@ -70,6 +70,7 @@ class IndVoiceInteractionCoordinator(
     val vadDetector = SileroVadDetector().apply { listener = this@IndVoiceInteractionCoordinator }
     val asrEngine = StreamingAsrEngine().apply { listener = this@IndVoiceInteractionCoordinator }
     val ttsEngine = OfflineTtsEngine(context)
+    val screenSummarizer = indos.zerotouch.translate.ScreenTranslateSummarizer(context, ttsEngine)
 
     private var speechStartTimeMs = 0L
     private var speechEndTimeMs = 0L
@@ -154,6 +155,10 @@ class IndVoiceInteractionCoordinator(
     private fun generateSpokenConfirmation(transcript: String): String {
         val lower = transcript.lowercase()
         return when {
+            lower.contains("samjhao") || (lower.contains("translate") && lower.contains("page")) || (lower.contains("hindi") && lower.contains("page")) -> {
+                val summary = screenSummarizer.summarizeActiveWindow()
+                summary.spokenHindiText
+            }
             lower.contains("torch") && lower.contains("chalu") -> "Flashlight turned on"
             lower.contains("torch") && lower.contains("band") -> "Flashlight turned off"
             lower.contains("wifi") && (lower.contains("on") || lower.contains("chalu")) -> "Wi-Fi turned on"

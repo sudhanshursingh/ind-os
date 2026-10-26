@@ -72,7 +72,18 @@ class IndLauncherActivity : ComponentActivity() {
                         isEnabled = true,
                         daysSummary = "Mon - Fri"
                     ),
-                    initialNotifications = defaultNotifications
+                    initialNotifications = defaultNotifications,
+                    initialPromoDigest = indos.launcher.model.PromoDigestCardData(
+                        totalPromosCount = 6,
+                        sourceApps = listOf("Swiggy", "Zomato", "Myntra", "Amazon"),
+                        headlineSummary = "Evening Digest: 6 promotional offers grouped quietly. Zero daytime interruptions.",
+                        scheduledDigestTime = "07:30 PM",
+                        promoSnippets = listOf(
+                            "Swiggy: 50% off on your favorite dinner",
+                            "Zomato: Free delivery on orders above ₹199",
+                            "Myntra: Big Fashion Festival starts tonight"
+                        )
+                    )
                 )
             }
         }
@@ -192,6 +203,10 @@ class IndLauncherActivity : ComponentActivity() {
                 } catch (e: Exception) {
                     Log.w(TAG, "Settings intent failed: ${e.message}")
                 }
+            }
+            q.contains("samjhao") || (q.contains("translate") && q.contains("page")) || (q.contains("hindi") && q.contains("page")) -> {
+                Log.i(TAG, "Routing on-screen Hindi translation & summarization request...")
+                sendActionBroadcast("SCREEN_TRANSLATE_SUMMARIZE", "HINDI_3_BULLETS")
             }
             else -> {
                 Log.i(TAG, "Routing generic intent to Ind Neural Core: $query")

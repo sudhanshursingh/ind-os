@@ -106,7 +106,7 @@ public class ScamClassifier {
 
     // Pattern 1: Fake Electricity Bill Disconnection
     private final Pattern mElectricityPattern = Pattern.compile(
-            "(?i)(?:electricity\\s+bill|bijli\\s+bill|power\\s+supply|power\\s+cut|electric\\s+line)" +
+            "(?i)(?:electricity(?:\\s+(?:bill|power|connection|supply))?|bijli\\s+bill|power\\s+(?:supply|cut|connection)|electric\\s+line)" +
             ".*(?:disconnect|kat\\s+diya|urgent|call\\s+(?:officer|sdo|helpline)|pending)"
     );
 

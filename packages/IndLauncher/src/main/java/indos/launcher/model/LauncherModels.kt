@@ -60,3 +60,15 @@ data class IntentActionMatch(
     val displayText: String,
     val confidence: Float = 1.0f
 )
+
+/**
+ * Promotional spam aggregated into the Evening Notification Digest.
+ */
+data class PromoDigestCardData(
+    val totalPromosCount: Int = 0,
+    val sourceApps: List<String> = emptyList(),
+    val headlineSummary: String = "",
+    val scheduledDigestTime: String = "07:30 PM",
+    val promoSnippets: List<String> = emptyList()
+)
+

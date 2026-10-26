@@ -38,12 +38,14 @@ fun IndLauncherScreen(
     initialToggles: PrivacyTogglesState = PrivacyTogglesState(),
     initialAlarm: UpcomingAlarm = UpcomingAlarm(),
     initialNotifications: List<PriorityNotification> = emptyList(),
+    initialPromoDigest: indos.launcher.model.PromoDigestCardData = indos.launcher.model.PromoDigestCardData(),
     modifier: Modifier = Modifier
 ) {
     var queryText by remember { mutableStateOf("") }
     var togglesState by remember { mutableStateOf(initialToggles) }
     var currentAlarm by remember { mutableStateOf(initialAlarm) }
     var notificationsList by remember { mutableStateOf(initialNotifications) }
+    var promoDigestState by remember { mutableStateOf(initialPromoDigest) }
 
     // Instant live search & fuzzy filtering
     val filteredApps = remember(queryText, apps) {
@@ -111,6 +113,10 @@ fun IndLauncherScreen(
                         onNotificationClick = { notif ->
                             // Remove or handle clicked notification
                             notificationsList = notificationsList.filter { it.id != notif.id }
+                        },
+                        promoDigest = promoDigestState,
+                        onDismissPromoDigest = {
+                            promoDigestState = promoDigestState.copy(totalPromosCount = 0)
                         }
                     )
                     Spacer(modifier = Modifier.height(20.dp))

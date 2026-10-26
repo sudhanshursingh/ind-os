@@ -61,6 +61,8 @@ fun SmartContextualCards(
     onDismissAlarm: () -> Unit,
     notifications: List<PriorityNotification>,
     onNotificationClick: (PriorityNotification) -> Unit,
+    promoDigest: indos.launcher.model.PromoDigestCardData = indos.launcher.model.PromoDigestCardData(),
+    onDismissPromoDigest: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -83,6 +85,14 @@ fun SmartContextualCards(
             alarm = alarm,
             onDismissAlarm = onDismissAlarm
         )
+
+        // Silent Evening Notification Digest Card (Grouped Promo Spam)
+        if (promoDigest.totalPromosCount > 0) {
+            EveningNotificationDigestCard(
+                digest = promoDigest,
+                onDismiss = onDismissPromoDigest
+            )
+        }
 
         // Priority Notifications Digest Card
         if (notifications.isNotEmpty()) {
@@ -388,3 +398,83 @@ fun PriorityNotificationsDigestCard(
         }
     }
 }
+
+@Composable
+fun EveningNotificationDigestCard(
+    digest: indos.launcher.model.PromoDigestCardData,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.horizontalGradient(
+                    colors = listOf(
+                        IndDarkSurface,
+                        IndDeepViolet.copy(alpha = 0.25f)
+                    )
+                )
+            )
+            .border(1.dp, IndDeepViolet.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "🌙 EVENING PROMO DIGEST (${digest.totalPromosCount})",
+                    style = TextStyle(
+                        color = IndDeepViolet,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0x337C4DFF))
+                    .clickable(onClick = onDismiss)
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = "Dismiss",
+                    style = TextStyle(color = IndTextPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                )
+            }
+        }
+
+        Text(
+            text = digest.headlineSummary,
+            style = TextStyle(
+                color = IndTextPrimary,
+                fontSize = 12.5.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+
+        if (digest.promoSnippets.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                digest.promoSnippets.take(3).forEach { snippet ->
+                    Text(
+                        text = "• $snippet",
+                        style = TextStyle(
+                            color = IndTextSecondary,
+                            fontSize = 11.sp
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
+
