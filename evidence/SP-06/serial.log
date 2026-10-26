@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   342d0bfe-dirty
+  Build Commit:   05e7a867-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 580, free 130492
-[DEBUG] mm: Allocated test frame 1 at 0x40144000
-[DEBUG] mm: Allocated test frame 2 at 0x40145000
+[INFO ] mm: Physical frames: total 131072, reserved 584, free 130488
+[DEBUG] mm: Allocated test frame 1 at 0x40148000
+[DEBUG] mm: Allocated test frame 2 at 0x40149000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x40144000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x40148000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x40244000
+[INFO ] mmu: Root L0 page table allocated at 0x40248000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x4024b000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x4024f000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x40255000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x40259000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -189,7 +189,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 16489 ticks (263 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 17557 ticks (280 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
@@ -357,4 +357,21 @@ Hello from Ind OS User Mode (EL0)!
  [DRV] IRQ Broker & Safe Line Masking (INV-DRV-002),
  [DRV] SMMU/IOMMU DMA Window Isolation (INV-DRV-003),
  [DRV] and Driver Protocol over IPC (REQ-KRN-107) Verified.
+==================================================
+[STAGE:78_REF_VIRTIO_BLK_INIT] User-mode VirtIO block driver initialized, sector I/O verified over IPC
+[INFO ] drv: virtio-blk user-mode driver online: 2048 sectors (1 MiB), 512-byte sector I/O verified
+[STAGE:79_REF_VIRTIO_NET_INIT] User-mode VirtIO net driver initialized, MAC address configured, packet Tx/Rx verified
+[INFO ] drv: virtio-net user-mode driver online: MAC 52:54:00:12:34:56, MTU 1500, Tx/Rx & IRQ ACK verified
+[STAGE:80_REF_FRAMEBUFFER_INIT] User-mode Framebuffer display driver initialized, 1024x768x32bpp dirty rect flush verified
+[INFO ] drv: framebuffer user-mode driver online: 1024x768 @ 32 bpp (pitch 4096 bytes), dirty rect flush verified
+[STAGE:81_REF_INPUT_INIT] User-mode Input driver initialized, key & mouse event ring buffer verified
+[INFO ] drv: virtio-input user-mode driver online: keyboard & mouse event buffering and dispatch verified
+[STAGE:82_REF_DRIVERS_ISOLATION] Multi-driver concurrency and zero kernel privilege verified (INV-DRV-001, INV-DRV-002, INV-DRV-003)
+[INFO ] drv: Reference driver isolation verified: 4 user-mode drivers operating with zero ambient authority (100% DEFENSE)
+[STAGE:83_REFERENCE_DRIVERS_READY] Sprint SP-27 User-Mode Reference Drivers Milestone REACHED
+--------------------------------------------------
+ [DRV] Sprint SP-27 Reference Drivers Milestone REACHED.
+ [DRV] virtio-blk, virtio-net, framebuffer, input,
+ [DRV] proving the user-mode driver framework carries real devices
+ [DRV] without kernel privilege (INV-DRV-001, INV-DRV-002, INV-DRV-003).
 ==================================================

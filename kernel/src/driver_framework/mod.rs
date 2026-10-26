@@ -5,11 +5,13 @@ pub mod device_manager;
 pub mod dma_broker;
 pub mod irq_broker;
 pub mod protocol;
+pub mod reference;
 
 pub use device_manager::{DeviceDescriptor, DeviceManager, DeviceState, DeviceType, MAX_DEVICES};
 pub use dma_broker::{DmaBroker, DmaDirection, DmaWindow, MAX_DMA_WINDOWS, MAX_DMA_WINDOW_SIZE};
 pub use irq_broker::{IrqBroker, IrqState, IrqSubscription, MAX_IRQS};
 pub use protocol::{DriverMessage, DriverOp, DriverStatus};
+pub use reference::{FramebufferDriver, InputDriver, InputEvent, InputEventType, VirtioBlkDriver, VirtioNetDriver};
 
 use crate::sync::Spinlock;
 

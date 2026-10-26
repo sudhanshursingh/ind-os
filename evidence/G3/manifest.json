@@ -11,7 +11,7 @@
     "SP-22",
     "SP-23"
   ],
-  "timestamp": "2026-10-26T20:08:55Z",
+  "timestamp": "2026-10-26T20:17:03Z",
   "status": "RATIFIED_AND_PASSED",
   "invariants": {
     "INV-CAP-001": "Monotonic Rights Attenuation (proven by test and formal spec)",

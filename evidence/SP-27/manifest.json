@@ -1,0 +1,17 @@
+{
+  "sprint": "SP-27",
+  "title": "Reference Drivers (User Mode: virtio-blk, virtio-net, framebuffer, input)",
+  "timestamp": "2026-10-26T20:17:04Z",
+  "status": "PASSED",
+  "artifacts": {
+    "docs/architecture/reference-drivers-spec.md": "c34d927e4af1d65e64676eaa6611db1fd43298de08c1b18ce00e65cbacbd90bb",
+    "docs/evidence/SP-27-validation.md": "71289b7b386bfadf060d15db298762b3135c2f0ef9891a66a2a5e208d1e1bf7d",
+    "docs/evidence/golden-boot-sp27.log": "f1443496621d2120bd3bf870f38ed725e2a2a36d22e03fa749bbf708fb3c802b",
+    "kernel/src/driver_framework/reference/virtio_blk.rs": "a70fbf3da7ba70c8df0dd5339f0b1b8fa75212d1db0799e3e0875e023709a3df",
+    "kernel/src/driver_framework/reference/virtio_net.rs": "2e2658c915e40bde056dd1c4cdd8ee3db508be29ffabb95c86fc135b656713a0",
+    "kernel/src/driver_framework/reference/framebuffer.rs": "1d2b1a6cae3e6a4bd3c4a51f128a1648ff505212a6b6b1bc8f57cc6aeff0a660",
+    "kernel/src/driver_framework/reference/input.rs": "6abbec4b4b3566869c2c0bd8ec805b76e39c8ce68fed5f2ba1aae2c7c427bc11",
+    "kernel/src/driver_framework/reference/mod.rs": "ad1d5f2de1f32ab2060d20c19fca59b40811486f4767763ff38254d972549aa5",
+    "ci/verify_sp27.py": "f39e688cda55f2cb72b49c960c35edafd4a4d70da9729ddb964660c0c2ef6f20"
+  }
+}
