@@ -2,7 +2,7 @@
   "sprint": "SP-11",
   "phase": "Phase 2 Core Kernel",
   "title": "Processes & Loading (PCB, INDBIN Native Loader, Real EL0 User Mode, & SVC Syscalls)",
-  "timestamp_utc": "2026-10-26T16:30:39Z",
+  "timestamp_utc": "2026-10-26T16:56:51Z",
   "adr_recorded": "ADR-001 (docs/DECISIONS/ADR-001-binary-format.md)",
   "invariants_verified": [
     "INV-MEM-001 (Strict NULL trap zone [0..4MB] enforced)",
@@ -26,10 +26,10 @@
     "kernel/src/loader/mod.rs": "db83d42c68b9b533f976213ed1e4df02eb51e7c3e11ad0a0ec2ed8bf45700956",
     "kernel/src/task/process.rs": "ec4de0734b4524e7beade1962250217e79c6ea450b58cac3c2decaf8dd9b2d4e",
     "kernel/src/task/mod.rs": "4d3ab4bcf75dc569f4554dc23599066fea973fa1d0502135bccd2fa5b5ec5480",
-    "kernel/src/syscall/mod.rs": "b5a54f2be82e98bf84a31436b638d1f0e057531e73e65218115b11c7d5ef10e7",
+    "kernel/src/syscall/mod.rs": "d232ccab04de87f924c03608c3f34086d96a9d7a6eced8d2dd593d7a83934951",
     "kernel/src/arch/aarch64/user_trap.s": "1570107c8bbc001cf01a980f327a5edffb4b1c469050f98f1d47e33afbb20592",
     "docs/evidence/golden-boot-sp11.log": "1ad85b833e209e7dab5f9f479f63451c2096cda2490f18c5df8f494dbd5b04ee",
-    "kernel/target/aarch64-unknown-none/debug/indk": "b25a01cb67534d508af5b3dda2b4eeb316727e4446e0e29b6cfabe0aedce0b19"
+    "kernel/target/aarch64-unknown-none/debug/indk": "d1917f7ede8288482a6c9639d879706baac88eee927e9b0474c00f27ee26c9dc"
   },
   "test_result": "PASS",
   "qemu_execution": "SUCCESS"

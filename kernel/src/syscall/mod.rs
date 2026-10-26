@@ -29,6 +29,7 @@ pub const EFAULT: i64 = -14;
 pub const EBUSY: i64 = -16;
 pub const EINVAL: i64 = -22;
 pub const ENOSYS: i64 = -38;
+pub const ETIMEDOUT: i64 = -110;
 
 /// Validates that a user-provided memory buffer falls strictly within user virtual memory
 /// and strictly outside the NULL pointer trap zone (INV-MEM-001).

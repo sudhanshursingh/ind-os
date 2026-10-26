@@ -1,10 +1,10 @@
 {
-  "timestamp_utc": "2026-10-26T16:29:57Z",
+  "timestamp_utc": "2026-10-26T16:56:08Z",
   "kernel_path": "kernel/target/aarch64-unknown-none/debug/indk",
-  "kernel_sha256": "b25a01cb67534d508af5b3dda2b4eeb316727e4446e0e29b6cfabe0aedce0b19",
+  "kernel_sha256": "d1917f7ede8288482a6c9639d879706baac88eee927e9b0474c00f27ee26c9dc",
   "golden_path": "docs/evidence/golden-boot-sp06.log",
   "golden_sha256": "5413089f9aefe6b9a9569e2d55afa160b107b2c6ec02a663314b3a8cf9594199",
-  "serial_log_sha256": "8462819a86b5b55f43b06d45235da01cb0189d27d5f600a8f2eb771407130636",
+  "serial_log_sha256": "5a2571d1dd4a52ae0ec50a0ebc4840b14d20259477dbab520342f02484622ec2",
   "qemu_exit_code": 0,
   "comparison_passed": true,
   "message": "All ordered patterns matched perfectly."

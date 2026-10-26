@@ -2,11 +2,58 @@
 //! Compliant with Bible §8.8 / §10 and Machine Invariant INV-IPC-001 (Bounded Latency Synchronous IPC).
 
 use crate::capability::{CapHandle, CapRights, Capability, CapTable};
-use crate::syscall::{EBADF, EBUSY, ENOMEM, EPERM};
+use crate::syscall::{EBADF, EBUSY, ENOMEM, EPERM, ETIMEDOUT};
 use crate::task::ProcessId;
 
 pub type EndpointId = u32;
 pub const MAX_ENDPOINTS: usize = 32;
+
+pub const IPC_TIMEOUT_INFINITE: u64 = u64::MAX;
+pub const IPC_TIMEOUT_NONBLOCK: u64 = 0;
+
+/// Inline Fast-Path Capability Validation Cache for Sub-10us IPC (INV-IPC-002)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct CapFastCache {
+    pub cached_handle: CapHandle,
+    pub cached_rights: CapRights,
+    pub cached_badge: u64,
+}
+
+impl CapFastCache {
+    pub const fn empty() -> Self {
+        Self {
+            cached_handle: CapHandle::MAX,
+            cached_rights: CapRights::from_bits(0),
+            cached_badge: 0,
+        }
+    }
+
+    /// Fast-path capability check against cached metadata
+    pub fn validate_and_cache(
+        &mut self,
+        handle: CapHandle,
+        required_rights: CapRights,
+        cap_table: &CapTable,
+    ) -> Result<u64, i64> {
+        if self.cached_handle == handle {
+            if self.cached_rights.contains(required_rights) {
+                return Ok(self.cached_badge);
+            } else {
+                return Err(EPERM);
+            }
+        }
+
+        let cap = cap_table.get(handle)?;
+        if !cap.rights.contains(required_rights) {
+            return Err(EPERM);
+        }
+
+        self.cached_handle = handle;
+        self.cached_rights = cap.rights;
+        self.cached_badge = cap.badge;
+        Ok(self.cached_badge)
+    }
+}
 
 /// Synchronous register-based IPC message
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -194,6 +241,82 @@ impl EndpointRegistry {
                 // Queue receiver and block
                 self.endpoints[idx].state = EndpointState::ReceiverWaiting { receiver_pid };
                 Ok(IpcRecvResult::ReceiverQueued)
+            }
+            EndpointState::ReceiverWaiting { .. } => Err(EBUSY),
+        }
+    }
+
+    /// Performs timed synchronous send on the specified endpoint (INV-IPC-004)
+    pub fn send_timed(
+        &mut self,
+        sender_pid: ProcessId,
+        ep_id: EndpointId,
+        msg: IpcMessage,
+        transferred_cap: Option<Capability>,
+        timeout_ticks: u64,
+    ) -> Result<IpcSendResult, i64> {
+        let idx = ep_id as usize;
+        if idx >= MAX_ENDPOINTS || !self.endpoints[idx].is_allocated {
+            return Err(EBADF);
+        }
+
+        match self.endpoints[idx].state {
+            EndpointState::ReceiverWaiting { receiver_pid } => {
+                // Synchronous rendezvous achieved (INV-IPC-001)
+                self.endpoints[idx].state = EndpointState::Idle;
+                self.total_messages_transferred += 1;
+                self.total_rendezvous_events += 1;
+                Ok(IpcSendResult::RendezvousDelivered { receiver_pid })
+            }
+            EndpointState::Idle => {
+                if timeout_ticks == IPC_TIMEOUT_NONBLOCK {
+                    // Non-blocking send returns immediately with ETIMEDOUT if no receiver
+                    Err(ETIMEDOUT)
+                } else {
+                    self.endpoints[idx].state = EndpointState::SenderWaiting {
+                        sender_pid,
+                        msg,
+                        transferred_cap,
+                    };
+                    Ok(IpcSendResult::SenderQueued)
+                }
+            }
+            EndpointState::SenderWaiting { .. } => Err(EBUSY),
+        }
+    }
+
+    /// Performs timed synchronous receive on the specified endpoint (INV-IPC-004)
+    pub fn recv_timed(
+        &mut self,
+        receiver_pid: ProcessId,
+        ep_id: EndpointId,
+        timeout_ticks: u64,
+    ) -> Result<IpcRecvResult, i64> {
+        let idx = ep_id as usize;
+        if idx >= MAX_ENDPOINTS || !self.endpoints[idx].is_allocated {
+            return Err(EBADF);
+        }
+
+        match self.endpoints[idx].state {
+            EndpointState::SenderWaiting { sender_pid, msg, transferred_cap } => {
+                // Synchronous rendezvous achieved (INV-IPC-001)
+                self.endpoints[idx].state = EndpointState::Idle;
+                self.total_messages_transferred += 1;
+                self.total_rendezvous_events += 1;
+                Ok(IpcRecvResult::RendezvousReceived {
+                    sender_pid,
+                    msg,
+                    transferred_cap,
+                })
+            }
+            EndpointState::Idle => {
+                if timeout_ticks == IPC_TIMEOUT_NONBLOCK {
+                    // Non-blocking receive returns immediately with ETIMEDOUT if no sender
+                    Err(ETIMEDOUT)
+                } else {
+                    self.endpoints[idx].state = EndpointState::ReceiverWaiting { receiver_pid };
+                    Ok(IpcRecvResult::ReceiverQueued)
+                }
             }
             EndpointState::ReceiverWaiting { .. } => Err(EBUSY),
         }

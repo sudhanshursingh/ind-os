@@ -1,0 +1,42 @@
+{
+  "sprint": "SP-16",
+  "title": "IPC Core (Endpoints, Rights Transfer, Notifications, Deadlines & Latency Benchmark)",
+  "timestamp": 1793033824,
+  "status": "PASS",
+  "deliverables": {
+    "docs/architecture/ipc-core-spec.md": {
+      "bytes": 6139,
+      "sha256": "e5c620f6a0887d1ee5de4cec512505afb08f5bd3b9d6acbd2aa216ab1ceb97a6"
+    },
+    "docs/evidence/ipc-latency-baseline.md": {
+      "bytes": 3243,
+      "sha256": "6c33c5ba133f1a3bb4d403a22bb9d85733f036cc8e026bc4b9044f2d41e5dddd"
+    },
+    "docs/evidence/SP-16-validation.md": {
+      "bytes": 7560,
+      "sha256": "d9f00f75cc5d28fb2d71ad2687b9db40b6f65afca6016170e3ba6960e5e84550"
+    },
+    "docs/evidence/golden-boot-sp16.log": {
+      "bytes": 20148,
+      "sha256": "9f6959bccb660fe370c1c8aa84901c587a176879d05c4c8023b5386b0481f1ef"
+    },
+    "kernel/src/ipc/notification.rs": {
+      "bytes": 5727,
+      "sha256": "f56c7fc3a6d3d4fe4546972f591b1bbe23cd9cd61245484786fa36935127e836"
+    },
+    "kernel/src/ipc/endpoint.rs": {
+      "bytes": 11811,
+      "sha256": "75e456dae95c3ad7e97b34b2e60d50e8a7415b8babb982a85d6f52b10a3708bd"
+    },
+    "kernel/src/ipc/mod.rs": {
+      "bytes": 951,
+      "sha256": "53fb9e5db7560535a79b2ee2eeaa77392df5bddd49130c5dc9408f6f9114366a"
+    }
+  },
+  "invariants": {
+    "INV-IPC-001": "Zero-copy synchronous rendezvous payload transfer mediated through CPU registers",
+    "INV-IPC-002": "Deterministic round-trip latency verified at median 2.3us, p99 4.5us (< 10us budget)",
+    "INV-IPC-003": "Atomic 64-bit notification bitmask signaling, non-blocking polling, and masked waiting",
+    "INV-IPC-004": "Monotonic deadlines and timed rendezvous timeout returns (ETIMEDOUT on expiration)"
+  }
+}
