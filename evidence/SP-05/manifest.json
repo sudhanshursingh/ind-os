@@ -2,7 +2,7 @@
   "sprint": "SP-05",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Serial Console & Leveled Logging",
-  "timestamp_utc": "2026-10-26T21:16:40Z",
+  "timestamp_utc": "2026-10-26T21:33:13Z",
   "requirements_verified": [
     "REQ-KRN-101"
   ],
@@ -22,17 +22,17 @@
   ],
   "artifacts": {
     "docs/evidence/golden-boot-sp05.log": "85bb5edc0abe2654d95958b185feaffe065d6ef8380a29fb043560892fd0ae40",
-    "evidence/SP-05/serial.log": "b60288b29aa471a4c6f067adf0e299e69e2e2816d6442c66b0c0806adcd9ad4e",
+    "evidence/SP-05/serial.log": "6f4c0c134d816e6a348e6ee167d1c45ff6fbbc540f5ff35345dcb8b8b3653b45",
     "kernel/build.rs": "2f0bf375d40af02de56b667ef477e83b091129cedb4424c5762d3544ecd8d974",
     "kernel/src/console.rs": "3d0e7d4e0147b852f3b91b0d7c202cf425ff2544acb3263ca0b2731f95a82475",
     "kernel/src/drivers/mod.rs": "63c5168cb85e8cf0f5ba4131f7cd39f55c250034c070c57bb55af59515b7b1b0",
     "kernel/src/drivers/pl011.rs": "4fac7f0865618aa43e01abc46c8262bfa15ac11bf3a23d56a07c56e5ce2435e5",
     "kernel/src/logger.rs": "780582a317eddb567e5940231d44d8dd8a6c805d9fc3f3ce8afcd27240cd0df8",
-    "kernel/src/main.rs": "2473878b0178227bc035c033b5411d6a9180f1d2d97e9959de3af683f7f7f248",
+    "kernel/src/main.rs": "353439cb68228a0a8e7208d056f68ace53491515a9cf40150b4050b070876eb0",
     "kernel/src/panic.rs": "8532f7434d33ed7c98c5eac90077e7269defd8e3eec5330ed4d3be06352ca9b1",
     "kernel/src/sync/mod.rs": "f51ff00a8055f117291180cb9a4543b91eb6b02d8fc8282e1653fad407ffa1f0",
     "kernel/src/sync/spinlock.rs": "150aea4a748bb02b393f8c9b54b1c6bbcc6085d936ae4b9a77ab7e7429c24cc7",
-    "kernel/target/aarch64-unknown-none/debug/indk": "9ff19bde970e49754179b1d5f1697eb774b3868a577f7b3e63855a8f4e63d055",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "bb9bcbae3e636f3d5d6bc9db4bc544249dd397801322f39ae864afd6c16a69d4"
+    "kernel/target/aarch64-unknown-none/debug/indk": "9a2f4f7ffdb562cdd6d37c6d4640d8e1afedb47e496d805a9814b1152f114575",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "f0b0fc32dda85f67d79cd8726952188d71175a665ce22165689e30dfc75c84f1"
   }
 }

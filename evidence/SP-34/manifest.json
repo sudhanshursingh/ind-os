@@ -1,0 +1,27 @@
+{
+  "sprint": "SP-34",
+  "phase": "Phase 5 (Userspace & the Developer OS)",
+  "requirements": [
+    "REQ-USE-203"
+  ],
+  "invariants": [
+    "INV-DEV-001",
+    "INV-DEV-002"
+  ],
+  "deliverables": {
+    "docs/architecture/device-manager-hotplug-spec.md": "446dec62212e05ed259da2770eeb3fab29c206276235948711cbc462ca470e20",
+    "docs/evidence/SP-34-validation.md": "4fb2c387d4c2d8637b535e0d4d61b230300ff85dbd63caa76cda0ebc6769f201",
+    "docs/evidence/golden-boot-sp34.log": "5c580c59951466209c3b8dd2ba24302a906fe522c4cfba494d9ec287c24ed375",
+    "userspace/devmgr/Cargo.toml": "17177a6b934ef57636c31d530f71a6a92b87b899c3d9e60089eab539314a87d4",
+    "userspace/devmgr/README.md": "de2847d98becb6eeed7e8664a256278b17069b4197ad0f74bf5e66474924fe08",
+    "userspace/devmgr/src/lib.rs": "a915b2f44d8b1bd9fcc9e3bf8b9aabb65099ea1a1bd7836565f9d2e934695a92",
+    "userspace/devmgr/src/main.rs": "3245b98349f96c698bdab9b7014de441cb11f62a7171702bb64fd2b056cef818",
+    "userspace/devmgr/src/types.rs": "1ab8786e5c87826288d33ab6b093d805f34cc3596c27752a2a25dcb354467cac",
+    "userspace/devmgr/src/bus.rs": "e328cc1b51c13f3d4c1188de826f26b42c939f043684fda44179ad7fedb194b1",
+    "userspace/devmgr/src/handout.rs": "fc62aad75c9e0d471cd17d90fdde1cbb337ca94ccfa8778aa230d58261975719",
+    "userspace/devmgr/src/virtio.rs": "04a33d55ed54962f11450ad3605654e743fc3a8dfee26c61be558a15a4128c81",
+    "kernel/src/userspace/devmgr.rs": "441cdaaeab52a68bff181ec7e0402076824d7def2eb473bfc439dea084551433"
+  },
+  "target": "aarch64-unknown-none",
+  "status": "PASS"
+}

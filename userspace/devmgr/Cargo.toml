@@ -1,0 +1,18 @@
+[package]
+name = "indus-devmgr"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
+description = "Ind OS Userspace Device Manager & Hotplug Daemon (REQ-USE-203)"
+license = "GPL-2.0-only"
+
+[lib]
+name = "devmgr"
+path = "src/lib.rs"
+
+[[bin]]
+name = "devmgr"
+path = "src/main.rs"
+
+[dependencies]
+libindus = { path = "../libindus" }

@@ -7,6 +7,7 @@
 
 pub mod init;
 pub mod core_libs;
+pub mod devmgr;
 
 pub use init::{
     BootStageRecord, InitError, KernelInitSubsystem, RestartPolicy, Runlevel,
@@ -18,3 +19,9 @@ pub use core_libs::{
     CAP_RIGHTS_DELEGATE as CORE_CAP_DELEGATE, CAP_RIGHTS_READ as CORE_CAP_READ,
     CAP_RIGHTS_WRITE as CORE_CAP_WRITE, IpcError as CoreIpcError,
 };
+pub use devmgr::{
+    KernelBusType, KernelDevError, KernelDeviceCapToken, KernelDeviceId,
+    KernelDeviceManager, KernelDeviceType, KernelDmaCapToken, KernelHardwareDescriptor,
+    KernelHotplugBus, KernelHotplugEvent, KernelIrqCapToken, KernelMmioCapToken,
+};
+

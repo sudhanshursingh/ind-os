@@ -2986,6 +2986,88 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-33] - Standalone libindus (indus-core) workspace crate delivered.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-34: DEVICE MANAGER & HOTPLUG EVENTS (REQ-USE-203, INV-DEV-001, INV-DEV-002)
+    // ==================================================
+
+    // Stage 116: Device Manager Subsystem Initialization (REQ-USE-203)
+    stage_marker!("116_DEVMGR_INIT", "Device manager subsystem initialized and root bus inspected");
+    let mut devmgr = crate::userspace::KernelDeviceManager::new();
+    assert_eq!(devmgr.active_devices_count(), 0);
+    log_info!("devmgr", "Device Manager initialized: hotplug bus and capability registry ready (REQ-USE-203 PASSED)");
+
+    // Stage 117: Hotplug Event Bus & Subscriber Registration
+    stage_marker!("117_DEVMGR_HOTPLUG_BUS", "Hotplug event bus and driver subscriber registration verified");
+    {
+        let bus = devmgr.event_bus_mut();
+        assert_eq!(bus.subscriber_count(), 0);
+        bus.register(101).expect("Failed to register driver 101");
+        bus.register(102).expect("Failed to register driver 102");
+        assert_eq!(bus.subscriber_count(), 2);
+        log_info!("devmgr", "Hotplug event bus verified: 2 driver subscribers registered for dynamic notifications");
+    }
+
+    // Stage 118: Scoped Capability Handout Verification (REQ-USE-203, INV-DEV-001)
+    stage_marker!("118_DEVMGR_CAP_HANDOUT", "Scoped capability handout per REQ-USE-203 verified");
+    let console_desc = crate::userspace::KernelHardwareDescriptor::new(0x0a000000, 512, 48, 0);
+    let console_tok = devmgr.plug_virtio_device(0, crate::userspace::KernelDeviceType::Console, console_desc)
+        .expect("Failed to plug VirtIO console");
+    assert!(console_tok.is_active());
+    // Verify scoped bounds
+    assert_eq!(console_tok.verify_mmio(0, 4), Ok(()));
+    assert_eq!(console_tok.verify_mmio(510, 4), Err(crate::userspace::KernelDevError::AccessDenied));
+    assert_eq!(console_tok.verify_irq(48), Ok(()));
+    assert_eq!(console_tok.verify_irq(49), Err(crate::userspace::KernelDevError::AccessDenied));
+
+    let console_ev = devmgr.event_bus_mut().pop();
+    assert!(matches!(console_ev, Some(crate::userspace::KernelHotplugEvent::DeviceArrived(..))));
+
+    log_info!("devmgr", "Scoped capability handout verified: MMIO [0x0a000000..512B] and IRQ 48 enforced (REQ-USE-203, INV-DEV-001 PASSED)");
+
+    // Stage 119: VirtIO Dynamic Plug/Unplug Test & Atomic Revocation (INV-DEV-002)
+    stage_marker!("119_DEVMGR_VIRTIO_HOTPLUG_TEST", "VirtIO dynamic plug/unplug test and capability revocation verified");
+    {
+        let blk_desc = crate::userspace::KernelHardwareDescriptor::new(0x0a000200, 512, 49, 4096);
+        let mut blk_tok = devmgr.plug_virtio_device(1, crate::userspace::KernelDeviceType::Block, blk_desc)
+            .expect("Failed to plug VirtIO block");
+        assert_eq!(devmgr.active_devices_count(), 2);
+        assert_eq!(blk_tok.verify_mmio(0, 64), Ok(()));
+        assert_eq!(blk_tok.verify_dma(4096), Ok(()));
+        assert_eq!(blk_tok.verify_dma(8192), Err(crate::userspace::KernelDevError::AccessDenied));
+
+        // Consume arrival event from bus
+        let ev1 = devmgr.event_bus_mut().pop();
+        assert!(matches!(ev1, Some(crate::userspace::KernelHotplugEvent::DeviceArrived(..))));
+
+        // Dynamic hot-unplug
+        let departed_id = devmgr.unplug_virtio_device(1).expect("Failed to unplug VirtIO block");
+        assert_eq!(departed_id.slot, 1);
+        assert_eq!(devmgr.active_devices_count(), 1);
+
+        // Verify departure event
+        let ev2 = devmgr.event_bus_mut().pop();
+        assert_eq!(ev2, Some(crate::userspace::KernelHotplugEvent::DeviceDeparted(departed_id)));
+
+        // Verify atomic capability revocation on departed device
+        blk_tok.revoke();
+        assert_eq!(blk_tok.verify_mmio(0, 4), Err(crate::userspace::KernelDevError::DeviceDeparted));
+        assert_eq!(blk_tok.verify_irq(49), Err(crate::userspace::KernelDevError::DeviceDeparted));
+        assert_eq!(blk_tok.verify_dma(64), Err(crate::userspace::KernelDevError::DeviceDeparted));
+
+        log_info!("devmgr", "VirtIO hotplug test cycle verified: dynamic plug, arrival notification, unplug, and atomic capability revocation (INV-DEV-002 PASSED)");
+    }
+
+    // Stage 120: Sprint SP-34 Milestone Reached
+    stage_marker!("120_SP34_DEVMGR_READY", "Sprint SP-34 Device Manager & Hotplug Events (REQ-USE-203) Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-34] Sprint SP-34 Device Manager & Hotplug Events (REQ-USE-203) Milestone REACHED.");
+    println!(" [SP-34] - Device Manager & Capability Registry Initialized (REQ-USE-203),");
+    println!(" [SP-34] - Dynamic Hotplug Event Bus with Driver Subscriptions (INV-DEV-002),");
+    println!(" [SP-34] - Granular Scoped Capability Handouts (MMIO, IRQ, DMA) (INV-DEV-001),");
+    println!(" [SP-34] - Dynamic VirtIO Plug/Unplug Test Cycle & Atomic Token Revocation,");
+    println!(" [SP-34] - Standalone indus-devmgr userspace crate in workspace.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

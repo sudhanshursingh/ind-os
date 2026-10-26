@@ -1,0 +1,19 @@
+{
+  "status": "PASSED",
+  "tests_passed": 5,
+  "tests_failed": 0,
+  "stages": [
+    "116_DEVMGR_INIT",
+    "117_DEVMGR_HOTPLUG_BUS",
+    "118_DEVMGR_CAP_HANDOUT",
+    "119_DEVMGR_VIRTIO_HOTPLUG_TEST",
+    "120_SP34_DEVMGR_READY"
+  ],
+  "invariants_verified": [
+    "INV-DEV-001",
+    "INV-DEV-002"
+  ],
+  "rule_n01": "PASSED",
+  "rule_n04": "PASSED",
+  "rule_n10": "PASSED"
+}

@@ -11,7 +11,7 @@
     "userspace/init/src/graph.rs": "2bd4299fdbd5b80768cf0f87ebb9386d7f79dba4ba2e2209bd3af10bf734a2ae",
     "userspace/init/src/supervisor.rs": "af001547bdea07cc13ea79ead12d7270eaebb336a8e0d7dd4d7430370c70c1b9",
     "userspace/init/src/logger.rs": "cd7174c3cfce577f40210ef2952b477508fafa6f4c20cb1193e7f73354b40281",
-    "kernel/src/userspace/mod.rs": "db004695059a36754e2cc2c692d6b2d5d69b18f361a01f52ca752b061584c3b3",
+    "kernel/src/userspace/mod.rs": "d381df7023f7de56f1eabcfd97d79045955afc7f153f068ebee877efc0e05e29",
     "kernel/src/userspace/init.rs": "b0f3ccde4e4e12d4708457a99afabd447538ce0c76749fd768f08e1d8f22d0de",
     "evidence/SP-32/test_result.json": "40da61f68e3ddfe62b2ce98e4d712f7875e3300303ec7ea5a6c668d44bf30f63"
   }
