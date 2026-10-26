@@ -162,6 +162,34 @@ impl Vfs {
         Ok(id)
     }
 
+    /// Creates a new directory under an existing directory
+    pub fn create_dir(&mut self, dir_path: &str, name: &str) -> Result<VnodeId, &'static str> {
+        if self.vnode_count >= MAX_VNODES {
+            return Err("Vnode pool exhausted");
+        }
+        let parent_id = self.lookup(dir_path)?;
+        let parent = self.get_vnode(parent_id).ok_or("Parent not found")?;
+        if parent.vtype != VnodeType::Directory {
+            return Err("ENOTDIR: Parent is not a directory");
+        }
+
+        // Verify child does not already exist
+        for i in 0..self.vnode_count {
+            let node = &self.vnodes[i];
+            if node.is_allocated && node.parent_id == Some(parent_id) && node.name() == name {
+                return Err("EEXIST: Directory already exists");
+            }
+        }
+
+        let id = self.alloc_vnode(name, VnodeType::Directory, Some(parent_id));
+        Ok(id)
+    }
+
+    /// Mounts a filesystem root vnode at a specific prefix
+    pub fn mount_fs(&mut self, prefix_str: &str, root_vnode_id: VnodeId) -> Result<(), &'static str> {
+        self.mount_table.mount(prefix_str, root_vnode_id)
+    }
+
     /// Opens a file and mints a capability-bound file descriptor (REQ-KRN-106, INV-VFS-001)
     pub fn open_file(&mut self, path: &str, requested_rights: CapRights) -> Result<(u32, Capability), &'static str> {
         if self.open_count >= MAX_OPEN_FILES {

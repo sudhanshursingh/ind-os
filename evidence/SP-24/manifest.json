@@ -1,7 +1,7 @@
 {
   "sprint": "SP-24",
   "title": "VFS Core (vnode Layer, Mount Table, Path Resolution, Capability-Mediated File Handles, IndFS Design)",
-  "timestamp": "2026-10-26T19:39:39Z",
+  "timestamp": "2026-10-26T19:58:04Z",
   "requirements": {
     "REQ-KRN-106": "Capability-Mediated File Handles from Day One"
   },
@@ -43,8 +43,8 @@
       "bytes": 2450
     },
     "kernel/src/vfs/core.rs": {
-      "sha256": "9589936f7997c48b5abb2cb9faade90efbefb8dc20ecaa90508553524acdb48d",
-      "bytes": 8849
+      "sha256": "b6d4282055beab6dc9e2afb4d0810b534e8ae76838dfd780fbfcc82cdb2c0df8",
+      "bytes": 9993
     },
     "kernel/src/vfs/mod.rs": {
       "sha256": "c5eeb67825fc9e86c5b52cd88f68f6dbbe628e398e2fa8458842704750b273aa",

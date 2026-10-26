@@ -1,7 +1,7 @@
 {
   "sprint": "SP-22",
   "title": "Adversarial Self-Review (Internal Red-Team Exploitation Probes: Escalation, UAF, Ambient Authority, Policy Bypass, Audit Tampering, Consent Spoofing)",
-  "timestamp": "2026-10-26T19:39:39Z",
+  "timestamp": "2026-10-26T19:58:03Z",
   "invariants": {
     "INV-CAP-001": "Monotonic Rights Attenuation (repelling privilege escalation)",
     "INV-CAP-002": "Revocation Soundness (repelling dangling handles and use-after-free)",

@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   905eec0a-dirty
+  Build Commit:   8c76578f-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 504, free 130568
-[DEBUG] mm: Allocated test frame 1 at 0x400f8000
-[DEBUG] mm: Allocated test frame 2 at 0x400f9000
+[INFO ] mm: Physical frames: total 131072, reserved 577, free 130495
+[DEBUG] mm: Allocated test frame 1 at 0x40141000
+[DEBUG] mm: Allocated test frame 2 at 0x40142000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400f8000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x40141000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x401f8000
+[INFO ] mmu: Root L0 page table allocated at 0x40241000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401ff000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x40248000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x40209000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x40252000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -113,6 +113,10 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
@@ -123,11 +127,13 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Context switch on exit: activating PID 1 ('proc_alpha')
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [ALPHA] Process 1 completed successfully, exiting.
 [INFO ] proc: User process issued sys_exit(status: 0)
 [INFO ] sched: Process 1 ('proc_alpha') exited with status 0
  [SCHED] All concurrent processes finished. Scheduler returned to kernel.
-[INFO ] sched: Multitasking verified: 11 context switches, 8 preemptions, 2 yields, 2 hints
+[INFO ] sched: Multitasking verified: 14 context switches, 11 preemptions, 2 yields, 2 hints
 [STAGE:24_SCHEDULER_READY] Sprint SP-12 Preemptive Scheduler Milestone REACHED
 --------------------------------------------------
  [SCHED] Sprint SP-12 Preemptive Scheduler Milestone REACHED.
@@ -138,7 +144,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] cap: Monotonic attenuation verified: illegal right expansion rejected (INV-CAP-001 PASSED)
 [INFO ] cap: Authority without GRANT cannot mint derived tokens (EPERM verified)
 [INFO ] cap: Revocation soundness verified: transitive child revocation succeeded (INV-CAP-002 PASSED)
-[INFO ] cap: Per-process syscall permission bitmap scaffolding verified (Bible §8.8 PASSED)
+[INFO ] cap: Per-process syscall permission bitmap scaffolding verified (Bible ��8.8 PASSED)
 [STAGE:26_IPC_RENDEZVOUS] Cross-process synchronous IPC & capability delegation verified
 [INFO ] ipc: Allocated synchronous IPC Endpoint ID 0
 [INFO ] ipc: Synchronous IPC rendezvous verified: 1 msgs transferred, 1 events (INV-IPC-001 PASSED)
@@ -189,7 +195,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 17044 ticks (272 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 33033 ticks (528 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
@@ -316,4 +322,22 @@ Hello from Ind OS User Mode (EL0)!
  [VFS] Sprint SP-24 VFS Core Milestone REACHED.
  [VFS] vnode Layer, Mount Table, Hierarchical Path Resolution (INV-VFS-002),
  [VFS] and Capability-Guarded File Handles (REQ-KRN-106, INV-VFS-001) Verified.
+==================================================
+[STAGE:66_TMPFS_INIT] In-memory temporary filesystem mounted at /tmp
+[INFO ] fs: tmpfs online: /tmp mounted, volatile file lifecycle verified
+[STAGE:67_INDFS_CORE_INIT] IndFS superblock, block device, and journal initialized
+[INFO ] fs: IndFS online: Superblock verified (magic INDFS01, version 1, 32 blocks)
+[STAGE:68_INDFS_JOURNAL_WAL] Write-Ahead Logging transactions, atomic commit, and checkpointing verified (INV-FS-002)
+[INFO ] fs: IndFS WAL verified: transaction committed and data checkpointed (INV-FS-002 PASSED)
+[STAGE:69_INDFS_CHECKSUM_BITROT] End-to-end CRC32C block checksum and silent bitrot detection verified (INV-FS-001)
+[INFO ] fs: Cryptographic integrity verified: block CRC32C matches stored table
+[INFO ] fs: Silent bitrot detected and rejected: EIO: Block CRC32C checksum mismatch: silent data corruption detected (INV-FS-001)
+[STAGE:70_INDFS_CRASH_FSCK_RECOVERY] Simulated mid-write crash, dirty unmount, and fsck journal replay verified (INV-FS-002)
+[INFO ] fs: fsck crash recovery verified: 2 replayed, 1 discarded, clean state restored (INV-FS-002 PASSED)
+[STAGE:71_STORAGE_SUBSYSTEM_READY] Sprint SP-25 tmpfs & IndFS Storage Milestone REACHED
+--------------------------------------------------
+ [FS] Sprint SP-25 tmpfs & IndFS Milestone REACHED.
+ [FS] tmpfs, IndFS Journaling WAL (INV-FS-002),
+ [FS] End-to-End CRC32C Anti-Bitrot (INV-FS-001),
+ [FS] and Deterministic fsck Recovery Verified.
 ==================================================

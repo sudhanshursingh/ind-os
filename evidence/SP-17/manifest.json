@@ -1,7 +1,7 @@
 {
   "sprint": "SP-17",
   "title": "Capabilities I (Unforgeable Tokens, Object-Table Integration, Mint/Grant/Revoke, Per-Process Namespaces)",
-  "timestamp": "2026-10-26T19:39:39Z",
+  "timestamp": "2026-10-26T19:58:03Z",
   "invariants": {
     "INV-CAP-001": "Monotonic Rights Attenuation (target_rights subset enforced)",
     "INV-CAP-002": "Revocation Soundness (transitive lineage tree invalidation)",

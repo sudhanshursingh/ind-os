@@ -17,6 +17,7 @@ pub mod interrupts;
 pub mod ipc;
 pub mod loader;
 pub mod logger;
+pub mod fs;
 pub mod mm;
 pub mod object;
 pub mod panic;
@@ -1731,6 +1732,169 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [VFS] Sprint SP-24 VFS Core Milestone REACHED.");
     println!(" [VFS] vnode Layer, Mount Table, Hierarchical Path Resolution (INV-VFS-002),");
     println!(" [VFS] and Capability-Guarded File Handles (REQ-KRN-106, INV-VFS-001) Verified.");
+    println!("==================================================");
+
+    // Stage 66: In-Memory Temporary File System (tmpfs) Initialization
+    stage_marker!("66_TMPFS_INIT", "In-memory temporary filesystem mounted at /tmp");
+    {
+        use fs::tmpfs::TmpFs;
+        use vfs::VFS;
+
+        let mut tmpfs = TmpFs::new();
+        tmpfs.init();
+
+        // 1. Mount /tmp in VFS
+        let mut vfs = VFS.lock();
+        let tmp_vnode = vfs.create_dir("/", "tmp").expect("Create /tmp vnode");
+        vfs.mount_fs("/tmp", tmp_vnode).expect("Mount /tmp in VFS");
+
+        // 2. File lifecycle in tmpfs
+        let scratch_id = tmpfs.create_file(1, "scratch.txt").expect("Create scratch.txt");
+        let payload = b"Ind OS temporary volatile payload";
+        let written = tmpfs.write_file(scratch_id, 0, payload).expect("Write to tmpfs");
+        assert_eq!(written, payload.len());
+
+        let mut read_buf = [0u8; 64];
+        let read_bytes = tmpfs.read_file(scratch_id, 0, &mut read_buf).expect("Read from tmpfs");
+        assert_eq!(read_bytes, payload.len());
+        assert_eq!(&read_buf[..read_bytes], payload);
+
+        // 3. Subdirectory & deletion in tmpfs
+        let _cache_id = tmpfs.create_dir(1, "cache").expect("Create /tmp/cache");
+        assert!(tmpfs.lookup(1, "cache").is_some());
+        tmpfs.unlink(1, "scratch.txt").expect("Unlink scratch.txt");
+        assert!(tmpfs.lookup(1, "scratch.txt").is_none());
+
+        log_info!("fs", "tmpfs online: /tmp mounted, volatile file lifecycle verified");
+    }
+
+    // Stage 67: IndFS Core Initialization & Superblock Mounting
+    stage_marker!("67_INDFS_CORE_INIT", "IndFS superblock, block device, and journal initialized");
+    let mut indfs = {
+        use fs::block::MEM_BLOCK_DEVICE;
+        use fs::indfs::IndFs;
+        use vfs::VFS;
+
+        let mut dev = MEM_BLOCK_DEVICE.lock();
+        let indfs = IndFs::format(&mut dev).expect("Format IndFS must succeed");
+
+        // Register /data mount in VFS
+        let mut vfs = VFS.lock();
+        let data_vnode = vfs.create_dir("/", "data").expect("Create /data vnode");
+        vfs.mount_fs("/data", data_vnode).expect("Mount /data in VFS");
+
+        assert_eq!(indfs.sb.version, 1);
+        assert_eq!(indfs.sb.magic, *b"INDFS01\0");
+        assert!(indfs.sb.total_blocks >= 32);
+
+        log_info!("fs", "IndFS online: Superblock verified (magic INDFS01, version 1, 32 blocks)");
+        indfs
+    };
+
+    // Stage 68: IndFS Write-Ahead Logging (WAL) & Atomic Transactions (INV-FS-002)
+    stage_marker!("68_INDFS_JOURNAL_WAL", "Write-Ahead Logging transactions, atomic commit, and checkpointing verified (INV-FS-002)");
+    {
+        use fs::block::MEM_BLOCK_DEVICE;
+        let mut dev = MEM_BLOCK_DEVICE.lock();
+
+        // Create persistent file telemetry.log with WAL
+        let inode_num = indfs.create_file(&mut dev, "telemetry.log").expect("Create telemetry.log");
+        assert_eq!(inode_num, 2);
+
+        let log_data = b"Transaction #101: System boot telemetry recorded";
+        let bytes_written = indfs.write_file(&mut dev, inode_num, 0, log_data).expect("Write file with journal");
+        assert_eq!(bytes_written, log_data.len());
+        assert!(indfs.journal.last_committed_seq >= 2, "Transaction must be committed");
+
+        let mut read_buf = [0u8; 64];
+        let bytes_read = indfs.read_file(&dev, inode_num, 0, &mut read_buf).expect("Read back from IndFS");
+        assert_eq!(bytes_read, log_data.len());
+        assert_eq!(&read_buf[..bytes_read], log_data);
+
+        log_info!("fs", "IndFS WAL verified: transaction committed and data checkpointed (INV-FS-002 PASSED)");
+    }
+
+    // Stage 69: End-to-End CRC32C Checksums & Anti-Bitrot (INV-FS-001)
+    stage_marker!("69_INDFS_CHECKSUM_BITROT", "End-to-end CRC32C block checksum and silent bitrot detection verified (INV-FS-001)");
+    {
+        use fs::block::MEM_BLOCK_DEVICE;
+        let mut dev = MEM_BLOCK_DEVICE.lock();
+
+        // Create high-integrity file
+        let token_inode = indfs.create_file(&mut dev, "secure_token.bin").expect("Create secure_token.bin");
+        let token_data = b"CRYPTO-INTEGRITY-KEY-VALIDATION-TOKEN-99";
+        indfs.write_file(&mut dev, token_inode, 0, token_data).expect("Write secure_token.bin");
+
+        // Verify read succeeds with matching CRC32C
+        let mut read_buf = [0u8; 64];
+        let bytes_read = indfs.read_file(&dev, token_inode, 0, &mut read_buf).expect("Read with matching checksum");
+        assert_eq!(&read_buf[..bytes_read], token_data);
+        log_info!("fs", "Cryptographic integrity verified: block CRC32C matches stored table");
+
+        // Fault Injection: Corrupt 1 byte in the data block to simulate silent hardware bitrot
+        let target_block = indfs.inodes[(token_inode as usize) - 1].block_num;
+        dev.corrupt_byte(target_block, 10).expect("Inject bitrot corruption");
+
+        // Attempt read: must fail with EIO
+        let corrupt_read = indfs.read_file(&dev, token_inode, 0, &mut read_buf);
+        assert!(corrupt_read.is_err(), "Corrupted block must be rejected by checksum check (INV-FS-001)");
+        log_info!("fs", "Silent bitrot detected and rejected: {}", corrupt_read.unwrap_err());
+    }
+
+    // Stage 70: Crash Consistency & Deterministic fsck Recovery (INV-FS-002)
+    stage_marker!("70_INDFS_CRASH_FSCK_RECOVERY", "Simulated mid-write crash, dirty unmount, and fsck journal replay verified (INV-FS-002)");
+    {
+        use fs::block::{CRASH_BLOCK_DEVICE, BLOCK_SIZE};
+        use fs::fsck::Fsck;
+        use fs::indfs::{IndFs, SUPERBLOCK_BLOCK_NUM};
+        use fs::journal::{OP_COMMIT, OP_WRITE_BLOCK};
+
+        // Golden Image Crash Simulation:
+        // 1. Format a dedicated crash-test block device in BSS
+        let mut dev = CRASH_BLOCK_DEVICE.lock();
+        let mut crash_fs = IndFs::format(&mut dev).expect("Format crash_fs");
+        let test_inode = crash_fs.create_file(&mut dev, "recovery_test.dat").expect("Create recovery file");
+        let test_block = crash_fs.inodes[(test_inode as usize) - 1].block_num;
+
+        // 2. Scenario A: Log a committed transaction that was NOT yet checkpointed to disk
+        let committed_seq = crash_fs.journal.next_seq;
+        crash_fs.journal.log_op(&mut dev, OP_WRITE_BLOCK, test_block, b"COMMITTED_RECOVERABLE_PAYLOAD").expect("Log committed");
+        crash_fs.journal.log_op(&mut dev, OP_COMMIT, committed_seq, &[]).expect("Log commit record");
+        crash_fs.journal.next_seq += 1;
+
+        // 3. Scenario B: Log an uncommitted transaction (simulating crash mid-write before commit record is appended)
+        crash_fs.journal.log_op(&mut dev, OP_WRITE_BLOCK, test_block, b"UNCOMMITTED_CORRUPTED_DATA").expect("Log uncommitted");
+
+        // 4. Mark superblock as dirty (clean_unmount = 0) to simulate unexpected power cut
+        crash_fs.sb.clean_unmount = 0;
+        crash_fs.sb.crc32c = crash_fs.sb.compute_checksum();
+        let mut sb_buf = [0u8; BLOCK_SIZE];
+        crash_fs.sb.serialize(&mut sb_buf);
+        dev.write_block(SUPERBLOCK_BLOCK_NUM, &sb_buf).expect("Write dirty superblock");
+
+        // 5. Invoke fsck::check_and_recover
+        let report = Fsck::check_and_recover(&mut dev).expect("Fsck recovery must succeed");
+        assert!(!report.clean_before, "Filesystem was unclean before fsck");
+        assert!(report.is_clean_now, "Filesystem must be clean after fsck");
+        assert!(report.replayed_transactions >= 1, "Committed transaction must be replayed");
+        assert!(report.discarded_transactions >= 1, "Uncommitted transaction must be discarded");
+
+        // 6. Verify data on disk matches the committed transaction replay
+        let mut check_buf = [0u8; BLOCK_SIZE];
+        dev.read_block(test_block, &mut check_buf).expect("Read replayed block");
+        assert_eq!(&check_buf[..29], b"COMMITTED_RECOVERABLE_PAYLOAD");
+
+        log_info!("fs", "fsck crash recovery verified: {} replayed, {} discarded, clean state restored (INV-FS-002 PASSED)",
+            report.replayed_transactions, report.discarded_transactions);
+    }
+
+    // Stage 71: Sprint SP-25 Milestone Reached
+    stage_marker!("71_STORAGE_SUBSYSTEM_READY", "Sprint SP-25 tmpfs & IndFS Storage Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [FS] Sprint SP-25 tmpfs & IndFS Milestone REACHED.");
+    println!(" [FS] tmpfs, IndFS Journaling WAL (INV-FS-002),");
+    println!(" [FS] End-to-End CRC32C Anti-Bitrot (INV-FS-001),");
+    println!(" [FS] and Deterministic fsck Recovery Verified.");
     println!("==================================================");
 
     // Park CPU

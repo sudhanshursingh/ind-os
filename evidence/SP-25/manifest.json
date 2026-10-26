@@ -1,0 +1,19 @@
+{
+  "sprint": "SP-25",
+  "title": "tmpfs + IndFS Implementation (journaling, checksummed persistent FS, fsck recovery state machine, golden-image crash tests)",
+  "timestamp": "2026-10-26T19:58:04Z",
+  "status": "PASSED",
+  "artifacts": {
+    "docs/architecture/indfs-design-spec.md": "5df208425fdd50496e86a91ab19e57ba62b2e4cbc21f9eb4f3e78a1c96360897",
+    "docs/evidence/SP-25-validation.md": "ab243af2e4688d5259ce67240bc226e73f9db410c73fb6c4a33bf1c25b0f1618",
+    "docs/evidence/golden-boot-sp25.log": "1c5b595099ea42e817237201a2617ff0bf6c7c2896455f8d7a29d94269fdef3e",
+    "kernel/src/fs/block.rs": "da779372f793d068181ed2df0ed00ae16ccde6b01ec42b800e007fc490a1e6ec",
+    "kernel/src/fs/crc32.rs": "1e65d63bb93745f681be56b5ee99c224a5bf41241471033eb5bfe73775ab80df",
+    "kernel/src/fs/tmpfs.rs": "8994e58bffb74e12186ee374ada4119bf57133803d2919661b2297fd3ebe209f",
+    "kernel/src/fs/journal.rs": "c556cb942b1c435175a4c870310213d71be7d0e0298af9756c5b6101831e619b",
+    "kernel/src/fs/indfs.rs": "0ca3c505c014af8d2ac18b69e8ea19853d8fd75053ebe4b6f74f11dd70cbb01b",
+    "kernel/src/fs/fsck.rs": "03242fef5c0f95bf1b70dab1ceb49ae20f4a20c06d850ef66fd21fd84b4ddb4f",
+    "kernel/src/fs/mod.rs": "a04a1677961ece1ac9d73eb46828e38dbb464583482fc9751ecb59769a7fc0ff",
+    "ci/verify_sp25.py": "408bdc881427c1b859de4af6862b91fed80afa1962aa811cc63ff3c20ad338b9"
+  }
+}
