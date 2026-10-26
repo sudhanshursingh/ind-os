@@ -1,0 +1,29 @@
+{
+  "sprint": "SP-29",
+  "name": "Memory Pressure & Deterministic OOM Killer",
+  "status": "PASSED",
+  "date": "2026-10-27",
+  "specifications": [
+    "docs/architecture/memory-pressure-oom-spec.md"
+  ],
+  "invariants_enforced": [
+    "INV-OOM-001",
+    "INV-OOM-002"
+  ],
+  "deliverables": [
+    "docs/architecture/memory-pressure-oom-spec.md",
+    "docs/evidence/SP-29-validation.md",
+    "docs/evidence/golden-boot-sp29.log",
+    "kernel/src/mm/pressure.rs",
+    "kernel/src/mm/oom.rs",
+    "ci/verify_sp29.py"
+  ],
+  "metrics": {
+    "pressure_tiers": 4,
+    "reclamation_hooks": 2,
+    "swap_decision": "DEF/PEN",
+    "oom_deterministic": true,
+    "model_controlled": false,
+    "unsafe_blocks_in_sp29_modules": 0
+  }
+}

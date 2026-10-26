@@ -2,7 +2,7 @@
   "sprint": "SP-09",
   "phase": "Phase 1: Kernel Bootstrap",
   "milestone": "Boot Hardening & Gate G1 Exit",
-  "timestamp_utc": "2026-10-26T20:23:40Z",
+  "timestamp_utc": "2026-10-26T20:44:36Z",
   "stage_markers_verified": [
     "15_BOOT_COMPLETE"
   ],
@@ -16,7 +16,7 @@
     "docs/evidence/boot-time-budget.md": "b3248f56869d9686a98d09db272fb4645e5e7b6007271464f75febaaddb1a368",
     "docs/evidence/golden-boot-sp09.log": "4de2860466bca081be5f67cc7d65fc237f5877420d758d16eba736a58f09aeb8",
     "evidence/G1/cold_boots/summary.json": "52dfc12b8fab646f4a91a9e07cebf1c33b734fae3d71e7224a3bddd2f38a27d7",
-    "kernel/target/aarch64-unknown-none/debug/indk": "3ed99dfba7c6ed33bc8c0c24bd98046dfc104583860110c0ace99112ebbf6ea5",
-    "kernel/target/aarch64-unknown-none/debug/indk.bin": "4b43a9e132c3ed82b5c5ec85bd82c43f5d43fb491964a46b1379e05c515fc338"
+    "kernel/target/aarch64-unknown-none/debug/indk": "f968a577c49d5f46971ff565e1550e638c21b1ac1d9e45e398eb52047e388e58",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "7f6d7b866053ff97dbb3884a54bf06f3fba493524c073ebc2241f83def51d7ce"
   }
 }

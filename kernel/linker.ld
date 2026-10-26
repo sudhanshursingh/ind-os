@@ -51,10 +51,10 @@ SECTIONS
         __bss_end = .;
     } > RAM
 
-    /* Early kernel stack (64 KB, strictly 16-byte aligned per INV-BOOT-002) */
+    /* Early kernel stack (512 KB, strictly 16-byte aligned per INV-BOOT-002) */
     . = ALIGN(16);
     __stack_bottom = .;
-    . += 0x10000; /* 64 KB early stack */
+    . += 0x80000; /* 512 KB early stack */
     __stack_top = .;
 
     /* End of kernel image marker */

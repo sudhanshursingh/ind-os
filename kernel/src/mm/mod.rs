@@ -5,13 +5,17 @@ pub mod address_space;
 pub mod dtb;
 pub mod frame;
 pub mod heap;
+pub mod oom;
 pub mod page_table;
+pub mod pressure;
 
 pub use address_space::*;
 pub use dtb::{DtbError, DtbParser, PhysicalMemoryRegion};
 pub use frame::{MemoryError, PageFrameAllocator, PhysFrame, PAGE_SIZE};
 pub use heap::{LockedHeap, DEFAULT_HEAP_SIZE};
+pub use oom::{OomCandidate, OomImmunityReason, OomKiller};
 pub use page_table::{PageTable, PageTableEntry, PageTableFlags, PageTableManager};
+pub use pressure::{MemoryPressureLevel, MemoryPressureManager, ReclamationType};
 
 use crate::sync::Spinlock;
 
@@ -20,6 +24,8 @@ extern "C" {
 }
 
 pub static FRAME_ALLOCATOR: Spinlock<PageFrameAllocator> = Spinlock::new(PageFrameAllocator::new());
+pub static PRESSURE_MANAGER: Spinlock<MemoryPressureManager> = Spinlock::new(MemoryPressureManager::new());
+pub static OOM_KILLER: Spinlock<OomKiller> = Spinlock::new(OomKiller::new());
 
 #[global_allocator]
 pub static HEAP: LockedHeap = LockedHeap::empty();

@@ -2364,6 +2364,143 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SMP] and Cross-Core IPI Messaging via GIC SGIs (INV-SMP-003) Verified.");
     println!("==================================================");
 
+    // =========================================================================
+    // Phase 4: Sprint SP-29 — Memory Pressure & Deterministic OOM Killer (INV-OOM-001, INV-OOM-002)
+    // =========================================================================
+    use mm::{MemoryPressureLevel, MemoryPressureManager, OomCandidate, OomImmunityReason, OomKiller, ReclamationType, OOM_KILLER, PRESSURE_MANAGER};
+
+    // Stage 90: Multi-Tier Memory Pressure Monitor (INV-OOM-002)
+    stage_marker!("90_MEM_PRESSURE_MONITOR", "Multi-tier memory pressure detection & monotonic threshold transitions verified (INV-OOM-002)");
+    {
+        // 1. Verify threshold calculations across tiers:
+        // Normal (>= 25%), Warning (10%..25%), Critical (2%..10%), OOM (< 2%)
+        assert_eq!(MemoryPressureManager::compute_level(300, 1000), MemoryPressureLevel::Normal);
+        assert_eq!(MemoryPressureManager::compute_level(150, 1000), MemoryPressureLevel::Warning);
+        assert_eq!(MemoryPressureManager::compute_level(50, 1000), MemoryPressureLevel::Critical);
+        assert_eq!(MemoryPressureManager::compute_level(10, 1000), MemoryPressureLevel::Oom);
+
+        // 2. Query active system physical frame metrics
+        let (free_frames, total_frames) = {
+            let fa = mm::FRAME_ALLOCATOR.lock();
+            (fa.free_frames(), fa.total_frames())
+        };
+        let mut pm = PRESSURE_MANAGER.lock();
+        let (level, _) = pm.update(free_frames, total_frames);
+        log_info!("mm_pressure", "Initial memory pressure state: {} (Free: {} / Total: {} frames, INV-OOM-002 PASSED)",
+            level.as_str(), free_frames, total_frames);
+    }
+
+    // Stage 91: Voluntary and Involuntary Cache Reclamation (INV-OOM-002)
+    stage_marker!("91_CACHE_RECLAMATION", "Voluntary and involuntary cache/vnode reclamation callbacks verified (INV-OOM-002)");
+    {
+        fn vfs_cache_reclaimer(reclaim_type: ReclamationType) -> usize {
+            match reclaim_type {
+                ReclamationType::Voluntary => 64,
+                ReclamationType::Involuntary => 128,
+            }
+        }
+
+        fn driver_slab_reclaimer(reclaim_type: ReclamationType) -> usize {
+            match reclaim_type {
+                ReclamationType::Voluntary => 0,
+                ReclamationType::Involuntary => 256,
+            }
+        }
+
+        let mut pm = PRESSURE_MANAGER.lock();
+        pm.register_reclaimer(vfs_cache_reclaimer).expect("Register VFS cache reclaimer");
+        pm.register_reclaimer(driver_slab_reclaimer).expect("Register driver slab reclaimer");
+        assert_eq!(pm.reclaimer_count(), 2);
+
+        // Voluntary reclamation on Warning
+        let voluntary_freed = pm.trigger_reclamation(MemoryPressureLevel::Warning);
+        assert_eq!(voluntary_freed, 64, "Voluntary reclamation must yield 64 frames");
+
+        // Involuntary aggressive reclamation on Critical
+        let involuntary_freed = pm.trigger_reclamation(MemoryPressureLevel::Critical);
+        assert_eq!(involuntary_freed, 384, "Involuntary reclamation must yield 384 frames (128 + 256)");
+
+        log_info!("mm_pressure", "Reclamation hooks verified: {} voluntary frames, {} involuntary frames reclaimed (INV-OOM-002 PASSED)",
+            voluntary_freed, involuntary_freed);
+    }
+
+    // Stage 92: Swap Decision Architectural Spike (DEF / PEN per Bible §8.10)
+    stage_marker!("92_SWAP_DECISION_SPIKE", "Swap decision spike: swap to flash disallowed (DEF/PEN) to preserve real-time bounds and prevent flash wear");
+    {
+        // Documented spike conclusion:
+        // Swapping to flash storage incurs unbounded block I/O latency (5ms - 250ms), violating the 10ms real-time quantum.
+        // Furthermore, flash write amplification accelerates eMMC/UFS storage degradation.
+        // Architecture Decision: DEF (Deferred) / PEN (Penalized). Zero swap partitions configured.
+        log_info!("mm_swap", "Swap decision: DEFERRED / PENALIZED (DEF/PEN). Swap disengaged; memory elasticity enforced via deterministic OOM killer");
+    }
+
+    // Stage 93: Deterministic OOM Policy & Task Immunity (INV-OOM-001)
+    stage_marker!("93_DETERMINISTIC_OOM_POLICY", "Deterministic, algorithmic, non-model-controlled OOM victim selection and immunity verified (INV-OOM-001)");
+    {
+        use task::scheduler::Priority;
+
+        let total_frames = 100_000;
+        let mut oom = OOM_KILLER.lock();
+        oom.clear();
+
+        // 1. Register candidate tasks
+        let task_init = OomCandidate::new(1, Priority::Normal, 1000, false, "system_init");
+        let task_audio = OomCandidate::new(2, Priority::Realtime, 8000, false, "realtime_audio_engine");
+        let task_ui = OomCandidate::new(10, Priority::Interactive, 4000, false, "shell_compositor");
+        let task_batch1 = OomCandidate::new(11, Priority::BatchIntelligence, 5000, false, "ais_model_worker_a");
+        let task_batch2 = OomCandidate::new(12, Priority::BatchIntelligence, 5000, false, "ais_model_worker_b");
+
+        // 2. Strict immunity checks
+        let init_immunity = OomKiller::compute_badness(&task_init, total_frames);
+        assert_eq!(init_immunity, Err(OomImmunityReason::SystemCritical), "Init/PID 1 must be immune (INV-OOM-001)");
+
+        let audio_immunity = OomKiller::compute_badness(&task_audio, total_frames);
+        assert_eq!(audio_immunity, Err(OomImmunityReason::RealtimePriority), "Realtime task must be immune (INV-OOM-001)");
+
+        log_info!("oom", "Immunity verified: PID 1 ({}) and PID 2 ({}) protected from OOM kill",
+            init_immunity.unwrap_err().as_str(), audio_immunity.unwrap_err().as_str());
+
+        // 3. Register non-immune and immune candidates into OOM killer
+        oom.register_candidate(task_init).expect("Register init");
+        oom.register_candidate(task_audio).expect("Register audio");
+        oom.register_candidate(task_ui).expect("Register ui");
+        oom.register_candidate(task_batch1).expect("Register batch1");
+        oom.register_candidate(task_batch2).expect("Register batch2");
+        assert_eq!(oom.candidate_count(), 5);
+
+        // 4. Deterministic victim selection (Higher badness, tie-breaking by frames and PID)
+        let (selected_victim, badness) = oom.select_victim(total_frames).expect("Select OOM victim");
+        assert_eq!(selected_victim.pid, 12, "Tie-break must select higher PID 12 over PID 11");
+        assert!(badness >= 350, "Badness score must reflect priority penalty and memory consumption");
+
+        // 5. Execute kill and verify state transition
+        let killed = oom.kill_victim(total_frames).expect("Kill OOM victim");
+        assert_eq!(killed.pid, 12);
+        assert_eq!(oom.total_kills(), 1);
+        assert_eq!(oom.candidate_count(), 4);
+
+        // Next victim must deterministically be PID 11 (the other batch worker)
+        let (next_victim, _) = oom.select_victim(total_frames).expect("Select second OOM victim");
+        assert_eq!(next_victim.pid, 11, "Next deterministic victim must be PID 11");
+
+        let killed2 = oom.kill_victim(total_frames).expect("Kill second OOM victim");
+        assert_eq!(killed2.pid, 11);
+        assert_eq!(oom.total_kills(), 2);
+        assert_eq!(oom.candidate_count(), 3);
+
+        log_info!("oom", "Deterministic OOM selection verified: victims PID 12 then PID 11 terminated without model intervention (INV-OOM-001 PASSED)");
+    }
+
+    // Stage 94: Sprint SP-29 Milestone Reached
+    stage_marker!("94_OOM_SUBSYSTEM_READY", "Sprint SP-29 Memory Pressure & Deterministic OOM Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [OOM] Sprint SP-29 Memory Pressure & Deterministic OOM Milestone REACHED.");
+    println!(" [OOM] Multi-Tier Memory Pressure Monitor (INV-OOM-002),");
+    println!(" [OOM] Voluntary and Involuntary Cache Reclamation Hooks,");
+    println!(" [OOM] Flash Swap Decision Spike: Disallowed/Penalized (DEF/PEN),");
+    println!(" [OOM] and Deterministic Non-Model-Controlled OOM Policy (INV-OOM-001) Verified.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

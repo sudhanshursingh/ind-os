@@ -5,6 +5,7 @@ use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
 use core::sync::atomic::{AtomicBool, Ordering};
 
+#[repr(C)]
 pub struct Spinlock<T> {
     locked: AtomicBool,
     data: UnsafeCell<T>,
