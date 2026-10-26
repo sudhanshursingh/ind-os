@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint12"
-MODULE_VERSION_CODE="10012"
+MODULE_VERSION="v1.0.1-sprint13"
+MODULE_VERSION_CODE="10013"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -40,6 +40,7 @@ RUN_NAV_TEST=false
 RUN_FIREWALL_TEST=false
 RUN_OTP_TEST=false
 RUN_APK_BLOCK_TEST=false
+RUN_LAUNCHER_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -60,6 +61,7 @@ Options:
     -f, --firewall-test Execute Sprint 10 DoD Prompt-Injection Firewall & Dual-Context Isolation Test (0 actions triggered)
     -o, --otp-test    Execute Sprint 11 DoD Screen-Share OTP Blackout & Banking Window Guard Test
     -k, --apk-block-test Execute Sprint 12 DoD Scam SMS & Malicious Trojan APK Blocker Test
+    -l, --launcher-test  Execute Sprint 13 DoD IndLauncher 120 Hz Frame Pacing & RAM Test (<0.5% jank, <45 MB)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -71,6 +73,7 @@ Examples:
     $0 --build --mmap-bench
     $0 --build --gbnf-test
     $0 --build --exec-test
+    $0 --build --launcher-test
 EOF
     exit 0
 }
@@ -127,6 +130,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -k|--apk-block-test)
             RUN_APK_BLOCK_TEST=true
+            shift
+            ;;
+        -l|--launcher-test)
+            RUN_LAUNCHER_TEST=true
             shift
             ;;
         -s|--serial)
@@ -452,6 +459,29 @@ if [[ "${RUN_APK_BLOCK_TEST}" == "true" ]]; then
     sleep 2
     "${ADB_CMD[@]}" logcat -d -s SurakshaVerifier ScamClassifier SurakshaBlockActivity IND_SURAKSHA IND_BENCHMARK
     echo "[+] Sprint 12 DoD Scam SMS & Malicious Trojan APK Blocker Test completed."
+fi
+
+if [[ "${RUN_LAUNCHER_TEST}" == "true" ]]; then
+    echo "[*] Step 18: Executing Sprint 13 DoD IndLauncher 120 Hz Frame Pacing & RAM Test..."
+    echo "[*] Launching IndLauncherActivity (in.indos.launcher)..."
+    "${ADB_CMD[@]}" shell am start -n in.indos.launcher/indos.launcher.IndLauncherActivity || true
+    sleep 2
+
+    echo "[*] Resetting and collecting dumpsys gfxinfo for in.indos.launcher..."
+    "${ADB_CMD[@]}" shell dumpsys gfxinfo in.indos.launcher reset >/dev/null || true
+
+    echo "[*] Simulating high-velocity touch flings across 120 Hz app drawer..."
+    for i in {1..5}; do
+        "${ADB_CMD[@]}" shell input swipe 540 1800 540 400 120 || true
+        "${ADB_CMD[@]}" shell input swipe 540 400 540 1800 120 || true
+    done
+
+    echo "[*] Querying dumpsys gfxinfo frame pacing and jank metrics..."
+    "${ADB_CMD[@]}" shell dumpsys gfxinfo in.indos.launcher | grep -E "(Total frames|Janky frames|50th percentile|90th percentile|95th percentile|99th percentile)" || true
+
+    echo "[*] Querying IndLauncher resident memory usage (dumpsys meminfo)..."
+    "${ADB_CMD[@]}" shell dumpsys meminfo in.indos.launcher | grep -E "(TOTAL PSS|TOTAL RSS|Native Heap|Dalvik Heap)" || true
+    echo "[+] Sprint 13 DoD IndLauncher 120 Hz Frame Pacing & RAM Test completed."
 fi
 
 echo "[+] Deployment completed successfully."

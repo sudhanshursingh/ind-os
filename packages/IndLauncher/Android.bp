@@ -19,6 +19,10 @@ android_app {
         "ind_ai_ipc",
         "androidx.core_core",
         "androidx.appcompat_appcompat",
+        "androidx.activity_activity-compose",
+        "androidx.compose.ui_ui",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.material3_material3",
         "com.google.android.material_material",
     ],
 
