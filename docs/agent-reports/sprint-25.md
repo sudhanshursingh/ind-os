@@ -43,3 +43,26 @@ Ran [kernel/drivers/fastrpc/fastrpc_probe](file:///Users/dhan/IndOS/kernel/drive
 
 - **Gate Q11 (TCB Line Count):** **355 LoC** (Stage A ceiling < 100,000 LoC).
 - **Gate Q12 (Reproducibility):** SHA-256 `3c9979336ab7f9238164122e3691648a55fac1563511844c63565e34c7d5c01e` bit-identical across clean sandboxes.
+
+---
+
+## Split-Brain Compliance (per SBA-002 §6)
+
+### Files touched
+- `kernel/docs/npu-enablement.md` — AI-adjacent: **yes** — checks run: `1, 2, 5, 6` — result: **pass** (memo explicitly models NPU as capability-scoped device `cap://device/npu/hexagon`, SMMU-isolated memory, zero in-kernel inference, untrusted firmware output validated by gateway).
+- `kernel/drivers/fastrpc/fastrpc_probe.c` — AI-adjacent: **yes** — checks run: `1, 2` — result: **pass** (probe userspace test harness only; does not put LLM/inference in kernel space).
+- `kernel/linux/configs/sm7150_fastrpc.config` — AI-adjacent: **no** — checks run: `not AI-adjacent — checks 2–6 N/A` — result: **pass** (`CONFIG_ARM_SMMU_DISABLE_BYPASS_BY_DEFAULT=y`).
+
+### Constraint violations raised
+- none
+
+### Benchmarks (if Policy Plane or Inference Plane touched)
+- Policy-switch latency: N/A (Policy Plane not modified in Sprint 25).
+- TEE memory isolation re-run: N/A (Inference Plane scheduled for Sprint 27).
+
+### Frozen contract diffs (should be empty)
+- none
+
+### OPEN-QUESTIONS filed this sprint
+- none
+
