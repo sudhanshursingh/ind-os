@@ -23,3 +23,7 @@ This directory contains the patch series applied on top of mainline LTS Linux (6
 4. `0004-sched-ext-enable-bpf-ai-workload-governance.patch`
    - **Purpose:** Enables BPF extensible scheduler (`CONFIG_SCHED_CLASS_EXT=y`) for AI inference latency prioritization.
    - **Upstream Status:** Upstreamed in Linux 6.12.
+
+5. `0005-asoc-qcom-sm7150-add-moto-g60-sound-card-bindings.patch`
+   - **Purpose:** Configures ASoC sound card routing for dual stereo speakers (WSA881x) and dual noise-canceling microphones for voice cascade.
+   - **Upstream Status:** Pending submission to `alsa-devel`.

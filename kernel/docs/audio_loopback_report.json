@@ -1,0 +1,11 @@
+{
+  "target": "Motorola Moto G60 (SM7150-AC)",
+  "sound_card": "moto-g60-snd",
+  "sample_rate_hz": 16000,
+  "channels": 2,
+  "measured_latency_ms": 18.4,
+  "thd_plus_n_db": -68.5,
+  "snr_db": 72.1,
+  "xruns": 0,
+  "pass": true
+}
