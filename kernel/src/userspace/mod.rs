@@ -13,6 +13,7 @@ pub mod logd;
 pub mod store;
 pub mod devx;
 pub mod qa;
+pub mod quality;
 
 pub use init::{
     BootStageRecord, InitError, KernelInitSubsystem, RestartPolicy, Runlevel,
@@ -48,5 +49,8 @@ pub use devx::{
 pub use qa::{
     KernelJourneyReport, KernelJourneyStatus, KernelSoakHarness, KernelSoakReport,
     KernelUserJourneyRunner,
+};
+pub use quality::{
+    KernelManifestAudit, KernelQualityAuditor, KernelResourceAudit,
 };
 
