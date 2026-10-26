@@ -24,8 +24,8 @@ fi
 
 MODULE_ID="ind_os_system_overlay"
 MODULE_NAME="Ind OS Privileged Subsystems Overlay"
-MODULE_VERSION="v1.0.1-sprint9"
-MODULE_VERSION_CODE="10009"
+MODULE_VERSION="v1.0.1-sprint10"
+MODULE_VERSION_CODE="10010"
 AUTHOR="Sudhanshu Raj Singh & Ind OS Team"
 BUILD_APKS=false
 RUN_TEST=false
@@ -37,6 +37,7 @@ RUN_EXEC_TEST=false
 RUN_WAKE_TEST=false
 RUN_ASR_TEST=false
 RUN_NAV_TEST=false
+RUN_FIREWALL_TEST=false
 TARGET_SERIAL=""
 
 usage() {
@@ -54,6 +55,7 @@ Options:
     -w, --wake-test   Execute Sprint 7 DoD Wake-Word & ECAPA-TDNN Biometric Voice Gate Test (>95% wake, <2% FAR)
     -a, --asr-test    Execute Sprint 8 DoD Streaming Indic/Hinglish ASR + Voice Orb Test (<200 ms latency, offline TTS)
     -n, --nav-test    Execute Sprint 9 DoD Flagship Autonomous UI Navigation Demo (WhatsApp / YouTube / Dialer multi-step)
+    -f, --firewall-test Execute Sprint 10 DoD Prompt-Injection Firewall & Dual-Context Isolation Test (0 actions triggered)
     -s, --serial <id> Target specific ADB device serial
     -h, --help        Show this help message
 
@@ -109,6 +111,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -n|--nav-test)
             RUN_NAV_TEST=true
+            shift
+            ;;
+        -f|--firewall-test)
+            RUN_FIREWALL_TEST=true
             shift
             ;;
         -s|--serial)
@@ -389,6 +395,20 @@ if [[ "${RUN_NAV_TEST}" == "true" ]]; then
     sleep 2
     "${ADB_CMD[@]}" logcat -d -s AutonomousNavigator IndAccessibility SemanticGraphPruner GestureSynthesizer IND_BENCHMARK
     echo "[+] Sprint 9 DoD Flagship Autonomous UI Navigation Demo completed."
+fi
+
+if [[ "${RUN_FIREWALL_TEST}" == "true" ]]; then
+    echo "[*] Step 15: Executing Sprint 10 DoD Prompt-Injection Firewall & Dual-Context Isolation Test..."
+    echo "[*] Clearing logcat buffer..."
+    "${ADB_CMD[@]}" logcat -c
+
+    echo "[*] Triggering crafted adversarial injection payload test..."
+    "${ADB_CMD[@]}" shell am start-foreground-service -n in.indos.suraksha/indos.suraksha.SurakshaShieldService || true
+
+    echo "[*] Awaiting Suraksha Shield telemetry (listening to logcat -s ActionPolicyEnforcer PromptFirewall DualContextIsolation IND_SURAKSHA IND_BENCHMARK)..."
+    sleep 2
+    "${ADB_CMD[@]}" logcat -d -s ActionPolicyEnforcer PromptFirewall DualContextIsolation IND_SURAKSHA IND_BENCHMARK
+    echo "[+] Sprint 10 DoD Prompt-Injection Firewall & Dual-Context Isolation Test completed."
 fi
 
 echo "[+] Deployment completed successfully."

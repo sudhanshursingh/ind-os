@@ -22,14 +22,31 @@ class SurakshaShieldService : Service() {
         private const val TAG = "IND_SURAKSHA"
         private const val CHANNEL_ID = "ind_suraksha_channel"
         private const val NOTIFICATION_ID = 2001
+
+        @Volatile
+        var instance: SurakshaShieldService? = null
+            private set
     }
+
+    val policyEnforcer = indos.suraksha.policy.ActionPolicyEnforcer.getInstance()
+    val firewall = indos.suraksha.firewall.PromptInjectionFirewall.INSTANCE
+    val isolationEngine = indos.suraksha.isolation.DualContextIsolationEngine.INSTANCE
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         createNotificationChannel()
         val notification = createNotification("Ind Suraksha Shield Active")
         startForeground(NOTIFICATION_ID, notification)
-        Log.i(TAG, "IndSurakshaShield service started.")
+        Log.i(TAG, "IndSurakshaShield service started (Sprint 10 Green/Amber/Red Enforcer active).")
+    }
+
+    override fun onDestroy() {
+        if (instance === this) {
+            instance = null
+        }
+        super.onDestroy()
+        Log.i(TAG, "IndSurakshaShield service destroyed.")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
