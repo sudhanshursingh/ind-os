@@ -1,0 +1,30 @@
+==================================================
+ [BOOT] IndK ARM64 Microkernel Starting...
+re:Build Commit:
+  Architecture:   aarch64
+  Platform:       qemu-virt
+==================================================
+ [BOOT] Vector table (VBAR_EL1) online.
+ [BOOT] Early kernel stack verified (INV-BOOT-002).
+[STAGE:01_RESET] ARM64 EL1 entry and early stack established
+[STAGE:02_VECTORS] VBAR_EL1 exception vectors armed (INV-BOOT-004)
+[STAGE:03_CONSOLE] PL011 early serial console driver online
+[INFO ] boot: IndK microkernel core initialization sequence starting
+[DEBUG] arch: Execution state: EL1h, interrupts masked, MMU identity
+[STAGE:04_DTB] Validating Device Tree Blob header
+re:\[BOOT\] Device Tree Blob at: 0x[0-9a-fA-F]+
+ [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).
+re:\[INFO \] dtb: DTB header verified \(magic 0xd00dfeed, size [0-9]+ bytes\)
+ [WARN ] sched: Preemptive multitasking disabled (scheduled for Phase 2)
+[STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
+re:\[INFO \] mm: Discovered RAM base: 0x[0-9a-fA-F]+, size: [0-9]+ MB
+[STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
+re:\[INFO \] mm: Physical frames: total [0-9]+, reserved [0-9]+, free [0-9]+
+re:\[DEBUG\] mm: Allocated test frame 1 at 0x[0-9a-fA-F]+
+re:\[DEBUG\] mm: Allocated test frame 2 at 0x[0-9a-fA-F]+
+ [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
+--------------------------------------------------
+ [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.
+[STAGE:05_READY] Sprint SP-05 Serial Console Milestone REACHED
+[STAGE:08_MM_READY] Sprint SP-06 Memory Discovery Milestone REACHED
+==================================================

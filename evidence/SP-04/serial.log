@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   b17bd34f-dirty
+  Build Commit:   fe179826-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -17,7 +17,15 @@
  [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).
 [INFO ] dtb: DTB header verified (magic 0xd00dfeed, size 1048576 bytes)
 [WARN ] sched: Preemptive multitasking disabled (scheduled for Phase 2)
+[STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
+[INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
+[STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
+[INFO ] mm: Physical frames: total 131072, reserved 419, free 130653
+[DEBUG] mm: Allocated test frame 1 at 0x400a3000
+[DEBUG] mm: Allocated test frame 2 at 0x400a4000
+[INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 --------------------------------------------------
  [BOOT] Sprint SP-04 Boot Entry & Vector Milestone REACHED.
 [STAGE:05_READY] Sprint SP-05 Serial Console Milestone REACHED
+[STAGE:08_MM_READY] Sprint SP-06 Memory Discovery Milestone REACHED
 ==================================================
