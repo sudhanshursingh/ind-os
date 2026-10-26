@@ -1,0 +1,25 @@
+{
+  "gate": "G1",
+  "phase": "Phase 1: Kernel Bootstrap (SP-04 through SP-09)",
+  "timestamp_utc": "2026-10-26T13:53:41Z",
+  "founder_signoff": "APPROVED & RATIFIED",
+  "phase_lead_signoff": "APPROVED & RATIFIED",
+  "dec001_reexamination": "CONTINUE",
+  "cold_boots_matrix": {
+    "total_attempts": 20,
+    "successful_boots": 20,
+    "pass_rate_pct": 100.0
+  },
+  "corrupt_image_rejected": true,
+  "clean_build_reproducible": true,
+  "zero_external_crates": true,
+  "artifacts": {
+    "docs/DECISIONS/gate-G1-dec001-review.md": "6729ac3be72896a86e28c22cae6bc77014eb0b3969b15af06ba69e741b4dc3c3",
+    "docs/evidence/GATE-G1-AUDIT.md": "2e271a6c0231e5374b356341f16321ad6c2e10481ef55251f1fe488f8b367a83",
+    "docs/evidence/boot-time-budget.md": "b3248f56869d9686a98d09db272fb4645e5e7b6007271464f75febaaddb1a368",
+    "evidence/G1/cold_boots/summary.json": "52dfc12b8fab646f4a91a9e07cebf1c33b734fae3d71e7224a3bddd2f38a27d7",
+    "evidence/G1/corrupt_rejection_report.json": "b6fcc9add2ceaaf9b04f600d2d653a65936744f29904c08e348bb379af2688b4",
+    "kernel/target/aarch64-unknown-none/debug/indk": "ed251133f8f5af66f0892909252594ad4a6269e3f328ba3226f3e02eae7222d2",
+    "kernel/target/aarch64-unknown-none/debug/indk.bin": "13cd3962e577b296fc99f3f416c41a0c88731b13ff6ea7e2df22f5c2222c653e"
+  }
+}

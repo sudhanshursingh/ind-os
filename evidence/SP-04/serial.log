@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   0f9dae9f
+  Build Commit:   5193dbe4-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -43,7 +43,14 @@
 [DEBUG] irq: Critical section mask active (INV-INT-002)
 [INFO ] irq: Critical section RAII discipline verified (INV-INT-002 PASSED)
 [INFO ] timer: Awaiting periodic hardware timer ticks...
-[INFO ] timer: Periodic timer ticks verified (received 6 ticks, INV-IRQ-004 verified)
+[INFO ] timer: Periodic timer ticks verified (received 4 ticks, INV-IRQ-004 verified)
 [INFO ] irq: Spurious interrupt handling verified (spurious count: 0, INV-INT-001 verified)
 [STAGE:14_INTERRUPTS_READY] Sprint SP-08 Interrupts & Hardware Timers Milestone REACHED
+==================================================
+[STAGE:15_BOOT_COMPLETE] Phase 1 Kernel Bootstrap complete
+--------------------------------------------------
+ [BOOT] Hello from IndK! Phase 1 Bootstrap Complete.
+ [BOOT] Gate G1 Criteria Met: 2048-byte vectors armed,
+ [BOOT] 512MB RAM discovered, frame & heap allocators online,
+ [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================

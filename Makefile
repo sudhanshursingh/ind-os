@@ -32,6 +32,11 @@ check:
 	@python3 ci/verify_sp06.py
 	@python3 ci/verify_sp07.py
 	@python3 ci/verify_sp08.py
+	@python3 ci/verify_sp09.py
+
+gate-g1:
+	@echo "Running Ind OS Gate G1 Audit & Verification Suite..."
+	@python3 ci/verify_sp09.py
 
 test-harness:
 	@echo "Running Ind OS Test Harness Self-Test..."

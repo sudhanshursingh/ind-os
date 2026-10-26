@@ -1,0 +1,2 @@
+qemu-system-aarch64: load_device_tree: Unable to copy device tree into memory: FDT_ERR_BADMAGIC
+Couldn't open dtb file evidence/G1/corrupt_test.dtb

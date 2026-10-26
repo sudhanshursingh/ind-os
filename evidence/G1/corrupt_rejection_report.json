@@ -1,0 +1,5 @@
+{
+  "corrupt_dtb_rejected": true,
+  "truncated_binary_rejected": true,
+  "gate_g1_rejection_criteria_met": true
+}

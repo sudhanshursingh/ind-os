@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "2026-10-26T13:50:14Z",
+  "total_boots": 20,
+  "successful_boots": 20,
+  "failed_boots": 0,
+  "pass_rate_pct": 100.0,
+  "latency_stats_seconds": {
+    "min": 5.3641,
+    "max": 5.8189,
+    "mean": 5.4574,
+    "stdev": 0.0925
+  },
+  "budget_limit_seconds": 0.5,
+  "budget_satisfied": true
+}

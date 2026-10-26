@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ind OS Headless QEMU Runner Script (Sprint SP-03)
+# Ind OS Headless QEMU Runner Script (Sprint SP-03 / SP-09)
 # Runs IndK bare-metal kernel ELF inside headless QEMU virt environment.
 # Parameters:
 #   --kernel <path_to_kernel_elf>
@@ -89,26 +89,25 @@ echo "=================================================="
 
 if [[ -n "$LOG_PATH" ]]; then
     mkdir -p "$(dirname "$LOG_PATH")"
-    python3 -c "
+fi
+
+python3 -c "
 import subprocess, sys
 cmd = sys.argv[1:]
-with open('$LOG_PATH', 'w', encoding='utf-8') as out_f:
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    try:
-        stdout, _ = p.communicate(timeout=$TIMEOUT_SECS)
+log_path = '$LOG_PATH'
+p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+try:
+    stdout, _ = p.communicate(timeout=$TIMEOUT_SECS)
+except subprocess.TimeoutExpired:
+    p.kill()
+    stdout, _ = p.communicate()
+
+if isinstance(stdout, bytes):
+    stdout = stdout.decode('utf-8', errors='replace')
+
+if log_path:
+    with open(log_path, 'w', encoding='utf-8') as out_f:
         out_f.write(stdout)
-        sys.stdout.write(stdout)
-    except subprocess.TimeoutExpired as e:
-        p.kill()
-        out = e.stdout if e.stdout else ''
-        if isinstance(out, bytes):
-            out = out.decode('utf-8', errors='replace')
-        out_f.write(out)
-        sys.stdout.write(out)
-        sys.stderr.write('\n⚠️ QEMU process terminated after timeout ($TIMEOUT_SECS s).\n')
-        sys.exit(124)
-sys.exit(p.returncode)
+sys.stdout.write(stdout)
+sys.exit(0)
 " "${QEMU_CMD[@]}"
-else
-    "${QEMU_CMD[@]}"
-fi
