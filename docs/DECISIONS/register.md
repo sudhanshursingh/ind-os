@@ -23,7 +23,7 @@
 | ID | Title | Default Value | Review Gate | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **DEF-001** | Kernel architecture | Hybrid microkernel (privileged core + user-mode servers) | Gate G3 | ACTIVE |
-| **DEF-002** | Implementation language | Memory-safe Rust for TCB; assembly only for arch entry/context switch | Gate G2 | ACTIVE |
+| **DEF-002** | Implementation language | Memory-safe Rust for TCB; assembly only for arch entry/context switch | Gate G2 | RATIFIED & PERMANENT (`docs/DECISIONS/gate-G2-def002-review.md`) |
 | **DEF-003** | Release signing | 2-of-3 threshold release signing keys | Gate G7 | ACTIVE |
 | **DEF-004** | TLS implementation | Vetted external library (`rustls`), SBOM-tracked | Gate G7 | ACTIVE |
 
