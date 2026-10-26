@@ -9,6 +9,7 @@ pub mod init;
 pub mod core_libs;
 pub mod devmgr;
 pub mod shell;
+pub mod logd;
 
 pub use init::{
     BootStageRecord, InitError, KernelInitSubsystem, RestartPolicy, Runlevel,
@@ -28,5 +29,9 @@ pub use devmgr::{
 pub use shell::{
     KernelCommandInvocation, KernelShellExecError, KernelShellParseError,
     KernelShellParser, KernelShellSession, KERNEL_SHELL_OUTPUT_BUF_SIZE,
+};
+pub use logd::{
+    KernelDiagnosticCause, KernelDiagnosticRecord, KernelLogBus, KernelLogLevel,
+    KernelLogMessage, KernelRedactionFilter, KernelWhyEngine, KERNEL_LOG_CAPACITY,
 };
 

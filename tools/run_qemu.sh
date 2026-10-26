@@ -131,7 +131,7 @@ while True:
         if out_file:
             out_file.write(text)
             out_file.flush()
-        if 'SP35_SHELL_READY' in text or 'SP34_DEVMGR_READY' in text or 'SP33_CORE_LIBS_READY' in text or 'SP32_INIT_READY' in text or 'GATE_G4_RATIFIED' in text or 'SP31_HAL_READY' in text or 'TELEMETRY_API_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
+        if 'SP36_LOGGING_READY' in text or 'SP35_SHELL_READY' in text or 'SP34_DEVMGR_READY' in text or 'SP33_CORE_LIBS_READY' in text or 'SP32_INIT_READY' in text or 'GATE_G4_RATIFIED' in text or 'SP31_HAL_READY' in text or 'TELEMETRY_API_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
             time.sleep(0.1)
             while True:
                 r, _, _ = select.select([p.stdout], [], [], 0.05)

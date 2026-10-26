@@ -3145,6 +3145,78 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-35] - Standalone indus-shell userspace crate in workspace.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-36: LOGGING & DIAGNOSTICS (REQ-USE-204, INV-LOG-001, INV-LOG-002)
+    // ==================================================
+
+    // Stage 126: Unified Log Bus Initialization (REQ-USE-204)
+    stage_marker!("126_LOG_BUS_INIT", "Unified structured log bus initialized and event ingestion verified");
+    let mut log_bus = crate::userspace::KernelLogBus::new();
+    log_bus.ingest(100, crate::userspace::KernelLogLevel::Info, 1, 1001, "Unified log bus online");
+    assert_eq!(log_bus.count(), 1);
+    log_info!("logd", "Unified log bus initialized: structured event ingestion active (REQ-USE-204 PASSED)");
+
+    // Stage 127: Privacy Redaction Filter Verification (INV-LOG-001)
+    stage_marker!("127_LOG_REDACTION_FILTER", "Privacy redaction filter sanitization verified");
+    {
+        let raw = "user login with token:0xdeadbeef1234 and key:0xcafe secret:pass123";
+        let redacted = crate::userspace::KernelRedactionFilter::redact(raw);
+        let s = redacted.as_str();
+        assert!(s.contains("token:[REDACTED]"), "Token pattern must be redacted");
+        assert!(s.contains("key:[REDACTED]"), "Key pattern must be redacted");
+        assert!(s.contains("secret:[REDACTED]"), "Secret pattern must be redacted");
+        assert!(!s.contains("0xdeadbeef1234"), "Raw secret must not be present in output");
+
+        log_bus.ingest(105, crate::userspace::KernelLogLevel::SecurityAudit, 5, 1002, raw);
+        let stored = log_bus.latest_entry().expect("Entry must be stored");
+        assert!(stored.message.as_str().contains("[REDACTED]"));
+
+        log_info!("logd", "Privacy redaction verified: tokens, keys, and secrets masked (INV-LOG-001 PASSED)");
+    }
+
+    // Stage 128: `why` Causal Explanation Engine (INV-LOG-002)
+    stage_marker!("128_LOG_WHY_EXPLANATION", "`why` root cause diagnostic reconstruction verified");
+    {
+        let mut why_engine = crate::userspace::KernelWhyEngine::new();
+        why_engine.record(
+            5001,
+            "devmgr",
+            crate::userspace::KernelDiagnosticCause::ProcessCrash,
+            "devmgr crashed during virtio hotplug stress simulation",
+            "Supervisor recovered process with exponential backoff (20ms -> 40ms)",
+        );
+
+        let diag = why_engine.explain(5001).expect("Failed to query explanation for event 5001");
+        assert_eq!(diag.service_name, "devmgr");
+        assert_eq!(diag.cause, crate::userspace::KernelDiagnosticCause::ProcessCrash);
+        assert!(diag.explanation.contains("crashed"));
+        assert!(diag.remedy.contains("exponential backoff"));
+
+        log_info!("logd", "`why` root-cause reconstruction verified: event 5001 explained (INV-LOG-002 PASSED)");
+    }
+
+    // Stage 129: Log Ring Retention & Capacity Bounds
+    stage_marker!("129_LOG_RING_RETENTION", "Log ring buffer non-blocking overwrite and bounded capacity verified");
+    {
+        // Ingest 35 entries (capacity is 32)
+        for i in 0..35 {
+            log_bus.ingest(200 + i, crate::userspace::KernelLogLevel::Debug, 2, 2000 + i as u32, "test event");
+        }
+        assert_eq!(log_bus.count(), crate::userspace::KERNEL_LOG_CAPACITY);
+        log_info!("logd", "Log ring retention verified: 35 events ingested into capacity-32 buffer without blocking");
+    }
+
+    // Stage 130: Sprint SP-36 Milestone Reached
+    stage_marker!("130_SP36_LOGGING_READY", "Sprint SP-36 Logging & Diagnostics (REQ-USE-204) Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-36] Sprint SP-36 Logging & Diagnostics (REQ-USE-204) Milestone REACHED.");
+    println!(" [SP-36] - Unified Structured Log Bus (REQ-USE-204),");
+    println!(" [SP-36] - Privacy Redaction Filters (INV-LOG-001),");
+    println!(" [SP-36] - `why` Causal Explanation Engine (INV-LOG-002),");
+    println!(" [SP-36] - Non-Blocking Ring Buffer Retention Policy,");
+    println!(" [SP-36] - Standalone indus-logd userspace crate in workspace.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

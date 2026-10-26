@@ -1,0 +1,27 @@
+{
+  "sprint": "SP-36",
+  "phase": "Phase 5 (Userspace & the Developer OS)",
+  "requirements": [
+    "REQ-USE-204"
+  ],
+  "invariants": [
+    "INV-LOG-001",
+    "INV-LOG-002"
+  ],
+  "deliverables": {
+    "docs/architecture/logging-diagnostics-spec.md": "83078af33ec951196567aa15067262b057c9e380421b6f30b67535c1aca44330",
+    "docs/evidence/SP-36-validation.md": "eb1c77aa0a2f12ee6f5bc732d46fe3ce7ba0cf4df337ee7baf594b02f61a3a1b",
+    "docs/evidence/golden-boot-sp36.log": "36afae6fad0c66c2f86d2f2f066273581e213a2ab77e1cce00e440ffe491dbb5",
+    "userspace/logd/Cargo.toml": "d98ebef1fb63ef5ab00a14ec0b5eba55bb7a0e507a95670ef5409eb1d8a896f4",
+    "userspace/logd/README.md": "9e944546d9a66bdab387591d3a0264c46e249e9eb2e88f6cd4a71d4e18e5e4ed",
+    "userspace/logd/src/lib.rs": "27a774224356883ad77b392c4700c8f25aa3dac950a53257b72ea54bc912d911",
+    "userspace/logd/src/main.rs": "17eb9579d93a117104000ea8d6fcfe81d0de83788f0969fd4efb77858b98a3fa",
+    "userspace/logd/src/types.rs": "8a516ecdd2a0c76ab0ddbafb40b370ea79678e2e748afca01943baca5f2156e9",
+    "userspace/logd/src/filter.rs": "b27e5db3f956c8bad75e940d008795c1a1ad6dc8f8c0a9afcc7fa268d9576745",
+    "userspace/logd/src/bus.rs": "47754dc49c09416a6fefa38986e09c023e99f544bc2d082f887fe66b6da6a35a",
+    "userspace/logd/src/why.rs": "27f0925f95c35359fa9e2db653b341af65daa9c05147d6251916008e094b0d9a",
+    "kernel/src/userspace/logd.rs": "4266af04152570068fc4293d44ba3e64cb7cdf57fb2427e21c8fbf16073c212b"
+  },
+  "target": "aarch64-unknown-none",
+  "status": "PASS"
+}
