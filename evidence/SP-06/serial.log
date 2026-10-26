@@ -1,7 +1,7 @@
 
 ==================================================
  [BOOT] IndK ARM64 Microkernel Starting...
-  Build Commit:   f30cfbfa-dirty
+  Build Commit:   905eec0a-dirty
   Architecture:   aarch64
   Platform:       qemu-virt
 ==================================================
@@ -20,12 +20,12 @@
 [STAGE:06_MEMORY_DISCOVERY] Discovering physical RAM topology from DTB
 [INFO ] mm: Discovered RAM base: 0x40000000, size: 512 MB
 [STAGE:07_FRAME_ALLOCATOR] Page frame allocator initialized with bitmap
-[INFO ] mm: Physical frames: total 131072, reserved 493, free 130579
-[DEBUG] mm: Allocated test frame 1 at 0x400ed000
-[DEBUG] mm: Allocated test frame 2 at 0x400ee000
+[INFO ] mm: Physical frames: total 131072, reserved 504, free 130568
+[DEBUG] mm: Allocated test frame 1 at 0x400f8000
+[DEBUG] mm: Allocated test frame 2 at 0x400f9000
 [INFO ] mm: Frame allocation & free cycle passed (INV-MEM-003 verified)
 [STAGE:09_KERNEL_HEAP] Kernel dynamic heap allocator online
-[INFO ] heap: Kernel heap initialized at 0x400ed000 (size: 1024 KB)
+[INFO ] heap: Kernel heap initialized at 0x400f8000 (size: 1024 KB)
 [INFO ] ds: Intrusive doubly-linked list zero-allocation verification PASSED
 [DEBUG] heap: Active heap stats: used 64 bytes, free 1048512 bytes (alloc count 3)
 [INFO ] heap: Heap free & coalescing cycle PASSED (used: 0 B, dealloc count: 3)
@@ -56,15 +56,15 @@
  [BOOT] GICv2 & 100 Hz physical timer periodic ticks active.
 ==================================================
 [STAGE:16_PAGE_TABLES_INIT] 4-level page table manager initialized
-[INFO ] mmu: Root L0 page table allocated at 0x401ed000
+[INFO ] mmu: Root L0 page table allocated at 0x401f8000
 [INFO ] mmu: Kernel code mapping verified (0xffff800040000000 -> 0x40080000, RO, UXN)
 [INFO ] mmu: Device MMIO mapping verified (0xffffffff09000000 -> 0x09000000, nGnRE Device)
 [INFO ] mmu: Page unmapping & TLB invalidation verified (0xffff800040000000 unmapped)
 [STAGE:17_PER_PROCESS_MMU] Per-process address space & security bounds verified
-[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401f4000)
+[INFO ] mmu: Created user AddressSpace with ASID 1 (L0: 0x401ff000)
 [INFO ] mmu: INV-MEM-001 verified: Strict NULL-pointer trap zone [0x0..0x00400000] enforced
 [INFO ] mmu: INV-MEM-002 verified: PXN enforced on user address space (PXN=1)
-[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x401fe000, RW)
+[INFO ] mmu: Copy-on-Write (CoW) verified (0x40101000 -> new frame 0x40209000, RW)
 [INFO ] mmu: AddressSpace activated into TTBR0_EL1 with ASID 1
 [STAGE:18_VIRTUAL_MEMORY_READY] Sprint SP-10 Virtual Memory Milestone REACHED
 --------------------------------------------------
@@ -96,14 +96,10 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Enqueuing Process 1 ('proc_alpha', PID: 1, Priority: Normal) and Process 2 ('proc_beta', PID: 2, Priority: Normal)
 --------------------------------------------------
  [SCHED] Starting Preemptive Scheduler with 2 Concurrent User Processes...
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
-[BETA]  Process 2 executing in EL0 (iter 1)
-[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [ALPHA] Process 1 executing in EL0 (iter 1)
 [INFO ] sched: Advisory sched_hint LatencySensitive received for PID 1
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[BETA]  Process 2 executing in EL0 (iter 1)
 [INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [ALPHA] Process 1 resumed after yield/preemption (iter 2)
@@ -113,19 +109,23 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
 [INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
 [INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
+[ALPHA] Process 1 completed successfully, exiting.
+[INFO ] proc: User process issued sys_exit(status: 0)
+[INFO ] sched: Process 1 ('proc_alpha') exited with status 0
+[INFO ] sched: Context switch on exit: activating PID 2 ('proc_beta')
+[INFO ] sched: Time quantum expired for PID 2: preemptive context switch triggered
+[INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [INFO ] sched: Context switch: activating PID 2 ('proc_beta', priority: Normal)
 [BETA]  Process 2 resumed after yield/preemption (iter 2)
 [BETA]  Process 2 completed successfully, exiting.
 [INFO ] proc: User process issued sys_exit(status: 0)
 [INFO ] sched: Process 2 ('proc_beta') exited with status 0
-[INFO ] sched: Context switch on exit: activating PID 1 ('proc_alpha')
-[INFO ] sched: Time quantum expired for PID 1: preemptive context switch triggered
-[INFO ] sched: Context switch: activating PID 1 ('proc_alpha', priority: Normal)
-[ALPHA] Process 1 completed successfully, exiting.
-[INFO ] proc: User process issued sys_exit(status: 0)
-[INFO ] sched: Process 1 ('proc_alpha') exited with status 0
  [SCHED] All concurrent processes finished. Scheduler returned to kernel.
 [INFO ] sched: Multitasking verified: 11 context switches, 8 preemptions, 2 yields, 2 hints
 [STAGE:24_SCHEDULER_READY] Sprint SP-12 Preemptive Scheduler Milestone REACHED
@@ -138,7 +138,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] cap: Monotonic attenuation verified: illegal right expansion rejected (INV-CAP-001 PASSED)
 [INFO ] cap: Authority without GRANT cannot mint derived tokens (EPERM verified)
 [INFO ] cap: Revocation soundness verified: transitive child revocation succeeded (INV-CAP-002 PASSED)
-[INFO ] cap: Per-process syscall permission bitmap scaffolding verified (Bible ��8.8 PASSED)
+[INFO ] cap: Per-process syscall permission bitmap scaffolding verified (Bible §8.8 PASSED)
 [STAGE:26_IPC_RENDEZVOUS] Cross-process synchronous IPC & capability delegation verified
 [INFO ] ipc: Allocated synchronous IPC Endpoint ID 0
 [INFO ] ipc: Synchronous IPC rendezvous verified: 1 msgs transferred, 1 events (INV-IPC-001 PASSED)
@@ -189,7 +189,7 @@ Hello from Ind OS User Mode (EL0)!
 [INFO ] ipc: Atomic notification bitmask signaling and polling verified (INV-IPC-003 PASSED)
 [INFO ] ipc: Deadlines and non-blocking timeout monotonicity verified (INV-IPC-004 PASSED)
 [STAGE:36_IPC_BENCHMARK_HARNESS] Microkernel IPC latency benchmark harness executed (1,000 round-trips)
-[INFO ] ipc: IPC benchmark: 1000 round-trips in 17242 ticks (275 us total)
+[INFO ] ipc: IPC benchmark: 1000 round-trips in 18276 ticks (292 us total)
 [INFO ] ipc: Round-trip IPC latency benchmark: 1000 transfers, median 2.3us, p99 4.5us (INV-IPC-002 PASSED)
 [STAGE:37_IPC_CORE_READY] Sprint SP-16 IPC Core Milestone REACHED
 --------------------------------------------------
@@ -261,4 +261,59 @@ Hello from Ind OS User Mode (EL0)!
  [AUD] Sprint SP-20 Audit v1 Milestone REACHED.
  [AUD] Cryptographic Append-Only Audit Log, SHA-256 Hash Chaining,
  [AUD] Tamper Detection & Localization (INV-AUD-001) Verified.
+==================================================
+[STAGE:53_CONSENT_SURFACE_INIT] Hardware-isolated consent display surface & input mediation online
+[INFO ] consent: Consent Broker online: hardware-isolated display surface initialized (INV-CON-001)
+[STAGE:54_CONSENT_REQUEST_EVAL] Consent request lifecycle: prompt activation, user grant, and audit linkage
+[INFO ] consent: Consent request #1 granted by user; audit record chained (INV-CON-001)
+[STAGE:55_CONSENT_SPOOF_INJECTION_DEFENSE] Adversarial overlay and input injection repelled (INV-CON-001)
+[INFO ] consent: Adversarial overlay from PID 4 blocked: EPERM: Access denied to isolated consent display surface (INV-CON-001)
+[INFO ] consent: Synthetic input injection from PID 4 rejected: EPERM: Synthetic input injection rejected during active consent prompt (INV-CON-001)
+[INFO ] consent: Spoofing & injection repelled: 100% defense verified (INV-CON-001 PASSED)
+[STAGE:56_CONSENT_BROKER_READY] Sprint SP-21 Consent Broker v1 Milestone REACHED
+--------------------------------------------------
+ [CON] Sprint SP-21 Consent Broker v1 Milestone REACHED.
+ [CON] Hardware-Isolated Display Surface, Kernel Input Mediation,
+ [CON] Overlay & Injection Rejection (INV-CON-001) Verified.
+==================================================
+[STAGE:57_REDTEAM_SUITE_INIT] Internal adversarial exploitation harness online
+[INFO ] redteam: Adversarial harness initialized: targeting Phase 3 Security Spine
+[STAGE:58_REDTEAM_EXPLOIT_PROBES] Executing 6 red-team attack vectors against Phase 3 Security Spine
+[INFO ] redteam: Attack Vector 1 REPELLED: Rights expansion prohibited (INV-CAP-001)
+[INFO ] redteam: Attack Vector 2 REPELLED: Use-after-free rejected (INV-CAP-002, INV-OBJ-001)
+[INFO ] redteam: Attack Vector 3 REPELLED: Zero ambient authority enforced (INV-SEC-001)
+[INFO ] redteam: Attack Vector 4 REPELLED: Default-deny & deny precedence enforced (INV-ENF-001, INV-ENF-002)
+[INFO ] redteam: Attack Vector 5 REPELLED: 1-bit audit mutation localized (INV-AUD-001)
+[INFO ] redteam: Attack Vector 6 REPELLED: Overlay & input injection rejected (INV-CON-001)
+[INFO ] redteam: Adversarial suite results: 6/6 attack vectors repelled, 0 vulnerabilities (100% DEFENSE)
+[STAGE:59_REDTEAM_VERIFIED] Sprint SP-22 Adversarial Self-Review Milestone REACHED
+--------------------------------------------------
+ [RED] Sprint SP-22 Adversarial Self-Review Milestone REACHED.
+ [RED] 6/6 Red-Team Exploits Repelled (Escalation, UAF, Ambient Auth,
+ [RED] Policy Bypass, Audit Tampering, and Consent Spoofing) Verified.
+==================================================
+[STAGE:60_FORMAL_SPEC_VALIDATION] Validating machine-checkable formal invariant models (INDOS-SPEC-FORMAL-01)
+[INFO ] formal: Machine-checkable formal spec invariant predicates verified (INV-CAP-001, INV-CAP-002, INV-SEC-001, INV-AUD-001, INV-CON-001)
+[STAGE:61_GATE_G3_RATIFIED] Gate G3 Hard-Stop Cleared: Phase 3 Security Spine RATIFIED
+==================================================
+ [GATE-G3] Phase 3 Security Spine & Gate G3 Milestone REACHED.
+ [GATE-G3] Capabilities I & II, Monotonic Attenuation (INV-CAP-001),
+ [GATE-G3] Revocation Soundness (INV-CAP-002), Zero Ambient Authority (INV-SEC-001),
+ [GATE-G3] Policy Engine v1, Cryptographic Audit Log (INV-AUD-001),
+ [GATE-G3] Consent Broker (INV-CON-001), and Red-Team Defense Verified.
+ [GATE-G3] Gate G3 HARD STOP Cleared -> Phase 4 Authorized.
+==================================================
+[STAGE:62_VFS_CORE_INIT] VFS core vnode pool and root mount table initialized
+[INFO ] vfs: VFS core online: root filesystem mounted, 5 initial vnodes active
+[STAGE:63_VFS_PATH_RESOLUTION] Hierarchical path canonicalization and isolation verified (INV-VFS-002)
+[INFO ] vfs: Path resolution verified: canonicalization, lookup, and root isolation sound (INV-VFS-002 PASSED)
+[STAGE:64_VFS_CAPABILITY_FILE_ACCESS] File operations strictly capability-mediated (REQ-KRN-106, INV-VFS-001)
+[INFO ] vfs: Unauthorized write rejected by capability check: EPERM: Capability token lacks WRITE rights (INV-VFS-001)
+[INFO ] vfs: Access with revoked capability rejected: EPERM: Presented capability token is invalid (INV-VFS-001)
+[INFO ] vfs: Capability-mediated file access verified: zero ambient authority (REQ-KRN-106, INV-VFS-001 PASSED)
+[STAGE:65_VFS_CORE_READY] Sprint SP-24 VFS Core Milestone REACHED
+--------------------------------------------------
+ [VFS] Sprint SP-24 VFS Core Milestone REACHED.
+ [VFS] vnode Layer, Mount Table, Hierarchical Path Resolution (INV-VFS-002),
+ [VFS] and Capability-Guarded File Handles (REQ-KRN-106, INV-VFS-001) Verified.
 ==================================================

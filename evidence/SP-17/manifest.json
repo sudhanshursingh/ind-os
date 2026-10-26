@@ -1,7 +1,7 @@
 {
   "sprint": "SP-17",
   "title": "Capabilities I (Unforgeable Tokens, Object-Table Integration, Mint/Grant/Revoke, Per-Process Namespaces)",
-  "timestamp": "2026-10-26T19:21:02Z",
+  "timestamp": "2026-10-26T19:39:39Z",
   "invariants": {
     "INV-CAP-001": "Monotonic Rights Attenuation (target_rights subset enforced)",
     "INV-CAP-002": "Revocation Soundness (transitive lineage tree invalidation)",
@@ -26,8 +26,8 @@
       "bytes": 13197
     },
     "kernel/src/capability/table.rs": {
-      "sha256": "764295359c1072d4381560f66081f07a980ba4a81e3b0aa53d2138157dcf62f9",
-      "bytes": 11131
+      "sha256": "0da0dbd5f28d0db1a00c353ceaa2e4c90082d1938dac92c33cc7614e0b0874ad",
+      "bytes": 11203
     },
     "kernel/src/capability/mod.rs": {
       "sha256": "81c84a6e40aa96b7705a4436c0a5ca5d279a8dd51e14e112063482695e48e256",

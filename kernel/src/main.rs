@@ -25,6 +25,7 @@ pub mod redteam;
 pub mod sync;
 pub mod syscall;
 pub mod task;
+pub mod vfs;
 
 use alloc::boxed::Box;
 use alloc::vec::Vec;
@@ -1638,6 +1639,98 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [GATE-G3] Policy Engine v1, Cryptographic Audit Log (INV-AUD-001),");
     println!(" [GATE-G3] Consent Broker (INV-CON-001), and Red-Team Defense Verified.");
     println!(" [GATE-G3] Gate G3 HARD STOP Cleared -> Phase 4 Authorized.");
+    println!("==================================================");
+
+    // Stage 62: Virtual File System Core Initialization (SP-24, REQ-KRN-106)
+    stage_marker!("62_VFS_CORE_INIT", "VFS core vnode pool and root mount table initialized");
+    {
+        use vfs::VFS;
+        let mut vfs = VFS.lock();
+        vfs.init();
+        assert!(vfs.vnode_count() >= 5, "Root, dev, null, etc, version vnodes must exist");
+        log_info!("vfs", "VFS core online: root filesystem mounted, {} initial vnodes active", vfs.vnode_count());
+    }
+
+    // Stage 63: Hierarchical Path Resolution & Isolation (INV-VFS-002)
+    stage_marker!("63_VFS_PATH_RESOLUTION", "Hierarchical path canonicalization and isolation verified (INV-VFS-002)");
+    {
+        use vfs::{PathResolver, VFS};
+
+        // 1. Canonicalization testing
+        let mut buf = [0u8; 64];
+        let p1 = PathResolver::canonicalize("/dev/../etc/./version", &mut buf).expect("Canonicalize must succeed");
+        assert_eq!(p1, "/etc/version", "Path resolution must normalize components");
+
+        // 2. Escape rejection: /../../ must never escape root (INV-VFS-002)
+        let mut buf2 = [0u8; 64];
+        let p2 = PathResolver::canonicalize("/../../", &mut buf2).expect("Canonicalize root must succeed");
+        assert_eq!(p2, "/", "Parent traversal cannot escape root directory (INV-VFS-002)");
+
+        // 3. VFS lookup traversal
+        let vfs = VFS.lock();
+        let null_id = vfs.lookup("/dev/null").expect("Lookup /dev/null must succeed");
+        assert_eq!(null_id, 3);
+
+        let ver_id = vfs.lookup("/etc/version").expect("Lookup /etc/version must succeed");
+        assert_eq!(ver_id, 5);
+
+        log_info!("vfs", "Path resolution verified: canonicalization, lookup, and root isolation sound (INV-VFS-002 PASSED)");
+    }
+
+    // Stage 64: Capability-Guarded File Operations (REQ-KRN-106, INV-VFS-001)
+    stage_marker!("64_VFS_CAPABILITY_FILE_ACCESS", "File operations strictly capability-mediated (REQ-KRN-106, INV-VFS-001)");
+    {
+        use capability::rights::CapRights;
+        use capability::table::{CapType, Capability};
+        use vfs::VFS;
+
+        let mut vfs = VFS.lock();
+
+        // 1. Create a regular file /etc/motd
+        let motd_id = vfs.create_file("/etc", "motd").expect("Create /etc/motd must succeed");
+
+        // 2. Open file with READ | WRITE rights -> yields capability token
+        let (fd, cap) = vfs.open_file("/etc/motd", CapRights::READ.union(CapRights::WRITE))
+            .expect("Open file must succeed");
+        assert_eq!(cap.cap_type, CapType::File(motd_id));
+        assert!(cap.rights.contains(CapRights::READ.union(CapRights::WRITE)));
+
+        // 3. Write data presenting valid WRITE capability
+        let test_msg = b"Ind OS Phase 4: VFS capability mediation online";
+        let bytes_written = vfs.write_file(fd, &cap, test_msg).expect("Write with valid capability must succeed");
+        assert_eq!(bytes_written, test_msg.len());
+
+        // 4. Seek to beginning and read back data presenting valid READ capability
+        vfs.seek(fd, 0).expect("Seek to 0 must succeed");
+        let mut read_buf = [0u8; 64];
+        let bytes_read = vfs.read_file(fd, &cap, &mut read_buf).expect("Read with valid capability must succeed");
+        assert_eq!(bytes_read, test_msg.len());
+        assert_eq!(&read_buf[..bytes_read], test_msg);
+
+        // 5. Adversarial Attempt 1: Attempt WRITE using restricted READ-only capability
+        let read_only_cap = Capability::new(CapType::File(motd_id), CapRights::READ, 0xF11E);
+        let write_fail = vfs.write_file(fd, &read_only_cap, b"Unauthorized write payload");
+        assert!(write_fail.is_err(), "Write without WRITE right must fail (INV-VFS-001)");
+        log_info!("vfs", "Unauthorized write rejected by capability check: {}", write_fail.unwrap_err());
+
+        // 6. Adversarial Attempt 2: Attempt access with invalidated / revoked capability
+        let mut revoked_cap = cap;
+        revoked_cap.is_valid = false;
+        let read_fail = vfs.read_file(fd, &revoked_cap, &mut read_buf);
+        assert!(read_fail.is_err(), "Read with revoked capability must fail (INV-VFS-001)");
+        log_info!("vfs", "Access with revoked capability rejected: {}", read_fail.unwrap_err());
+
+        // 7. Close file descriptor
+        vfs.close_file(fd).expect("Close file must succeed");
+        log_info!("vfs", "Capability-mediated file access verified: zero ambient authority (REQ-KRN-106, INV-VFS-001 PASSED)");
+    }
+
+    // Stage 65: Sprint SP-24 Milestone Reached
+    stage_marker!("65_VFS_CORE_READY", "Sprint SP-24 VFS Core Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [VFS] Sprint SP-24 VFS Core Milestone REACHED.");
+    println!(" [VFS] vnode Layer, Mount Table, Hierarchical Path Resolution (INV-VFS-002),");
+    println!(" [VFS] and Capability-Guarded File Handles (REQ-KRN-106, INV-VFS-001) Verified.");
     println!("==================================================");
 
     // Park CPU

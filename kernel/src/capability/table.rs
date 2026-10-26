@@ -19,6 +19,7 @@ pub enum CapType {
     Process(ProcessId),
     MemoryRegion { base: usize, size: usize },
     SyscallBitmap(u64),
+    File(u64),         // Capability-mediated VFS node ID (REQ-KRN-106)
 }
 
 /// Unforgeable capability access control token

@@ -1,0 +1,54 @@
+{
+  "sprint": "SP-24",
+  "title": "VFS Core (vnode Layer, Mount Table, Path Resolution, Capability-Mediated File Handles, IndFS Design)",
+  "timestamp": "2026-10-26T19:39:39Z",
+  "requirements": {
+    "REQ-KRN-106": "Capability-Mediated File Handles from Day One"
+  },
+  "invariants": {
+    "INV-VFS-001": "Capability Enforcement (access strictly requires valid matching token with required rights; invalid/revoked tokens rejected with EPERM)",
+    "INV-VFS-002": "Path Traversal Isolation (path canonicalization prevents upward escape above root /)"
+  },
+  "files": {
+    "docs/architecture/vfs-core-spec.md": {
+      "sha256": "7c884ad1f1ee7c4acbb1155baf44c10955ce30436068a1df0e47d8d6e70ab924",
+      "bytes": 9406
+    },
+    "docs/architecture/indfs-design-spec.md": {
+      "sha256": "5df208425fdd50496e86a91ab19e57ba62b2e4cbc21f9eb4f3e78a1c96360897",
+      "bytes": 9507
+    },
+    "docs/evidence/SP-24-validation.md": {
+      "sha256": "bf6a6a3724a7e33ec1ec7348324eccda477c45f27d622047eb2d702fb06308bb",
+      "bytes": 6261
+    },
+    "docs/evidence/golden-boot-sp24.log": {
+      "sha256": "2321252f605d3dfdb106a56a9a08f32167a25e33ca09eb6e8cddf9da23b87dd2",
+      "bytes": 24720
+    },
+    "kernel/src/vfs/vnode.rs": {
+      "sha256": "07894dfb9d225a390ff3e95984641126fb12d293192997da5d0cb654339b0442",
+      "bytes": 2602
+    },
+    "kernel/src/vfs/mount.rs": {
+      "sha256": "cf470fad300871bebfd1af269529a4d8087a720163695996a9b00d404065bb89",
+      "bytes": 3142
+    },
+    "kernel/src/vfs/path.rs": {
+      "sha256": "9d1d96462ad0e51e3c3a7299475ed48053830b2201cb70d9b41a5f785024aa2b",
+      "bytes": 2761
+    },
+    "kernel/src/vfs/file.rs": {
+      "sha256": "219675d4d157a953c768323cc5d2ae2e8f8497a1875810e879064ec841adb6bd",
+      "bytes": 2450
+    },
+    "kernel/src/vfs/core.rs": {
+      "sha256": "9589936f7997c48b5abb2cb9faade90efbefb8dc20ecaa90508553524acdb48d",
+      "bytes": 8849
+    },
+    "kernel/src/vfs/mod.rs": {
+      "sha256": "c5eeb67825fc9e86c5b52cd88f68f6dbbe628e398e2fa8458842704750b273aa",
+      "bytes": 573
+    }
+  }
+}
