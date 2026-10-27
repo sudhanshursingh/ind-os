@@ -134,6 +134,11 @@ pub use platform::audio_pcm_core::{
     KERNEL_CAP_AUDIO_PLAYBACK, KERNEL_PCM_CHANNELS_STEREO,
     KERNEL_PCM_PERIODS, KERNEL_PCM_PERIOD_FRAMES, KERNEL_PCM_SAMPLE_RATE_48K,
 };
+pub use platform::concurrency_suite_core::{
+    KernelConcurrencyError, KernelConcurrencySuiteHarness,
+    KERNEL_SUBSYSTEM_ALL, KERNEL_SUBSYSTEM_AUDIO, KERNEL_SUBSYSTEM_BLUETOOTH,
+    KERNEL_SUBSYSTEM_SENSORS, KERNEL_SUBSYSTEM_WIFI,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

@@ -36,6 +36,7 @@ pub mod sensor_mag;
 pub mod sensor_hub;
 pub mod audio_codec;
 pub mod audio_pcm;
+pub mod concurrency_suite;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -148,6 +149,11 @@ pub use audio_pcm::{
     AudioPcmError, AudioPcmHarness, AudioPcmState,
     CAP_AUDIO_PLAYBACK, PCM_CHANNELS_STEREO, PCM_PERIODS,
     PCM_PERIOD_FRAMES, PCM_SAMPLE_RATE_48K,
+};
+pub use concurrency_suite::{
+    ConcurrencyError, ConcurrencySuiteHarness,
+    SUBSYSTEM_ALL, SUBSYSTEM_AUDIO, SUBSYSTEM_BLUETOOTH,
+    SUBSYSTEM_SENSORS, SUBSYSTEM_WIFI,
 };
 
 

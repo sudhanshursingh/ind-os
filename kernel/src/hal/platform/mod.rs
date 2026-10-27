@@ -31,6 +31,7 @@ pub mod sensor_mag_core;
 pub mod sensor_hub_core;
 pub mod audio_codec_core;
 pub mod audio_pcm_core;
+pub mod concurrency_suite_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -148,6 +149,11 @@ pub use audio_pcm_core::{
     KernelAudioPcmError, KernelAudioPcmHarness, KernelAudioPcmState,
     KERNEL_CAP_AUDIO_PLAYBACK, KERNEL_PCM_CHANNELS_STEREO,
     KERNEL_PCM_PERIODS, KERNEL_PCM_PERIOD_FRAMES, KERNEL_PCM_SAMPLE_RATE_48K,
+};
+pub use concurrency_suite_core::{
+    KernelConcurrencyError, KernelConcurrencySuiteHarness,
+    KERNEL_SUBSYSTEM_ALL, KERNEL_SUBSYSTEM_AUDIO, KERNEL_SUBSYSTEM_BLUETOOTH,
+    KERNEL_SUBSYSTEM_SENSORS, KERNEL_SUBSYSTEM_WIFI,
 };
 
 
