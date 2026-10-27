@@ -42,6 +42,11 @@ pub use platform::ufs_resilience_core::{
     KernelUfsJournalEntry, KernelUfsJournalError, KernelUfsJournalHarness,
     KERNEL_CAP_STORAGE_RECOVERY, KERNEL_SCSI_CMD_SYNCHRONIZE_CACHE,
 };
+pub use platform::display_panel_core::{
+    KernelDisplayError, KernelDisplayPanelHarness, KERNEL_DCS_CMD_DISPLAY_ON,
+    KERNEL_DCS_CMD_PIXEL_FORMAT, KERNEL_DCS_CMD_SLEEP_OUT, KERNEL_HANOIP_MDSS_DSI0_BASE,
+    KERNEL_PANEL_HEIGHT, KERNEL_PANEL_REFRESH_HZ, KERNEL_PANEL_WIDTH,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

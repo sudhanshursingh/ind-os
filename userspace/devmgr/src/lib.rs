@@ -17,6 +17,7 @@ pub mod boot_chain;
 pub mod hardware_core;
 pub mod ufs;
 pub mod ufs_resilience;
+pub mod display_panel;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -45,4 +46,10 @@ pub use ufs_resilience::{
     UfsJournalEntry, UfsJournalError, UfsJournalHarness,
     CAP_STORAGE_RECOVERY, SCSI_CMD_SYNCHRONIZE_CACHE,
 };
+pub use display_panel::{
+    DisplayError, DisplayPanelHarness, DCS_CMD_DISPLAY_ON,
+    DCS_CMD_PIXEL_FORMAT, DCS_CMD_SLEEP_OUT, HANOIP_MDSS_DSI0_BASE,
+    PANEL_HEIGHT, PANEL_REFRESH_HZ, PANEL_WIDTH,
+};
+
 
