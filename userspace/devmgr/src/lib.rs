@@ -24,6 +24,7 @@ pub mod input_pipeline;
 pub mod pmic_spmi;
 pub mod battery_gauge;
 pub mod thermal_mgmt;
+pub mod power_domains;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -82,6 +83,12 @@ pub use thermal_mgmt::{
     HANOIP_TSENS0_BASE, THERMAL_SHUTDOWN_MILLICELSIUS,
     THERMAL_THROTTLE_MILLICELSIUS, THERMAL_WARN_MILLICELSIUS,
 };
+pub use power_domains::{
+    PowerDomainError, PowerDomainState, PowerDomainsHarness,
+    CAP_POWER_DOMAINS, HANOIP_RPMH_RSC_BASE, PSCI_FN64_CPU_SUSPEND,
+    PSCI_FN_CPU_OFF, PSCI_FN_SYSTEM_RESET,
+};
+
 
 
 

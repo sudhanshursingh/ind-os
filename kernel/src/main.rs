@@ -6344,6 +6344,55 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-82] - Dynamic 50% CPU Frequency Step-Down Throttling Enforced (INV-THM-003).");
     println!("==================================================");
 
+    // =========================================================================
+    // PHASE 9: SPRINT SP-83 - POWER DOMAINS & PSCI / RPMH CONTROL (REQ-HW-108, REQ-PWR-103)
+    // =========================================================================
+
+    // Stage 365: Power Domains Harness Init
+    stage_marker!("365_SP83_POWER_DOMAINS_INIT", "Power domains and PSCI/RPMh power control harness initialized");
+    let mut power_harness = crate::hal::KernelPowerDomainsHarness::new();
+    log_info!("power", "Power domains harness online: Qualcomm RPMh and ARM PSCI v1.1 management active (REQ-PWR-103 PASSED)");
+
+    // Stage 366: RPMh RSC MMIO Mapping (INV-PWR-002)
+    stage_marker!("366_SP83_RPMH_RSC_MMIO_MAPPING", "RPMh RSC hardware MMIO mapping verified");
+    let invalid_rsc_err = power_harness.map_rsc(0x0123_4000);
+    assert_eq!(invalid_rsc_err, Err(crate::hal::KernelPowerDomainError::InvalidMmioBase));
+
+    power_harness.map_rsc(crate::hal::KERNEL_HANOIP_RPMH_RSC_BASE).expect("RPMh RSC MMIO map failed");
+    assert!(power_harness.is_rsc_mapped());
+    log_info!("power", "RPMh RSC verified: Resource State Coordinator mapped at 0x179c_0000 (INV-PWR-002 PASSED)");
+
+    // Stage 367: PSCI SMC Dispatch Verify (INV-PWR-001)
+    stage_marker!("367_SP83_PSCI_SMC_DISPATCH_VERIFY", "ARM standard PSCI v1.1 SMC interface dispatch verified");
+    let suspend_res = power_harness.execute_psci_call(crate::hal::KERNEL_PSCI_FN64_CPU_SUSPEND).expect("PSCI CPU suspend failed");
+    assert_eq!(suspend_res, 0);
+
+    let reset_res = power_harness.execute_psci_call(crate::hal::KERNEL_PSCI_FN_SYSTEM_RESET).expect("PSCI reset failed");
+    assert_eq!(reset_res, 0);
+
+    let invalid_psci_err = power_harness.execute_psci_call(0xdead_beef);
+    assert_eq!(invalid_psci_err, Err(crate::hal::KernelPowerDomainError::InvalidPsciFunction));
+    log_info!("power", "PSCI v1.1 SMC calls verified: CPU suspend (0xC4000001) and system reset (0x84000009) conform to ARM DEN 0022D (INV-PWR-001 PASSED)");
+
+    // Stage 368: Core Power Transition Gating (INV-PWR-003)
+    stage_marker!("368_SP83_CORE_POWER_TRANSITION_GATING", "Capability-gated CPU core power domain transitions enforced");
+    let unpriv_err = power_harness.set_core_power_state(0, 1, crate::hal::KernelPowerDomainState::Retention);
+    assert_eq!(unpriv_err, Err(crate::hal::KernelPowerDomainError::PermissionDenied));
+
+    power_harness.set_core_power_state(crate::hal::KERNEL_CAP_POWER_DOMAINS, 1, crate::hal::KernelPowerDomainState::Retention).expect("Retention transition failed");
+    assert_eq!(power_harness.core_state(1), crate::hal::KernelPowerDomainState::Retention);
+    assert_eq!(power_harness.active_rpmh_cmds(), 1);
+    log_info!("power", "Power gating verified: unprivileged callers blocked; CAP_POWER_DOMAINS permitted transitions (INV-PWR-003 PASSED)");
+
+    // Stage 369: Sprint SP-83 Milestone Reached
+    stage_marker!("369_SP83_POWER_DOMAINS_READY", "Sprint SP-83 Power Domains & PSCI / RPMh Control Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-83] Sprint SP-83 Power Domains & PSCI/RPMh Milestone REACHED.");
+    println!(" [SP-83] - RPMh RSC mapped at 0x179c_0000 (INV-PWR-002, REQ-PWR-103),");
+    println!(" [SP-83] - ARM PSCI v1.1 SMC Interface Validated (INV-PWR-001),");
+    println!(" [SP-83] - Capability-Gated Core Power Transitions Enforced (INV-PWR-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

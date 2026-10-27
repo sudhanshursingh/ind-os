@@ -72,6 +72,11 @@ pub use platform::thermal_mgmt_core::{
     KERNEL_HANOIP_TSENS0_BASE, KERNEL_THERMAL_SHUTDOWN_MILLICELSIUS,
     KERNEL_THERMAL_THROTTLE_MILLICELSIUS, KERNEL_THERMAL_WARN_MILLICELSIUS,
 };
+pub use platform::power_domains_core::{
+    KernelPowerDomainError, KernelPowerDomainState, KernelPowerDomainsHarness,
+    KERNEL_CAP_POWER_DOMAINS, KERNEL_HANOIP_RPMH_RSC_BASE,
+    KERNEL_PSCI_FN64_CPU_SUSPEND, KERNEL_PSCI_FN_CPU_OFF, KERNEL_PSCI_FN_SYSTEM_RESET,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

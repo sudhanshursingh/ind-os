@@ -19,6 +19,7 @@ pub mod input_pipeline_core;
 pub mod pmic_spmi_core;
 pub mod battery_gauge_core;
 pub mod thermal_mgmt_core;
+pub mod power_domains_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -74,6 +75,11 @@ pub use thermal_mgmt_core::{
     KernelThermalError, KernelThermalMgmtHarness, KernelThermalZone,
     KERNEL_HANOIP_TSENS0_BASE, KERNEL_THERMAL_SHUTDOWN_MILLICELSIUS,
     KERNEL_THERMAL_THROTTLE_MILLICELSIUS, KERNEL_THERMAL_WARN_MILLICELSIUS,
+};
+pub use power_domains_core::{
+    KernelPowerDomainError, KernelPowerDomainState, KernelPowerDomainsHarness,
+    KERNEL_CAP_POWER_DOMAINS, KERNEL_HANOIP_RPMH_RSC_BASE,
+    KERNEL_PSCI_FN64_CPU_SUSPEND, KERNEL_PSCI_FN_CPU_OFF, KERNEL_PSCI_FN_SYSTEM_RESET,
 };
 
 
