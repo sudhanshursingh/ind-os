@@ -38,6 +38,10 @@ pub use platform::ufs_core::{
     KernelUfsControllerHarness, KernelUfsDriverError, KERNEL_CAP_STORAGE_ADMIN,
     KERNEL_HANOIP_UFS_BASE,
 };
+pub use platform::ufs_resilience_core::{
+    KernelUfsJournalEntry, KernelUfsJournalError, KernelUfsJournalHarness,
+    KERNEL_CAP_STORAGE_RECOVERY, KERNEL_SCSI_CMD_SYNCHRONIZE_CACHE,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

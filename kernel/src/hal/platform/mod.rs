@@ -11,6 +11,7 @@ pub mod device_evidence_core;
 pub mod boot_chain_core;
 pub mod hardware_core;
 pub mod ufs_core;
+pub mod ufs_resilience_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -33,3 +34,8 @@ pub use ufs_core::{
     KernelUfsControllerHarness, KernelUfsDriverError, KERNEL_CAP_STORAGE_ADMIN,
     KERNEL_HANOIP_UFS_BASE,
 };
+pub use ufs_resilience_core::{
+    KernelUfsJournalEntry, KernelUfsJournalError, KernelUfsJournalHarness,
+    KERNEL_CAP_STORAGE_RECOVERY, KERNEL_SCSI_CMD_SYNCHRONIZE_CACHE,
+};
+

@@ -16,6 +16,7 @@ pub mod device_evidence;
 pub mod boot_chain;
 pub mod hardware_core;
 pub mod ufs;
+pub mod ufs_resilience;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -40,3 +41,8 @@ pub use ufs::{
     UfsControllerHarness, UfsDriverError, CAP_STORAGE_ADMIN,
     HANOIP_UFS_BASE,
 };
+pub use ufs_resilience::{
+    UfsJournalEntry, UfsJournalError, UfsJournalHarness,
+    CAP_STORAGE_RECOVERY, SCSI_CMD_SYNCHRONIZE_CACHE,
+};
+
