@@ -191,6 +191,12 @@ pub use platform::recovery_core::{
     KERNEL_CAP_RECOVERY_ADMIN, KERNEL_QUALCOMM_EDL_PID, KERNEL_QUALCOMM_EDL_VID,
     KERNEL_SAHARA_HELLO_CMD, KERNEL_STOCK_IMAGE_CRC32,
 };
+pub use platform::endurance_soak_core::{
+    KernelEnduranceSoakHarness, KernelSoakError, KernelSoakMetrics, KERNEL_CAP_STRESS_TEST,
+    KERNEL_MASK_AIS, KERNEL_MASK_ALL_SUBSYSTEMS, KERNEL_MASK_AUDIO, KERNEL_MASK_DISPLAY,
+    KERNEL_MASK_NETWORK, KERNEL_MASK_SENSORS, KERNEL_MASK_UFS, KERNEL_MAX_PERMITTED_TEMP_MC,
+    KERNEL_SOAK_TOTAL_CYCLES,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

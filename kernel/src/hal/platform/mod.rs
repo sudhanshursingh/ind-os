@@ -42,6 +42,7 @@ pub mod ab_update_core;
 pub mod g5_userspace_core;
 pub mod hw_matrix_core;
 pub mod recovery_core;
+pub mod endurance_soak_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -216,6 +217,12 @@ pub use recovery_core::{
     KernelRecoveryError, KernelRecoveryHarness, KernelRecoveryMode, KernelRecoveryStatus,
     KERNEL_CAP_RECOVERY_ADMIN, KERNEL_QUALCOMM_EDL_PID, KERNEL_QUALCOMM_EDL_VID,
     KERNEL_SAHARA_HELLO_CMD, KERNEL_STOCK_IMAGE_CRC32,
+};
+pub use endurance_soak_core::{
+    KernelEnduranceSoakHarness, KernelSoakError, KernelSoakMetrics, KERNEL_CAP_STRESS_TEST,
+    KERNEL_MASK_AIS, KERNEL_MASK_ALL_SUBSYSTEMS, KERNEL_MASK_AUDIO, KERNEL_MASK_DISPLAY,
+    KERNEL_MASK_NETWORK, KERNEL_MASK_SENSORS, KERNEL_MASK_UFS, KERNEL_MAX_PERMITTED_TEMP_MC,
+    KERNEL_SOAK_TOTAL_CYCLES,
 };
 
 
