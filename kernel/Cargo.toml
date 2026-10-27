@@ -1,9 +1,9 @@
 [package]
-name = "indk-core"
+name = "aarch64-indk"
 version = "0.1.0"
 edition = "2021"
 authors = ["Sudhanshu Raj Singh <@sudhanshursingh>"]
-description = "Ind OS Microkernel Core (indk-core) for ARM64 Bare-Metal (REQ-ARCH-101)"
+description = "Ind OS Microkernel Core (aarch64-indk) for ARM64 Bare-Metal (REQ-ARCH-101)"
 license = "GPL-2.0-only"
 
 [[bin]]

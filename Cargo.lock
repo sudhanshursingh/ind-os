@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "indk-core"
+name = "aarch64-indk"
 version = "0.1.0"
 
 [[package]]

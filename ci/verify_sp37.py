@@ -112,15 +112,15 @@ def verify_sp37():
     print("  ✓ indus-store package compiles cleanly for aarch64-unknown-none target")
 
     res2 = subprocess.run(
-        ["cargo", "check", "-p", "indk-core", "--target", "aarch64-unknown-none"],
+        ["cargo", "check", "-p", "aarch64-indk", "--target", "aarch64-unknown-none"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     )
     if res2.returncode != 0:
-        print(f"❌ FAIL: cargo check -p indk-core failed:\n{res2.stderr}")
+        print(f"❌ FAIL: cargo check -p aarch64-indk failed:\n{res2.stderr}")
         sys.exit(1)
-    print("  ✓ indk-core compiles cleanly with SP-37 verification stages")
+    print("  ✓ aarch64-indk compiles cleanly with SP-37 verification stages")
 
     # 5. Boot Stage Verification in Golden Log
     print("\n[CHECK 5/6] Verifying boot execution stages in golden log...")

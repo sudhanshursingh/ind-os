@@ -21,7 +21,7 @@ Pursuant to **DEF-004 / DEC-004** and ratified architectural decision **ADR-004*
 
 | Component Name | Scope / Location | Type | External Crate | Rule N-01 Compliance | License |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **IndK Microkernel** | `kernel/` | TCB (Ring 0 / EL1) | **None (Zero)** | 100% In-Tree Pure Rust | MIT / Apache-2.0 |
+| **`aarch64-indk` (IndK Microkernel)** | `kernel/` | TCB (Ring 0 / EL1) | **None (Zero)** | 100% In-Tree Pure Rust | MIT / Apache-2.0 |
 | **libindus** | `userspace/libindus` | Userspace Library | **None (Zero)** | 100% In-Tree Pure Rust | MIT / Apache-2.0 |
 | **indus-logd** | `userspace/logd` | Userspace Daemon | **None (Zero)** | 100% In-Tree Pure Rust | MIT / Apache-2.0 |
 | **indus-net (Core)** | `userspace/net` | Userspace Network | **None (Zero)** | 100% In-Tree Pure Rust | MIT / Apache-2.0 |

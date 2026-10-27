@@ -14,7 +14,7 @@
     "docs/evidence/golden-boot-sp34.log": "5c580c59951466209c3b8dd2ba24302a906fe522c4cfba494d9ec287c24ed375",
     "userspace/devmgr/Cargo.toml": "17177a6b934ef57636c31d530f71a6a92b87b899c3d9e60089eab539314a87d4",
     "userspace/devmgr/README.md": "de2847d98becb6eeed7e8664a256278b17069b4197ad0f74bf5e66474924fe08",
-    "userspace/devmgr/src/lib.rs": "a915b2f44d8b1bd9fcc9e3bf8b9aabb65099ea1a1bd7836565f9d2e934695a92",
+    "userspace/devmgr/src/lib.rs": "bbce2f0e6b4084f40d3e820c638ae5855e9a69e3b9dd4794b0963ffdc0dc9424",
     "userspace/devmgr/src/main.rs": "3245b98349f96c698bdab9b7014de441cb11f62a7171702bb64fd2b056cef818",
     "userspace/devmgr/src/types.rs": "1ab8786e5c87826288d33ab6b093d805f34cc3596c27752a2a25dcb354467cac",
     "userspace/devmgr/src/bus.rs": "e328cc1b51c13f3d4c1188de826f26b42c939f043684fda44179ad7fedb194b1",

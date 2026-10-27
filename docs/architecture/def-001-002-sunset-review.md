@@ -26,7 +26,7 @@ Per Ind OS Development Bible v1.0.0.0 §8.10, §19.1, and Table 19.2 (Gate G4 Pa
 
 ### 2.2 DEF-002 Review: Pure Rust Implementation
 - **Observed Metrics:**
-  - Rule N-01 (Zero external kernel crates): Maintained 100%. `kernel/Cargo.toml` (`indk-core`) has zero external crate dependencies.
+  - Rule N-01 (Zero external kernel crates): Maintained 100%. `kernel/Cargo.toml` (`aarch64-indk`) has zero external crate dependencies.
   - Rule N-04 (Zero unsafe in new kernel modules): Upheld across all Phase 4 modules (VFS, tmpfs, IndFS, block device, driver manager, SMP core, telemetry, and HAL).
   - Compiler optimization: Rust compiler (`aarch64-unknown-none`) generates compact, deterministic ARM64 code (kernel ELF $\le 4.5$ MB with full debug symbols).
 - **Decision:** **DEF-002 is RATIFIED and MAINTAINED.** Rust's type system provides zero-cost memory safety and capability enforcement that would have required thousands of lines of manual C sanitizers.

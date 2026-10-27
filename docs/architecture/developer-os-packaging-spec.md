@@ -40,7 +40,7 @@ Every userspace service deployed in Developer OS v0.1 MUST:
 ## 3. Developer OS v0.1 Packaging Manifest
 
 The Developer OS v0.1 bundle consists of:
-- **Core Microkernel:** `indk` (ARM64 EL1 microkernel, pure Rust).
+- **Core Microkernel:** `aarch64-indk` (ARM64 EL1 microkernel binary `indk`, pure Rust).
 - **Userspace Baseline Suite:**
   - `init` (PID 1 service supervisor and dependency resolver)
   - `libindus` (`indus-core` runtime, collections, IPC bindings)

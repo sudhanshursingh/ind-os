@@ -56,7 +56,7 @@ cat << 'EOF' > "$DIST_DIR/sbom.json"
   "architecture": "aarch64",
   "license": "Apache-2.0",
   "components": [
-    { "name": "indk-core", "type": "microkernel", "path": "kernel", "unsafe": "bounded (early boot only)" },
+    { "name": "aarch64-indk", "type": "microkernel", "path": "kernel", "unsafe": "bounded (early boot only)" },
     { "name": "indus-init", "type": "service", "path": "userspace/init", "unsafe": 0 },
     { "name": "libindus", "type": "library", "path": "userspace/libindus", "unsafe": 0 },
     { "name": "indus-devmgr", "type": "service", "path": "userspace/devmgr", "unsafe": 0 },

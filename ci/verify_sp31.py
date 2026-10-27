@@ -87,10 +87,10 @@ def verify_sp31():
 
     with open("kernel/Cargo.toml", "r") as f:
         kernel_cargo = f.read()
-    if 'name = "indk-core"' not in kernel_cargo:
-        print("❌ FAIL: kernel/Cargo.toml does not package indk-core")
+    if 'name = "aarch64-indk"' not in kernel_cargo and 'name = "indk-core"' not in kernel_cargo:
+        print("❌ FAIL: kernel/Cargo.toml does not package aarch64-indk")
         sys.exit(1)
-    print("  ✓ Workspace decoupling verified: indk-core compiles standalone (REQ-ARCH-101 PASSED)")
+    print("  ✓ Workspace decoupling verified: aarch64-indk compiles standalone (REQ-ARCH-101 PASSED)")
 
     # 4. Zero Unsafe in HAL Check (Rule N-04)
     print("\n[CHECK 4/6] Verifying Rule N-04 (Zero unsafe code in HAL)...")

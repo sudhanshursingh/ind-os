@@ -55,7 +55,7 @@ pub use polish::{
 pub mod shell_hw;
 pub use shell_hw::{
     GestureEvent, GestureType, ShellHwEngine, ShellHwError, ShellHwState, TouchPoint,
-    CAP_DISPLAY_RENDER, CAP_TOUCH_INPUT, MAIN_SURFACE_HEIGHT, NAV_BAR_HEIGHT, PANEL_HEIGHT,
+    CAP_TOUCH_INPUT, MAIN_SURFACE_HEIGHT, NAV_BAR_HEIGHT, PANEL_HEIGHT,
     PANEL_WIDTH, REFRESH_RATE_HZ, STATUS_BAR_HEIGHT,
 };
 pub mod settings_power;

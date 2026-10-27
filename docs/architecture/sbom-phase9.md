@@ -14,7 +14,7 @@
 
 | Component | Scope | TCB | Safe Rust (Rule N-04) | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **`indk-core`** | Kernel | Yes | Controlled Unsafe in Arch HAL | ARM64 microkernel, Qualcomm SM7150 HAL, capability engine, display & touch drivers |
+| **`aarch64-indk`** | Kernel | Yes | Controlled Unsafe in Arch HAL | ARM64 microkernel, Qualcomm SM7150 HAL, capability engine, display & touch drivers |
 | **`libindus`** | Userspace | No | 100% Safe | System calls, IPC wrappers, capability handles |
 | **`indus-init`** | Userspace | No | 100% Safe | Root supervisor, dependency graph, hardware coordinator, soak engine, cold-boot verifier, G9 pack |
 | **`indus-logd`** | Userspace | No | 100% Safe | System logger & Why-Engine causal explanation daemon |

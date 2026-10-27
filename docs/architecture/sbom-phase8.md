@@ -13,7 +13,7 @@
 
 | Component | Scope | TCB | Safe Rust (Rule N-04) | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **`indk-core`** | Kernel | Yes | Controlled Unsafe in Arch HAL | ARM64 microkernel, capability engine, display & app gates |
+| **`aarch64-indk`** | Kernel | Yes | Controlled Unsafe in Arch HAL | ARM64 microkernel, capability engine, display & app gates |
 | **`libindus`** | Userspace | No | 100% Safe | System calls, IPC wrappers, capability handles |
 | **`indus-logd`** | Userspace | No | 100% Safe | System logger & Why-Engine causal explanation daemon |
 | **`indus-net`** | Userspace | No | 100% Safe | Non-TCB network stack, TLS, and Leak Sentinel |
