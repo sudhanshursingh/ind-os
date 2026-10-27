@@ -1,0 +1,23 @@
+{
+  "sprint": "SP-48",
+  "target": "Anomaly Sentinels v1",
+  "status": "PASSED",
+  "invariants": {
+    "INV-SENTINEL-001": "Statistical Permission & Storage Baselines (REQ-AI-107)",
+    "INV-SENTINEL-002": "Trusted UI Alert Path Only"
+  },
+  "stages_verified": [
+    "STAGE:187_SENTINEL_V1_INIT",
+    "STAGE:188_SENTINEL_V1_BASELINE_TRACKING",
+    "STAGE:189_SENTINEL_V1_ANOMALY_DETECTION",
+    "STAGE:190_SENTINEL_V1_TRUSTED_UI_ALARM",
+    "STAGE:191_SP48_SENTINEL_READY"
+  ],
+  "checksums": {
+    "docs/architecture/anomaly-sentinels-v1-spec.md": "9293748350ef003662db6e842d7dcb215c40b076ad19e55955259a5de731451d",
+    "docs/evidence/SP-48-validation.md": "fc99d0a333dce5375941db01741638bd2554bc57b22328d8f7e38c7d903ac1d8",
+    "docs/evidence/golden-boot-sp48.log": "679954d239b7711017a54cd84bbbd15681f9ca50aec7b821eeab4aa1f0b2fcd3",
+    "userspace/ais/src/sentinel.rs": "596c4d04b93bd96f9c38dee270ee292015521f3e4fd1bc22114a8c4d07f12a69",
+    "kernel/src/userspace/sentinel_v1.rs": "19512451b8c5f7d9d4b35b92784251e02e510ebcf8040444b627f52ee824b816"
+  }
+}

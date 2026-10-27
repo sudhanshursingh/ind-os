@@ -89,3 +89,8 @@ pub use feedback_loop::{
     KernelFeedbackArbiter, KernelHintCategory, KernelTelemetryHint,
     KERNEL_CONSENT_UI_PRIORITY, KERNEL_MAX_AI_ADVISORY_PRIORITY, KERNEL_REALTIME_BASE_PRIORITY,
 };
+pub mod sentinel_v1;
+pub use sentinel_v1::{
+    KernelAnomalyAlert, KernelAnomalySentinelV1, KernelAnomalyType,
+    KERNEL_DEFAULT_BASELINE_THRESHOLD_FACTOR, KERNEL_MAX_SENTINEL_ALERTS,
+};
