@@ -23,6 +23,7 @@ pub mod touch_controller;
 pub mod input_pipeline;
 pub mod pmic_spmi;
 pub mod battery_gauge;
+pub mod thermal_mgmt;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -76,6 +77,12 @@ pub use battery_gauge::{
     BatteryError, BatteryGaugeHarness, ChargingState,
     BATT_CRITICAL_SOC_PCT, BATT_MAX_VOLTAGE_MV, BATT_MIN_VOLTAGE_MV,
 };
+pub use thermal_mgmt::{
+    ThermalError, ThermalMgmtHarness, ThermalZone,
+    HANOIP_TSENS0_BASE, THERMAL_SHUTDOWN_MILLICELSIUS,
+    THERMAL_THROTTLE_MILLICELSIUS, THERMAL_WARN_MILLICELSIUS,
+};
+
 
 
 

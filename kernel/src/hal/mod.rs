@@ -67,6 +67,11 @@ pub use platform::battery_gauge_core::{
     KernelBatteryError, KernelBatteryGaugeHarness, KernelChargingState,
     KERNEL_BATT_CRITICAL_SOC_PCT, KERNEL_BATT_MAX_VOLTAGE_MV, KERNEL_BATT_MIN_VOLTAGE_MV,
 };
+pub use platform::thermal_mgmt_core::{
+    KernelThermalError, KernelThermalMgmtHarness, KernelThermalZone,
+    KERNEL_HANOIP_TSENS0_BASE, KERNEL_THERMAL_SHUTDOWN_MILLICELSIUS,
+    KERNEL_THERMAL_THROTTLE_MILLICELSIUS, KERNEL_THERMAL_WARN_MILLICELSIUS,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

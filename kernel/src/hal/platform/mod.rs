@@ -18,6 +18,7 @@ pub mod touch_controller_core;
 pub mod input_pipeline_core;
 pub mod pmic_spmi_core;
 pub mod battery_gauge_core;
+pub mod thermal_mgmt_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -69,6 +70,12 @@ pub use battery_gauge_core::{
     KernelBatteryError, KernelBatteryGaugeHarness, KernelChargingState,
     KERNEL_BATT_CRITICAL_SOC_PCT, KERNEL_BATT_MAX_VOLTAGE_MV, KERNEL_BATT_MIN_VOLTAGE_MV,
 };
+pub use thermal_mgmt_core::{
+    KernelThermalError, KernelThermalMgmtHarness, KernelThermalZone,
+    KERNEL_HANOIP_TSENS0_BASE, KERNEL_THERMAL_SHUTDOWN_MILLICELSIUS,
+    KERNEL_THERMAL_THROTTLE_MILLICELSIUS, KERNEL_THERMAL_WARN_MILLICELSIUS,
+};
+
 
 
 
