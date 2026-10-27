@@ -32,6 +32,7 @@ pub mod sensor_hub_core;
 pub mod audio_codec_core;
 pub mod audio_pcm_core;
 pub mod concurrency_suite_core;
+pub mod ais_arm64_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -154,6 +155,11 @@ pub use concurrency_suite_core::{
     KernelConcurrencyError, KernelConcurrencySuiteHarness,
     KERNEL_SUBSYSTEM_ALL, KERNEL_SUBSYSTEM_AUDIO, KERNEL_SUBSYSTEM_BLUETOOTH,
     KERNEL_SUBSYSTEM_SENSORS, KERNEL_SUBSYSTEM_WIFI,
+};
+pub use ais_arm64_core::{
+    KernelAisArm64RuntimeHarness, KernelAisRuntimeError, KernelAisRuntimeState,
+    KERNEL_AIS_MAX_RAM_BYTES, KERNEL_CAP_AIS_EXEC,
+    KERNEL_TARGET_INFERENCE_LATENCY_MAX_MS,
 };
 
 

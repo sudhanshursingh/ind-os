@@ -139,6 +139,11 @@ pub use platform::concurrency_suite_core::{
     KERNEL_SUBSYSTEM_ALL, KERNEL_SUBSYSTEM_AUDIO, KERNEL_SUBSYSTEM_BLUETOOTH,
     KERNEL_SUBSYSTEM_SENSORS, KERNEL_SUBSYSTEM_WIFI,
 };
+pub use platform::ais_arm64_core::{
+    KernelAisArm64RuntimeHarness, KernelAisRuntimeError, KernelAisRuntimeState,
+    KERNEL_AIS_MAX_RAM_BYTES, KERNEL_CAP_AIS_EXEC,
+    KERNEL_TARGET_INFERENCE_LATENCY_MAX_MS,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

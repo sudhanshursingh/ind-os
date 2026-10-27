@@ -25,6 +25,7 @@ pub mod sentinel;
 pub mod quality;
 pub mod redteam;
 pub mod types;
+pub mod arm64_runtime;
 
 pub use loader::{SignedModelLoader, AUTHORIZED_SIGNING_AUTHORITY};
 pub use profile::IndHardwareProfile;
@@ -39,6 +40,10 @@ pub use feedback::{FeedbackArbiter, HintCategory, TelemetryHint, CONSENT_UI_PRIO
 pub use sentinel::{AnomalyAlert, AnomalySentinelV1, AnomalyType, DEFAULT_BASELINE_THRESHOLD_FACTOR, MAX_SENTINEL_ALERTS};
 pub use quality::{EvaluationSummary, IntentQualityHarness, IntentTestCase, EVAL_CORPUS_SIZE, MIN_COMPLETION_RATE_PERCENT};
 pub use redteam::{AttackType, RedTeamAttackScenario, RedTeamHarness};
+pub use arm64_runtime::{
+    AisArm64RuntimeHarness, AisRuntimeError, AisRuntimeState,
+    AIS_MAX_RAM_BYTES, CAP_AIS_EXEC, TARGET_INFERENCE_LATENCY_MAX_MS,
+};
 pub use types::{
     HardwareTier, InferenceConfig, InferenceError, ModelLoadError, ModelManifest,
     QuantizationType, SandboxStatus, CAP_AIS_ADMIN, CAP_AIS_INFER, CAP_AIS_LOAD,
