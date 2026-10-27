@@ -63,6 +63,10 @@ pub use platform::pmic_spmi_core::{
     KernelPmicError, KernelPmicSpmiHarness, KERNEL_CAP_POWER_MGMT,
     KERNEL_HANOIP_SPMI_BASE, KERNEL_PMIC_PM7150L_SID, KERNEL_PMIC_PM7150_SID,
 };
+pub use platform::battery_gauge_core::{
+    KernelBatteryError, KernelBatteryGaugeHarness, KernelChargingState,
+    KERNEL_BATT_CRITICAL_SOC_PCT, KERNEL_BATT_MAX_VOLTAGE_MV, KERNEL_BATT_MIN_VOLTAGE_MV,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

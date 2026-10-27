@@ -22,6 +22,7 @@ pub mod cpu_compositor;
 pub mod touch_controller;
 pub mod input_pipeline;
 pub mod pmic_spmi;
+pub mod battery_gauge;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -71,6 +72,11 @@ pub use pmic_spmi::{
     PmicError, PmicSpmiHarness, CAP_POWER_MGMT,
     HANOIP_SPMI_BASE, PMIC_PM7150L_SID, PMIC_PM7150_SID,
 };
+pub use battery_gauge::{
+    BatteryError, BatteryGaugeHarness, ChargingState,
+    BATT_CRITICAL_SOC_PCT, BATT_MAX_VOLTAGE_MV, BATT_MIN_VOLTAGE_MV,
+};
+
 
 
 

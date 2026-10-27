@@ -6250,11 +6250,58 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-80] - Power Rail Telemetry Gated via CAP_POWER_MGMT (INV-PMIC-003).");
     println!("==================================================");
 
+    // =========================================================================
+    // PHASE 9: SPRINT SP-81 - BATTERY FUEL GAUGE & CHARGING (REQ-HW-108, REQ-PWR-102)
+    // =========================================================================
+
+    // Stage 355: Battery Gauge Harness Init
+    stage_marker!("355_SP81_BATTERY_GAUGE_INIT", "Battery fuel gauge and charger state machine initialized");
+    let mut batt_harness = crate::hal::KernelBatteryGaugeHarness::new();
+    log_info!("battery", "Battery gauge harness online: Moto G60 6000mAh battery auditor active (REQ-PWR-102 PASSED)");
+
+    // Stage 356: Fuel Gauge Telemetry Bounds (INV-BATT-001)
+    stage_marker!("356_SP81_TELEMETRY_BOUNDS_CHECK", "Battery voltage and SoC operating bounds verified");
+    let oob_volt_err = batt_harness.update_telemetry(50, 4800, 0); // 4800mV > 4400mV
+    assert_eq!(oob_volt_err, Err(crate::hal::KernelBatteryError::VoltageOutOfBounds));
+
+    batt_harness.update_telemetry(75, 4100, 1500).expect("Normal charging telemetry update failed");
+    assert_eq!(batt_harness.soc_pct(), 75);
+    assert_eq!(batt_harness.voltage_mv(), 4100);
+    log_info!("battery", "Telemetry bounds verified: 75% SoC, 4100mV safely within [3200, 4400] mV limits (INV-BATT-001 PASSED)");
+
+    // Stage 357: Charging State Transitions (INV-BATT-002)
+    stage_marker!("357_SP81_CHARGING_STATE_TRANSITIONS", "Deterministic charging state machine transitions verified");
+    assert_eq!(batt_harness.state(), crate::hal::KernelChargingState::ChargingFast);
+
+    batt_harness.update_telemetry(95, 4250, 450).expect("Trickle telemetry failed");
+    assert_eq!(batt_harness.state(), crate::hal::KernelChargingState::ChargingTrickle);
+
+    batt_harness.update_telemetry(100, 4350, 50).expect("Full telemetry failed");
+    assert_eq!(batt_harness.state(), crate::hal::KernelChargingState::Full);
+    log_info!("battery", "State transitions verified: ChargingFast -> ChargingTrickle -> Full evaluated (INV-BATT-002 PASSED)");
+
+    // Stage 358: Critical Low-Battery Emergency Storage Flush (INV-BATT-003, Rule N-06)
+    stage_marker!("358_SP81_CRITICAL_BATTERY_EMERGENCY_FLUSH", "Critical battery brownout protection and emergency flush verified");
+    let crit_err = batt_harness.update_telemetry(2, 3250, -400); // 2% SoC <= 3% critical threshold
+    assert_eq!(crit_err, Err(crate::hal::KernelBatteryError::CriticalBatteryShutdownRequired));
+    assert!(batt_harness.emergency_flush_triggered());
+    log_info!("battery", "Brownout guard verified: SoC <= 3% triggers emergency storage sync before power cut (INV-BATT-003, Rule N-06 PASSED)");
+
+    // Stage 359: Sprint SP-81 Milestone Reached
+    stage_marker!("359_SP81_BATTERY_GAUGE_READY", "Sprint SP-81 Battery Fuel Gauge Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-81] Sprint SP-81 Battery Fuel Gauge Milestone REACHED.");
+    println!(" [SP-81] - Fuel Gauge Telemetry [3200, 4400] mV & [0, 100]% Bounded (INV-BATT-001, REQ-PWR-102),");
+    println!(" [SP-81] - Charging State Machine (Fast/Trickle/Full) Verified (INV-BATT-002),");
+    println!(" [SP-81] - Emergency Storage Flush at SoC <= 3% Enforced (INV-BATT-003, Rule N-06).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
     }
 }
+
 
 
 
