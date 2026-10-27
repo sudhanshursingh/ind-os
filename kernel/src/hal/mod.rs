@@ -96,6 +96,11 @@ pub use platform::wifi_wcn3990_core::{
     KernelWifiError, KernelWifiState, KernelWifiWcn3990Harness,
     KERNEL_CAP_NET_ADMIN, KERNEL_HANOIP_WCN3990_BASE,
 };
+pub use platform::bluetooth_hci_core::{
+    KernelBluetoothHciHarness, KernelBtError, KernelBtState,
+    KERNEL_CAP_BT_ADMIN, KERNEL_HANOIP_BT_UART_BASE,
+    KERNEL_HCI_CMD_LE_SET_SCAN_ENABLE, KERNEL_HCI_CMD_RESET,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

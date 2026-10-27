@@ -24,6 +24,7 @@ pub mod usb_dwc3_core;
 pub mod usb_role_core;
 pub mod firmware_loader_core;
 pub mod wifi_wcn3990_core;
+pub mod bluetooth_hci_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -103,6 +104,11 @@ pub use firmware_loader_core::{
 pub use wifi_wcn3990_core::{
     KernelWifiError, KernelWifiState, KernelWifiWcn3990Harness,
     KERNEL_CAP_NET_ADMIN, KERNEL_HANOIP_WCN3990_BASE,
+};
+pub use bluetooth_hci_core::{
+    KernelBluetoothHciHarness, KernelBtError, KernelBtState,
+    KERNEL_CAP_BT_ADMIN, KERNEL_HANOIP_BT_UART_BASE,
+    KERNEL_HCI_CMD_LE_SET_SCAN_ENABLE, KERNEL_HCI_CMD_RESET,
 };
 
 

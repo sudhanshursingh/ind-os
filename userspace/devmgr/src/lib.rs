@@ -29,6 +29,7 @@ pub mod usb_dwc3;
 pub mod usb_role;
 pub mod firmware_loader;
 pub mod wifi_wcn3990;
+pub mod bluetooth_hci;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -109,6 +110,10 @@ pub use firmware_loader::{
 pub use wifi_wcn3990::{
     WifiError, WifiState, WifiWcn3990Harness,
     CAP_NET_ADMIN, HANOIP_WCN3990_BASE,
+};
+pub use bluetooth_hci::{
+    BluetoothHciHarness, BtError, BtState,
+    CAP_BT_ADMIN, HANOIP_BT_UART_BASE, HCI_CMD_LE_SET_SCAN_ENABLE, HCI_CMD_RESET,
 };
 
 
