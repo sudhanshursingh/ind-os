@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ind OS — Virtual Device Simulator (Motorola Moto G60 / SM7150)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <div class="app-layout">
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <span class="logo-symbol">⬡</span>
+          <span class="logo-title">Ind OS</span>
+          <span class="release-pill">v0.1-g9</span>
+        </div>
+        <div class="platform-meta">
+          <span class="platform-device">Motorola Moto G60</span>
+          <span class="platform-soc">Qualcomm Snapdragon 732G (SM7150)</span>
+          <span class="platform-gate">Gate G9 Ratified</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span class="status-text" id="system-status-indicator">Device Online (120Hz DSI)</span>
+        </div>
+        <button id="btn-toggle-telemetry" class="action-btn secondary" title="Toggle Hardware Telemetry">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          Telemetry
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace: Device & Inspector -->
+    <main class="workspace-container">
+      
+      <!-- Center: Physical Device Viewport -->
+      <section class="device-viewport">
+        <!-- Physical Moto G60 Chassis -->
+        <div class="moto-device-chassis" id="moto-chassis">
+          
+          <!-- Hardware Buttons -->
+          <div class="hardware-btn volume-up" id="hw-vol-up" title="Volume Up"></div>
+          <div class="hardware-btn volume-down" id="hw-vol-down" title="Volume Down"></div>
+          <div class="hardware-btn power-btn" id="hw-power" title="Power Key / Fingerprint Sensor"></div>
+
+          <!-- Top Speaker Earpiece Grille -->
+          <div class="earpiece-speaker"></div>
+
+          <!-- 1080x2460 Display Panel (20.5:9 Aspect Ratio) -->
+          <div class="screen-surface" id="screen-surface">
+            
+            <!-- Punch-Hole Front Camera (32MP) -->
+            <div class="punch-hole-camera">
+              <div class="camera-lens"></div>
+            </div>
+
+            <!-- LAYER 1: Bootloader & Kernel Loading Screen -->
+            <div class="screen-layer" id="layer-bootloader">
+              <div class="boot-canvas">
+                <div class="boot-brand">
+                  <div class="boot-logo-orb">
+                    <div class="orb-inner"></div>
+                    <span class="orb-icon">🇮🇳</span>
+                  </div>
+                  <h1 class="boot-os-title">Ind OS</h1>
+                  <p class="boot-os-subtitle">Motorola Moto G60 Bare-Metal Bring-Up</p>
+                </div>
+
+                <div class="boot-progress-box">
+                  <div class="progress-track">
+                    <div class="progress-bar-fill" id="boot-progress-bar"></div>
+                  </div>
+                  <div class="progress-info">
+                    <span class="current-stage-tag" id="current-stage-tag">STAGE: 001_BOOT_ENTRY</span>
+                    <span class="progress-percent" id="boot-progress-percent">0%</span>
+                  </div>
+                  <p class="current-stage-desc" id="current-stage-desc">Initializing MMU and ARM64 exception vectors...</p>
+                </div>
+
+                <!-- Hardware Subsystem Quick-Status Badges -->
+                <div class="hw-badges-grid">
+                  <span class="hw-badge" id="badge-gic">GICv3</span>
+                  <span class="hw-badge" id="badge-ufs">UFS 2.1</span>
+                  <span class="hw-badge" id="badge-dsi">DSI 120Hz</span>
+                  <span class="hw-badge" id="badge-touch">Touch</span>
+                  <span class="hw-badge" id="badge-pmic">PMIC SPMI</span>
+                  <span class="hw-badge" id="badge-batt">6000mAh</span>
+                  <span class="hw-badge" id="badge-wifi">WCN3990</span>
+                  <span class="hw-badge" id="badge-audio">WCD9385</span>
+                  <span class="hw-badge" id="badge-ais">AIS NEON</span>
+                  <span class="hw-badge" id="badge-g9">GATE G9</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- LAYER 2: Gate G9 Milestone Celebration Screen -->
+            <div class="screen-layer hidden" id="layer-g9-celebration">
+              <div class="celebration-container">
+                <div class="g9-trophy-badge">🏆</div>
+                <h2 class="g9-title">GATE G9 RATIFIED</h2>
+                <div class="g9-pill">MOTO G60 BRING-UP / HARDWARE V0.1</div>
+                <div class="g9-summary-card">
+                  <div class="g9-metric-row"><span>Cold Boot Jitter:</span><strong>16ms (<50ms)</strong></div>
+                  <div class="g9-metric-row"><span>Endurance Soak:</span><strong>10,000 Cycles (0 Errors)</strong></div>
+                  <div class="g9-metric-row"><span>TCB External Crates:</span><strong>0 Crates (Rule N-01)</strong></div>
+                  <div class="g9-metric-row"><span>Userspace Safety:</span><strong>100% Safe Rust</strong></div>
+                  <div class="g9-metric-row"><span>Recovery Status:</span><strong>Fastboot + EDL 9008 Proven</strong></div>
+                </div>
+                <button id="btn-enter-shell" class="action-btn primary enter-shell-btn">
+                  Launch Shell v2 Surface →
+                </button>
+              </div>
+            </div>
+
+            <!-- LAYER 3: Ind OS Shell v2 Interactive Surface -->
+            <div class="screen-layer hidden" id="layer-shell">
+              <!-- System Status Bar -->
+              <div class="status-bar">
+                <span class="status-time" id="status-clock">12:30</span>
+                <div class="status-icons">
+                  <span class="status-icon" title="Sovereign Shield Active">🛡️</span>
+                  <span class="status-icon" title="5GHz Wi-Fi Connected">📶</span>
+                  <span class="status-icon" id="status-battery-icon" title="Battery 88%">🔋 88%</span>
+                </div>
+              </div>
+
+              <!-- Main Shell Surface -->
+              <div class="shell-content">
+                <!-- Ambient Greeting & Date -->
+                <div class="ambient-header">
+                  <div class="ambient-date" id="ambient-date">Tuesday, Oct 27</div>
+                  <div class="ambient-location">New Delhi • 28°C Clear</div>
+                  <div class="constitutional-banner">
+                    <span class="banner-dot"></span>
+                    <span>Rule N-01 Enforced: Zero External Crates</span>
+                  </div>
+                </div>
+
+                <!-- Indic Language Selector -->
+                <div class="lang-selector">
+                  <button class="lang-btn active" data-lang="en">English</button>
+                  <button class="lang-btn" data-lang="hi">हिन्दी</button>
+                  <button class="lang-btn" data-lang="ta">தமிழ்</button>
+                </div>
+
+                <!-- Natural-Language Intent Search Bar -->
+                <div class="intent-search-box">
+                  <span class="intent-search-icon">🔍</span>
+                  <input type="text" id="intent-input" placeholder="What would you like Ind OS to do?" autocomplete="off">
+                  <button id="btn-intent-send" class="intent-send-btn">➔</button>
+                </div>
+
+                <!-- Proactive Proposal Cards with Why-Receipts -->
+                <div class="proposal-cards-stack" id="proposals-container">
+                  <div class="proposal-card">
+                    <div class="card-header">
+                      <span class="card-icon">⚡</span>
+                      <span class="card-title" id="card-1-title">Optimize Refresh Rate</span>
+                      <span class="confidence-pill">94% match</span>
+                    </div>
+                    <p class="card-desc" id="card-1-desc">Panel is currently at 120Hz. Switch to 60Hz Eco Mode to extend 6000mAh battery life by 3.2 hours?</p>
+                    <div class="card-actions">
+                      <button class="card-btn primary" id="btn-card-action">Apply 60Hz</button>
+                      <button class="card-btn secondary" id="btn-card-dismiss">Dismiss</button>
+                      <button class="card-btn why-token-btn" id="btn-card-why" title="Cryptographic Why-Receipt">Why?</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Hardware Toggles Grid -->
+                <div class="quick-toggles-grid">
+                  <button class="quick-tile active" id="tile-refresh"><span class="tile-icon">⚡</span><span class="tile-label">120Hz</span></button>
+                  <button class="quick-tile active" id="tile-wifi"><span class="tile-icon">📶</span><span class="tile-label">Wi-Fi</span></button>
+                  <button class="quick-tile active" id="tile-bt"><span class="tile-icon">🎧</span><span class="tile-label">Audio</span></button>
+                  <button class="quick-tile active" id="tile-shield"><span class="tile-icon">🛡️</span><span class="tile-label">Privacy</span></button>
+                </div>
+
+                <!-- Core Apps Dock -->
+                <div class="apps-dock">
+                  <button class="dock-app-icon" id="app-terminal" title="Ind OS Interactive Terminal">
+                    <span class="app-glyph">💻</span>
+                    <span class="app-label">Terminal</span>
+                  </button>
+                  <button class="dock-app-icon" id="app-settings" title="Hardware Settings & PMIC">
+                    <span class="app-glyph">⚙️</span>
+                    <span class="app-label">Settings</span>
+                  </button>
+                  <button class="dock-app-icon" id="app-sensors" title="Unified Sensor Hub">
+                    <span class="app-glyph">🧭</span>
+                    <span class="app-label">Sensors</span>
+                  </button>
+                  <button class="dock-app-icon" id="app-why" title="Why-Engine Causal Explorer">
+                    <span class="app-glyph">🔍</span>
+                    <span class="app-label">Why</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- In-Device Interactive Modal (Terminal / Settings / Sensors / Why) -->
+              <div class="device-modal hidden" id="device-modal">
+                <div class="modal-header">
+                  <span class="modal-title" id="device-modal-title">Terminal</span>
+                  <button class="modal-close-btn" id="btn-close-device-modal">✕</button>
+                </div>
+                <div class="modal-body" id="device-modal-body">
+                  <!-- Dynamic App View Content -->
+                </div>
+              </div>
+
+              <!-- Virtual Android / Gesture Navigation Bar -->
+              <div class="nav-bar-pill">
+                <div class="nav-pill-handle" id="nav-home-handle"></div>
+              </div>
+            </div>
+
+          </div><!-- /screen-surface -->
+
+          <!-- Bottom USB-C Port & Speaker Grille cutout -->
+          <div class="chassis-bottom">
+            <div class="speaker-hole"></div>
+            <div class="speaker-hole"></div>
+            <div class="speaker-hole"></div>
+            <div class="usbc-port"></div>
+            <div class="mic-hole"></div>
+            <div class="headphone-jack"></div>
+          </div>
+
+        </div><!-- /moto-device-chassis -->
+
+        <!-- Device Quick Controls -->
+        <div class="device-control-bar">
+          <button id="btn-cold-boot" class="ctrl-btn" title="Simulate Hardware Cold Boot">
+            <span>🔄</span> Cold Boot
+          </button>
+          <button id="btn-fast-forward" class="ctrl-btn" title="Skip to Gate G9 / Shell">
+            <span>⚡</span> Fast-Forward
+          </button>
+          <button id="btn-pause-boot" class="ctrl-btn" title="Pause / Step Boot Stages">
+            <span id="pause-icon">⏸</span> Pause
+          </button>
+          <button id="btn-open-terminal-app" class="ctrl-btn" title="Open Shell Terminal">
+            <span>💻</span> Terminal
+          </button>
+        </div>
+      </section>
+
+      <!-- Right: Hardware Telemetry & Live Serial Monitor -->
+      <aside class="telemetry-panel" id="telemetry-panel">
+        
+        <!-- Hardware State Card -->
+        <div class="panel-section hw-telemetry-card">
+          <div class="section-title">
+            <span>Qualcomm SM7150 Telemetry</span>
+            <span class="sub-badge">Live Hardware HAL</span>
+          </div>
+          <div class="telemetry-metrics-grid">
+            <div class="metric-box">
+              <span class="metric-label">CPU Cores</span>
+              <span class="metric-value">8 Cores</span>
+              <span class="metric-sub">Kryo 470 @ 2.3 GHz</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Junction Temp</span>
+              <span class="metric-value" id="telem-temp">36.8°C</span>
+              <span class="metric-sub">Safe (<41.5°C)</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Battery Voltage</span>
+              <span class="metric-value" id="telem-volt">4050 mV</span>
+              <span class="metric-sub">88% SoC (6000mAh)</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">UFS 2.1 Storage</span>
+              <span class="metric-value">Gear 3</span>
+              <span class="metric-sub">IndFS Mounted</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Display Panel</span>
+              <span class="metric-value" id="telem-refresh">120 Hz</span>
+              <span class="metric-sub">1080x2460 DSI</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">TCB Memory Leaks</span>
+              <span class="metric-value text-emerald">0 Bytes</span>
+              <span class="metric-sub">Pure Safe Rust</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Serial UART Stream Console -->
+        <div class="panel-section serial-console-section">
+          <div class="section-title">
+            <div class="title-left">
+              <span>Serial UART Output</span>
+              <span class="baud-pill">115200 8N1</span>
+            </div>
+            <div class="console-actions">
+              <button class="filter-pill active" data-filter="all">All</button>
+              <button class="filter-pill" data-filter="stage">Stage</button>
+              <button class="filter-pill" data-filter="info">Info</button>
+              <button id="btn-clear-serial" class="filter-pill" title="Clear Console">Clear</button>
+            </div>
+          </div>
+
+          <!-- Console Terminal Container -->
+          <div class="serial-terminal-window" id="serial-terminal">
+            <div class="terminal-lines" id="serial-lines">
+              <!-- Log lines will be appended dynamically -->
+            </div>
+          </div>
+          
+          <div class="terminal-footer">
+            <span id="log-count-indicator">Ingesting stages...</span>
+            <label class="autoscroll-toggle">
+              <input type="checkbox" id="chk-autoscroll" checked>
+              <span>Auto-scroll</span>
+            </label>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+  </div>
+
+  <!-- Boot data generated from golden-boot-g9.log -->
+  <script src="boot_data.js"></script>
+  <!-- Main Simulator Engine -->
+  <script src="app.js"></script>
+</body>
+</html>

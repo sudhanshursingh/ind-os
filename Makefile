@@ -348,6 +348,11 @@ gate-g9:
 	@echo "Running Ind OS Gate G9 Hard-Stop Audit & Ratification..."
 	@python3 ci/verify_g9.py
 
+simulator:
+	@echo "Launching Ind OS Virtual Device Simulator (Moto G60)..."
+	@python3 -m http.server 8085 --directory simulator
+
+
 
 
 
