@@ -28,6 +28,7 @@ pub mod power_domains;
 pub mod usb_dwc3;
 pub mod usb_role;
 pub mod firmware_loader;
+pub mod wifi_wcn3990;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -104,6 +105,10 @@ pub use usb_role::{
 pub use firmware_loader::{
     FirmwareError, FirmwareLoaderHarness, FirmwareManifestEntry, FirmwareSubsystem,
     CAP_FIRMWARE_LOAD, FW_DEST_ADSP, FW_DEST_BT, FW_DEST_MODEM, FW_DEST_WLAN,
+};
+pub use wifi_wcn3990::{
+    WifiError, WifiState, WifiWcn3990Harness,
+    CAP_NET_ADMIN, HANOIP_WCN3990_BASE,
 };
 
 

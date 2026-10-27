@@ -92,6 +92,10 @@ pub use platform::firmware_loader_core::{
     KERNEL_CAP_FIRMWARE_LOAD, KERNEL_FW_DEST_ADSP, KERNEL_FW_DEST_BT,
     KERNEL_FW_DEST_MODEM, KERNEL_FW_DEST_WLAN,
 };
+pub use platform::wifi_wcn3990_core::{
+    KernelWifiError, KernelWifiState, KernelWifiWcn3990Harness,
+    KERNEL_CAP_NET_ADMIN, KERNEL_HANOIP_WCN3990_BASE,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

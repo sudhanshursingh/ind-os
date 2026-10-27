@@ -23,6 +23,7 @@ pub mod power_domains_core;
 pub mod usb_dwc3_core;
 pub mod usb_role_core;
 pub mod firmware_loader_core;
+pub mod wifi_wcn3990_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -98,6 +99,10 @@ pub use firmware_loader_core::{
     KernelFirmwareError, KernelFirmwareLoaderHarness, KernelFirmwareSubsystem,
     KERNEL_CAP_FIRMWARE_LOAD, KERNEL_FW_DEST_ADSP, KERNEL_FW_DEST_BT,
     KERNEL_FW_DEST_MODEM, KERNEL_FW_DEST_WLAN,
+};
+pub use wifi_wcn3990_core::{
+    KernelWifiError, KernelWifiState, KernelWifiWcn3990Harness,
+    KERNEL_CAP_NET_ADMIN, KERNEL_HANOIP_WCN3990_BASE,
 };
 
 
