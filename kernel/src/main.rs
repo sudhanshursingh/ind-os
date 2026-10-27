@@ -7277,6 +7277,68 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-100] - Hardware Shell Chrome & Intent Surface Rendered (INV-SHELL-HW-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-101: SETTINGS & POWER MANAGEMENT INTEGRATION
+    // ==================================================
+
+    // Stage 455: Power & Settings Hardware Harness Initialization (REQ-HW-108, REQ-PWR-104)
+    stage_marker!("455_SP101_POWER_SETTINGS_INIT", "Hardware settings & PMIC power arbiter harness initialized");
+    let mut pwr_settings = crate::hal::KernelSettingsPowerHarness::new();
+    assert!(!pwr_settings.is_initialized());
+    let bad_init_cap = pwr_settings.init(0x0000_0000);
+    assert_eq!(bad_init_cap, Err(crate::hal::KernelSettingsPowerError::PermissionDenied));
+    pwr_settings.init(crate::hal::KERNEL_CAP_SETTINGS_POWER).expect("Valid CAP_POWER_MGMT init rejected");
+    assert!(pwr_settings.is_initialized());
+    log_info!("pwr_settings", "Settings power arbiter online: PMIC telemetry & policy governor armed (REQ-HW-108 PASSED)");
+
+    // Stage 456: Fuel Gauge Battery Telemetry Sync (INV-SETTINGS-PWR-001)
+    stage_marker!("456_SP101_BATTERY_TELEMETRY_SYNC", "Fuel gauge voltage, state-of-charge (SoC 88%), and charge current telemetry verified");
+    let telem = pwr_settings.sync_battery(
+        crate::hal::KERNEL_CAP_SETTINGS_POWER,
+        4050,
+        88,
+        -250,
+        crate::hal::KernelChargingStatus::Discharging,
+    ).expect("Battery sync failed");
+    assert_eq!(telem.voltage_mv, 4050);
+    assert_eq!(telem.soc_percent, 88);
+    assert_eq!(telem.status, crate::hal::KernelChargingStatus::Discharging);
+    log_info!("pwr_settings", "Battery telemetry synced: 4050mV, 88% SoC, -250mA discharging status (INV-SETTINGS-PWR-001 PASSED)");
+
+    // Stage 457: Display Power Governor (INV-SETTINGS-PWR-002)
+    stage_marker!("457_SP101_DISPLAY_POWER_GOVERNOR", "Dynamic display backlight (10%..100%) and refresh rate governor (60Hz/120Hz) verified");
+    let invalid_rate_err = pwr_settings.set_display_governor(crate::hal::KERNEL_CAP_SETTINGS_POWER, 200, 90);
+    assert_eq!(invalid_rate_err, Err(crate::hal::KernelSettingsPowerError::InvalidValue));
+    pwr_settings.set_display_governor(crate::hal::KERNEL_CAP_SETTINGS_POWER, 200, crate::hal::KERNEL_DISPLAY_RATE_PERF_HZ).expect("Valid display governor setting rejected");
+    assert_eq!(pwr_settings.governor_state().brightness_pwm, 200);
+    assert_eq!(pwr_settings.governor_state().refresh_rate_hz, 120);
+    log_info!("pwr_settings", "Display power governor active: 200/255 PWM backlight, 120Hz dynamic refresh verified (INV-SETTINGS-PWR-002 PASSED)");
+
+    // Stage 458: Thermal Power Mitigation Policy Binding (INV-SETTINGS-PWR-003)
+    stage_marker!("458_SP101_THERMAL_POWER_POLICY_BIND", "PMIC rail attenuation and thermal mitigation thresholds (38C/42C/46C) verified");
+    let mild_profile = pwr_settings.apply_thermal_policy(39_000).expect("Mild thermal apply failed");
+    assert_eq!(mild_profile, crate::hal::KernelPowerProfile::Balanced);
+    assert_eq!(pwr_settings.governor_state().refresh_rate_hz, 60);
+
+    let severe_profile = pwr_settings.apply_thermal_policy(43_000).expect("Severe thermal apply failed");
+    assert_eq!(severe_profile, crate::hal::KernelPowerProfile::BatterySaver);
+    assert_eq!(pwr_settings.governor_state().refresh_rate_hz, 60);
+    assert!(pwr_settings.governor_state().brightness_pwm <= 120);
+
+    let normal_profile = pwr_settings.apply_thermal_policy(32_000).expect("Normal thermal apply failed");
+    assert_eq!(normal_profile, crate::hal::KernelPowerProfile::Performance);
+    assert_eq!(pwr_settings.governor_state().refresh_rate_hz, 120);
+    log_info!("pwr_settings", "Thermal policy binding confirmed: Dynamic 38C/42C/46C PMIC rail and governor attenuation (INV-SETTINGS-PWR-003 PASSED)");
+
+    // Stage 459: Sprint SP-101 Milestone Reached
+    stage_marker!("459_SP101_SETTINGS_POWER_READY", "Sprint SP-101 Settings & Power Hardware Integration Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-101] Sprint SP-101 Settings & Power Hardware Integration Milestone REACHED.");
+    println!(" [SP-101] - Battery Telemetry Synced with Monotonic Bounds (INV-SETTINGS-PWR-001, REQ-PWR-104),");
+    println!(" [SP-101] - Dynamic Display Backlight & 60Hz/120Hz Governor Active (INV-SETTINGS-PWR-002),");
+    println!(" [SP-101] - Multi-tier PMIC Thermal Mitigation Policy Bound (INV-SETTINGS-PWR-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

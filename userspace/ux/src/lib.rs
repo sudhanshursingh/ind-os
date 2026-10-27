@@ -58,3 +58,9 @@ pub use shell_hw::{
     CAP_DISPLAY_RENDER, CAP_TOUCH_INPUT, MAIN_SURFACE_HEIGHT, NAV_BAR_HEIGHT, PANEL_HEIGHT,
     PANEL_WIDTH, REFRESH_RATE_HZ, STATUS_BAR_HEIGHT,
 };
+pub mod settings_power;
+pub use settings_power::{
+    BatteryTelemetry, ChargingStatus, PowerGovernorState, PowerProfile, SettingsPowerEngine,
+    SettingsPowerError, BATTERY_EMPTY_MV, BATTERY_FULL_MV, CAP_POWER_MGMT, DISPLAY_RATE_ECO_HZ,
+    DISPLAY_RATE_PERF_HZ, THERMAL_CRITICAL_MC, THERMAL_MILD_MC, THERMAL_SEVERE_MC,
+};

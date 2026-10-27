@@ -164,6 +164,13 @@ pub use platform::shell_hw_core::{
     KernelShellTouchPoint, KERNEL_CAP_DISPLAY_RENDER, KERNEL_CAP_TOUCH_INPUT,
     KERNEL_SHELL_PANEL_HEIGHT, KERNEL_SHELL_PANEL_WIDTH, KERNEL_SHELL_REFRESH_RATE_HZ,
 };
+pub use platform::settings_power_core::{
+    KernelBatteryTelemetry, KernelChargingStatus, KernelPowerGovernorState, KernelPowerProfile,
+    KernelSettingsPowerError, KernelSettingsPowerHarness, KERNEL_BATTERY_EMPTY_MV,
+    KERNEL_BATTERY_FULL_MV, KERNEL_CAP_SETTINGS_POWER, KERNEL_DISPLAY_RATE_ECO_HZ,
+    KERNEL_DISPLAY_RATE_PERF_HZ, KERNEL_THERMAL_CRITICAL_MC, KERNEL_THERMAL_MILD_MC,
+    KERNEL_THERMAL_SEVERE_MC,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
