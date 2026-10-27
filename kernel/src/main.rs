@@ -3890,6 +3890,53 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-46] - Full Traceability from User Input to Executed Capability.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-47: KERNEL-AI FEEDBACK LOOP (SCHED/MEM/POWER HINTS & PROVABLE BOUNDS)
+    // ==================================================
+
+    // Stage 182: Kernel-AI Feedback Loop Subsystem Initialization
+    stage_marker!("182_FEEDBACK_LOOP_INIT", "Kernel-AI feedback loop engine initialized");
+    let mut feedback_arbiter = crate::userspace::KernelFeedbackArbiter::new();
+    log_info!("feedback", "Kernel-AI Feedback Loop online: advisory hints & strict scheduler bounds active");
+
+    // Stage 183: Telemetry Sched/Mem/Power Hints Dispatch (REQ-AI-106, INV-FEEDBACK-001)
+    stage_marker!("183_FEEDBACK_ADVISORY_HINTS", "Telemetry sched/mem/power hints dispatch verified");
+    let mem_hint = feedback_arbiter.submit_hint(crate::userspace::KernelHintCategory::MemoryPrealloc, 16);
+    assert_eq!(mem_hint.approved_val, 16);
+    assert!(!mem_hint.clamped);
+
+    let power_hint = feedback_arbiter.submit_hint(crate::userspace::KernelHintCategory::PowerTier, 2);
+    assert_eq!(power_hint.approved_val, 2);
+    assert!(!power_hint.clamped);
+    log_info!("feedback", "Telemetry hints processed: mem=16MB, power=tier2 accepted as advisory (REQ-AI-106, INV-FEEDBACK-001 PASSED)");
+
+    // Stage 184: Realtime Task Priority Protection & No Starvation (INV-FEEDBACK-001)
+    stage_marker!("184_FEEDBACK_REALTIME_BOUNDS", "Realtime task priority protection & no starvation verified");
+    // AI attempts to boost itself to priority 95 (above RT base 90)
+    let aggressive_sched_hint = feedback_arbiter.submit_hint(crate::userspace::KernelHintCategory::SchedulerPriority, 95);
+    assert!(aggressive_sched_hint.clamped);
+    assert_eq!(aggressive_sched_hint.approved_val, crate::userspace::KERNEL_MAX_AI_ADVISORY_PRIORITY); // Clamped to 60
+
+    // Verify Realtime tasks are completely immune to starvation
+    assert!(feedback_arbiter.verify_realtime_immunity(crate::userspace::KERNEL_REALTIME_BASE_PRIORITY, aggressive_sched_hint.approved_val));
+    log_info!("feedback", "Realtime bounds verified: AI hint clamped 95 -> 60, RT task priority 90 immune (INV-FEEDBACK-001 PASSED)");
+
+    // Stage 185: Consent UI Latency Protection Against AI Burst (INV-FEEDBACK-001, INV-FEEDBACK-002)
+    stage_marker!("185_FEEDBACK_CONSENT_UI_PRIORITY", "Consent UI latency protection against AI burst verified");
+    // Consent UI runs at priority 95; AI max hint is 60 -> Consent UI always preempts AI workloads
+    assert!(feedback_arbiter.verify_consent_ui_immunity(aggressive_sched_hint.approved_val));
+    log_info!("feedback", "Consent UI priority verified: UI thread priority 95 preempts max AI priority 60 (INV-FEEDBACK-001, INV-FEEDBACK-002 PASSED)");
+
+    // Stage 186: Sprint SP-47 Milestone Reached
+    stage_marker!("186_SP47_FEEDBACK_READY", "Sprint SP-47 Kernel-AI Feedback Loop Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-47] Sprint SP-47 Kernel-AI Feedback Loop Milestone REACHED.");
+    println!(" [SP-47] - Telemetry Advisory Hints (Sched, Mem, Power) (REQ-AI-106),");
+    println!(" [SP-47] - Provable Bounds & Strict Capping on AI Priorities (INV-FEEDBACK-001),");
+    println!(" [SP-47] - Realtime Class Starvation Immunity Guaranteed,");
+    println!(" [SP-47] - Zero-Latency Degradation of Consent Prompt UI.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

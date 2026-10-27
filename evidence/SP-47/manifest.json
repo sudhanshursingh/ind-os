@@ -1,0 +1,23 @@
+{
+  "sprint": "SP-47",
+  "target": "Kernel-AI Feedback Loop",
+  "status": "PASSED",
+  "invariants": {
+    "INV-FEEDBACK-001": "Provably Bounded AI Feedback Hints (REQ-AI-106)",
+    "INV-FEEDBACK-002": "Realtime & Consent UI Priority Protection"
+  },
+  "stages_verified": [
+    "STAGE:182_FEEDBACK_LOOP_INIT",
+    "STAGE:183_FEEDBACK_ADVISORY_HINTS",
+    "STAGE:184_FEEDBACK_REALTIME_BOUNDS",
+    "STAGE:185_FEEDBACK_CONSENT_UI_PRIORITY",
+    "STAGE:186_SP47_FEEDBACK_READY"
+  ],
+  "checksums": {
+    "docs/architecture/kernel-ai-feedback-loop-spec.md": "5cd9997866c9820c1909e780e4910caa0fb52ab2d4dcb8216179e30573854a67",
+    "docs/evidence/SP-47-validation.md": "924e7dae31b5cad87045211ff941eefd002c19607379f91515ac27fa985dc17e",
+    "docs/evidence/golden-boot-sp47.log": "aea448f17030b558254374c69c018bffc3beb5ddeeb613d741326c575abc3129",
+    "userspace/ais/src/feedback.rs": "def418ec513f9ed0839ed7fb29da555c6514d84aa1c0506f22b59fcb1f03056f",
+    "kernel/src/userspace/feedback_loop.rs": "645d35c5e6b27f84c48cc356d7d8feba1b7569726bb08f33637b925164186a61"
+  }
+}

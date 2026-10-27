@@ -84,3 +84,8 @@ pub use explain_v1::{
     KernelExplanationEngineV1, KernelExplanationReport, KernelProvenanceRecord,
     KERNEL_MAX_PROVENANCE_RECORDS,
 };
+pub mod feedback_loop;
+pub use feedback_loop::{
+    KernelFeedbackArbiter, KernelHintCategory, KernelTelemetryHint,
+    KERNEL_CONSENT_UI_PRIORITY, KERNEL_MAX_AI_ADVISORY_PRIORITY, KERNEL_REALTIME_BASE_PRIORITY,
+};
