@@ -30,6 +30,10 @@ pub use platform::boot_chain_core::{
     KernelBootChainError, KernelBootChainHarness, KERNEL_BOOT_MAGIC,
     KERNEL_QUALCOMM_PAGE_SIZE,
 };
+pub use platform::hardware_core::{
+    KernelHardwareCoreError, KernelHardwareCoreHarness, KERNEL_HANOIP_DRAM_BASE,
+    KERNEL_HANOIP_DRAM_SIZE_BYTES, KERNEL_HANOIP_GENI_UART_BASE, KERNEL_HANOIP_PDC_GIC_BASE,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

@@ -9,6 +9,7 @@ pub mod hanoip;
 pub mod lab_prep_core;
 pub mod device_evidence_core;
 pub mod boot_chain_core;
+pub mod hardware_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -22,4 +23,8 @@ pub use device_evidence_core::{
 pub use boot_chain_core::{
     KernelBootChainError, KernelBootChainHarness, KERNEL_BOOT_MAGIC,
     KERNEL_QUALCOMM_PAGE_SIZE,
+};
+pub use hardware_core::{
+    KernelHardwareCoreError, KernelHardwareCoreHarness, KERNEL_HANOIP_DRAM_BASE,
+    KERNEL_HANOIP_DRAM_SIZE_BYTES, KERNEL_HANOIP_GENI_UART_BASE, KERNEL_HANOIP_PDC_GIC_BASE,
 };
