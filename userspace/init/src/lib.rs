@@ -61,6 +61,12 @@ pub use g9_5_audit::{
     G9_5_AUDIT_CRITERIA_COUNT,
 };
 
+pub mod g10_audit;
+pub use g10_audit::{
+    GateG10Auditor, GateG10CriterionId, GateG10CriterionStatus, GateG10Error, GATE_G10_CAP_TOKEN,
+    GATE_G10_CRITERIA_COUNT,
+};
+
 
 
 

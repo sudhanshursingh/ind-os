@@ -158,12 +158,12 @@
     isBooting = false;
     if (elProgressBar) elProgressBar.style.width = '100%';
     if (elProgressPercent) elProgressPercent.textContent = '100%';
-    if (elSystemStatus) elSystemStatus.textContent = 'Gate G9.5 Ratified • Interactive Shell Active';
+    if (elSystemStatus) elSystemStatus.textContent = 'Gate G10 Ratified • Defensible & Beta Ready';
 
     appendSerialLog("==================================================", 'milestone');
-    appendSerialLog(" 🏆 GATE G9.5 HARD-STOP AUDIT PASSED & RATIFIED 🏆", 'milestone');
-    appendSerialLog(" Milestone: PERFORMANCE & USABILITY PASS V0.1", 'milestone');
-    appendSerialLog(" FocalTech FT3518 Touch Digitizer & 120Hz Pipelined", 'info');
+    appendSerialLog(" 🏆 GATE G10 HARD-STOP AUDIT PASSED & RATIFIED 🏆", 'milestone');
+    appendSerialLog(" Milestone: HARDENING, VERIFICATION & BETA READINESS", 'milestone');
+    appendSerialLog(" Verified Proofs in CI • 0 Criticals • Red-Team Immune", 'info');
     appendSerialLog("==================================================", 'milestone');
 
     setTimeout(() => {

@@ -88,3 +88,41 @@ pub use interactive_shell::{
     ActiveCard, AppAction, InteractiveShellEngine, InteractiveShellError, CAP_INTERACTIVE_SHELL,
 };
 
+pub mod formal_delegation;
+pub use formal_delegation::{
+    FormalCapType, FormalCapability, FormalDelegationError, FormalDelegationValidator,
+};
+
+pub mod formal_revocation;
+pub use formal_revocation::{
+    FormalRevocationModel, RevocableCapNode, RevocationError, MAX_TREE_CAPACITIES,
+};
+
+pub mod formal_proof_ci;
+pub use formal_proof_ci::{
+    FormalProofReport, FormalProofSolver, FORMAL_PROOF_CHECKSUM, FORMAL_PROOF_LATTICE_STEPS,
+};
+
+pub mod external_audit;
+pub use external_audit::{
+    AuditFinding, AuditSeverity, ExternalAuditTracker, FindingStatus, TOTAL_AUDIT_FINDINGS,
+};
+
+pub mod redteam_campaign;
+pub use redteam_campaign::{
+    AttackTestResult, AttackVectorCategory, RedTeamHarness, TOTAL_ATTACK_VECTORS,
+};
+
+pub mod production_ops;
+pub use production_ops::{
+    ProductionOpsUpdateManager, SlotState, UpdateError, EXPECTED_SIGNING_KEY_ID,
+    VALID_PAYLOAD_CHECKSUM,
+};
+
+pub mod beta_telemetry;
+pub use beta_telemetry::{
+    BetaTelemetryEngine, LocalTelemetryEvent, TelemetryConsentStatus, TelemetryError,
+    MAX_LOCAL_EVENTS,
+};
+
+

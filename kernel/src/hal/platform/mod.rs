@@ -53,6 +53,14 @@ pub mod storage_opt_core;
 pub mod compositor_opt_core;
 pub mod interactive_shell_core;
 pub mod g9_5_audit_core;
+pub mod formal_delegation_core;
+pub mod formal_revocation_core;
+pub mod formal_proof_ci_core;
+pub mod external_audit_core;
+pub mod redteam_campaign_core;
+pub mod production_ops_core;
+pub mod beta_telemetry_core;
+pub mod g10_audit_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -271,6 +279,38 @@ pub use interactive_shell_core::{
 pub use g9_5_audit_core::{
     KernelGateG9_5Auditor, KernelGateG9_5Criterion, KernelGateG9_5Error,
     KERNEL_CAP_GATE_G9_5_RATIFY, KERNEL_G9_5_AUDIT_CRITERIA_COUNT,
+};
+pub use formal_delegation_core::{
+    KernelFormalCapError, KernelFormalCapNode, KernelFormalDelegationHarness,
+    KERNEL_CAP_FORMAL_VERIFY, KERNEL_MAX_FORMAL_NODES,
+};
+pub use formal_revocation_core::{
+    KernelFormalRevocationHarness, KernelRevocableNode, KernelRevocationError,
+    KERNEL_CAP_REVOKE_ADMIN, KERNEL_MAX_REVOCATION_NODES,
+};
+pub use formal_proof_ci_core::{
+    KernelFormalProofError, KernelFormalProofHarness, KernelFormalProofSummary,
+    KERNEL_CAP_FORMAL_SOLVER, KERNEL_FORMAL_PROOF_HASH,
+};
+pub use external_audit_core::{
+    KernelAuditError, KernelAuditFindingRecord, KernelExternalAuditHarness,
+    KERNEL_AUDIT_TOTAL_FINDINGS, KERNEL_CAP_AUDIT_ADMIN,
+};
+pub use redteam_campaign_core::{
+    KernelRedTeamCampaignHarness, KernelRedTeamError, KERNEL_CAP_REDTEAM_ADMIN,
+    KERNEL_TOTAL_ADVERSARIAL_TESTS,
+};
+pub use production_ops_core::{
+    KernelProdOpsError, KernelProductionOpsHarness, KERNEL_CAP_PRODOPS_ADMIN,
+    KERNEL_PRODUCTION_IMAGE_CRC, KERNEL_PRODUCTION_KEY_ID,
+};
+pub use beta_telemetry_core::{
+    KernelBetaTelemetryHarness, KernelTelemetryError, KERNEL_CAP_NETWORK_EGRESS,
+    KERNEL_CAP_TELEMETRY_ADMIN,
+};
+pub use g10_audit_core::{
+    KernelGateG10Auditor, KernelGateG10Criterion, KernelGateG10Error,
+    KERNEL_CAP_GATE_G10_RATIFY, KERNEL_G10_AUDIT_CRITERIA_COUNT,
 };
 
 

@@ -235,6 +235,38 @@ pub use platform::g9_5_audit_core::{
     KernelGateG9_5Auditor, KernelGateG9_5Criterion, KernelGateG9_5Error,
     KERNEL_CAP_GATE_G9_5_RATIFY, KERNEL_G9_5_AUDIT_CRITERIA_COUNT,
 };
+pub use platform::formal_delegation_core::{
+    KernelFormalCapError, KernelFormalCapNode, KernelFormalDelegationHarness,
+    KERNEL_CAP_FORMAL_VERIFY, KERNEL_MAX_FORMAL_NODES,
+};
+pub use platform::formal_revocation_core::{
+    KernelFormalRevocationHarness, KernelRevocableNode, KernelRevocationError,
+    KERNEL_CAP_REVOKE_ADMIN, KERNEL_MAX_REVOCATION_NODES,
+};
+pub use platform::formal_proof_ci_core::{
+    KernelFormalProofError, KernelFormalProofHarness, KernelFormalProofSummary,
+    KERNEL_CAP_FORMAL_SOLVER, KERNEL_FORMAL_PROOF_HASH,
+};
+pub use platform::external_audit_core::{
+    KernelAuditError, KernelAuditFindingRecord, KernelExternalAuditHarness,
+    KERNEL_AUDIT_TOTAL_FINDINGS, KERNEL_CAP_AUDIT_ADMIN,
+};
+pub use platform::redteam_campaign_core::{
+    KernelRedTeamCampaignHarness, KernelRedTeamError, KERNEL_CAP_REDTEAM_ADMIN,
+    KERNEL_TOTAL_ADVERSARIAL_TESTS,
+};
+pub use platform::production_ops_core::{
+    KernelProdOpsError, KernelProductionOpsHarness, KERNEL_CAP_PRODOPS_ADMIN,
+    KERNEL_PRODUCTION_IMAGE_CRC, KERNEL_PRODUCTION_KEY_ID,
+};
+pub use platform::beta_telemetry_core::{
+    KernelBetaTelemetryHarness, KernelTelemetryError, KERNEL_CAP_NETWORK_EGRESS,
+    KERNEL_CAP_TELEMETRY_ADMIN,
+};
+pub use platform::g10_audit_core::{
+    KernelGateG10Auditor, KernelGateG10Criterion, KernelGateG10Error,
+    KERNEL_CAP_GATE_G10_RATIFY, KERNEL_G10_AUDIT_CRITERIA_COUNT,
+};
 
 
 
