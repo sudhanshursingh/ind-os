@@ -94,3 +94,8 @@ pub use sentinel_v1::{
     KernelAnomalyAlert, KernelAnomalySentinelV1, KernelAnomalyType,
     KERNEL_DEFAULT_BASELINE_THRESHOLD_FACTOR, KERNEL_MAX_SENTINEL_ALERTS,
 };
+pub mod ais_quality;
+pub use ais_quality::{
+    KernelEvaluationSummary, KernelIntentQualityHarness, KernelIntentTestCase,
+    KERNEL_EVAL_CORPUS_SIZE, KERNEL_MIN_COMPLETION_RATE_PERCENT,
+};

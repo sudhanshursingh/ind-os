@@ -22,6 +22,7 @@ pub mod memory;
 pub mod explain;
 pub mod feedback;
 pub mod sentinel;
+pub mod quality;
 pub mod types;
 
 pub use loader::{SignedModelLoader, AUTHORIZED_SIGNING_AUTHORITY};
@@ -35,6 +36,7 @@ pub use memory::{MemoryItem, MemoryScope, MemoryStatus, PersonalMemoryStore, MAX
 pub use explain::{ExplanationEngineV1, ExplanationReport, ProvenanceRecord, MAX_PROVENANCE_RECORDS};
 pub use feedback::{FeedbackArbiter, HintCategory, TelemetryHint, CONSENT_UI_PRIORITY, MAX_AI_ADVISORY_PRIORITY, REALTIME_BASE_PRIORITY};
 pub use sentinel::{AnomalyAlert, AnomalySentinelV1, AnomalyType, DEFAULT_BASELINE_THRESHOLD_FACTOR, MAX_SENTINEL_ALERTS};
+pub use quality::{EvaluationSummary, IntentQualityHarness, IntentTestCase, EVAL_CORPUS_SIZE, MIN_COMPLETION_RATE_PERCENT};
 pub use types::{
     HardwareTier, InferenceConfig, InferenceError, ModelLoadError, ModelManifest,
     QuantizationType, SandboxStatus, CAP_AIS_ADMIN, CAP_AIS_INFER, CAP_AIS_LOAD,
