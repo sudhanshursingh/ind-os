@@ -36,6 +36,7 @@ pub mod ais_arm64_core;
 pub mod ais_thermal_core;
 pub mod intent_hw_core;
 pub mod ufs_mount_core;
+pub mod shell_hw_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -178,6 +179,11 @@ pub use ufs_mount_core::{
     KernelUfsMountError, KernelUfsMountHarness, KernelUfsMountState,
     KERNEL_CAP_STORAGE_MOUNT, KERNEL_INDFS_BLOCK_SIZE_BYTES,
     KERNEL_INDFS_SUPERBLOCK_MAGIC,
+};
+pub use shell_hw_core::{
+    KernelGestureEvent, KernelGestureType, KernelShellHwError, KernelShellHwHarness,
+    KernelShellTouchPoint, KERNEL_CAP_DISPLAY_RENDER, KERNEL_CAP_TOUCH_INPUT,
+    KERNEL_SHELL_PANEL_HEIGHT, KERNEL_SHELL_PANEL_WIDTH, KERNEL_SHELL_REFRESH_RATE_HZ,
 };
 
 

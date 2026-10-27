@@ -159,6 +159,11 @@ pub use platform::ufs_mount_core::{
     KERNEL_CAP_STORAGE_MOUNT, KERNEL_INDFS_BLOCK_SIZE_BYTES,
     KERNEL_INDFS_SUPERBLOCK_MAGIC,
 };
+pub use platform::shell_hw_core::{
+    KernelGestureEvent, KernelGestureType, KernelShellHwError, KernelShellHwHarness,
+    KernelShellTouchPoint, KERNEL_CAP_DISPLAY_RENDER, KERNEL_CAP_TOUCH_INPUT,
+    KERNEL_SHELL_PANEL_HEIGHT, KERNEL_SHELL_PANEL_WIDTH, KERNEL_SHELL_REFRESH_RATE_HZ,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
