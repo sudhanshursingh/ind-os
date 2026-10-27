@@ -40,6 +40,13 @@ pub use endurance_soak::{
     MASK_AUDIO, MASK_DISPLAY, MASK_NETWORK, MASK_SENSORS, MASK_UFS, MAX_PERMITTED_TEMP_MC,
     SOAK_TOTAL_CYCLES,
 };
+pub mod cold_boot;
+pub use cold_boot::{
+    ColdBootEngine, ColdBootError, ColdBootRecord, ColdBootSummary, CAP_COLD_BOOT_VERIFY,
+    EXPECTED_RESET_REASON_POR, KERNEL_IMAGE_CRC32, MAX_BOOT_JITTER_MS, MIN_COLD_BOOT_RUNS,
+    NOMINAL_COLD_BOOT_TIME_MS,
+};
+
 
 /// Central Init Subsystem Controller coordinating bring-up and process supervision.
 pub struct InitSubsystem {

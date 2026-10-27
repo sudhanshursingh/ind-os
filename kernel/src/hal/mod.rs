@@ -197,6 +197,12 @@ pub use platform::endurance_soak_core::{
     KERNEL_MASK_NETWORK, KERNEL_MASK_SENSORS, KERNEL_MASK_UFS, KERNEL_MAX_PERMITTED_TEMP_MC,
     KERNEL_SOAK_TOTAL_CYCLES,
 };
+pub use platform::cold_boot_core::{
+    KernelColdBootError, KernelColdBootHarness, KernelColdBootRecord, KernelColdBootSummary,
+    KERNEL_CAP_COLD_BOOT_VERIFY, KERNEL_IMAGE_CRC32, KERNEL_MAX_BOOT_JITTER_MS,
+    KERNEL_MIN_COLD_BOOT_RUNS, KERNEL_NOMINAL_COLD_BOOT_TIME_MS, KERNEL_RESET_REASON_POR,
+};
+
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
