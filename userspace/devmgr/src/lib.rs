@@ -21,6 +21,7 @@ pub mod display_panel;
 pub mod cpu_compositor;
 pub mod touch_controller;
 pub mod input_pipeline;
+pub mod pmic_spmi;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -66,6 +67,11 @@ pub use input_pipeline::{
     Gesture, InputPipelineError, InputPipelineHarness,
     CAP_INPUT_SHELL,
 };
+pub use pmic_spmi::{
+    PmicError, PmicSpmiHarness, CAP_POWER_MGMT,
+    HANOIP_SPMI_BASE, PMIC_PM7150L_SID, PMIC_PM7150_SID,
+};
+
 
 
 

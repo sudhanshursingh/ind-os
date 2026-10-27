@@ -16,6 +16,7 @@ pub mod display_panel_core;
 pub mod cpu_compositor_core;
 pub mod touch_controller_core;
 pub mod input_pipeline_core;
+pub mod pmic_spmi_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -59,6 +60,11 @@ pub use input_pipeline_core::{
     KernelGesture, KernelInputPipelineError, KernelInputPipelineHarness,
     KERNEL_CAP_INPUT_SHELL,
 };
+pub use pmic_spmi_core::{
+    KernelPmicError, KernelPmicSpmiHarness, KERNEL_CAP_POWER_MGMT,
+    KERNEL_HANOIP_SPMI_BASE, KERNEL_PMIC_PM7150L_SID, KERNEL_PMIC_PM7150_SID,
+};
+
 
 
 

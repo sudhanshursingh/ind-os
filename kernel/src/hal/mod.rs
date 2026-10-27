@@ -59,6 +59,10 @@ pub use platform::input_pipeline_core::{
     KernelGesture, KernelInputPipelineError, KernelInputPipelineHarness,
     KERNEL_CAP_INPUT_SHELL,
 };
+pub use platform::pmic_spmi_core::{
+    KernelPmicError, KernelPmicSpmiHarness, KERNEL_CAP_POWER_MGMT,
+    KERNEL_HANOIP_SPMI_BASE, KERNEL_PMIC_PM7150L_SID, KERNEL_PMIC_PM7150_SID,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

@@ -6206,11 +6206,56 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-79] - Anti-Tapjacking Focus Input Gating Enforced (INV-INP-003, REQ-SEC-104).");
     println!("==================================================");
 
+    // =========================================================================
+    // PHASE 9: SPRINT SP-80 - QUALCOMM PMIC & SPMI BUS BRING-UP (REQ-HW-108, REQ-PWR-101)
+    // =========================================================================
+
+    // Stage 350: PMIC SPMI Harness Init
+    stage_marker!("350_SP80_PMIC_SPMI_INIT", "Qualcomm PMIC SPMI bus controller harness initialized");
+    let mut pmic_harness = crate::hal::KernelPmicSpmiHarness::new();
+    log_info!("pmic", "PMIC SPMI harness online: Qualcomm PM7150 power management auditor active (REQ-HW-108 PASSED)");
+
+    // Stage 351: SPMI Controller Mapping (INV-PMIC-001)
+    stage_marker!("351_SP80_SPMI_CONTROLLER_MAPPING", "SPMI arbiter MMIO base address mapping verified");
+    let invalid_spmi_err = pmic_harness.map_mmio(0x0123_4000);
+    assert_eq!(invalid_spmi_err, Err(crate::hal::KernelPmicError::InvalidMmioBase));
+
+    pmic_harness.map_mmio(crate::hal::KERNEL_HANOIP_SPMI_BASE).expect("SPMI MMIO map failed");
+    log_info!("pmic", "SPMI arbiter verified: controller mapped at 0x0940_0000 (INV-PMIC-001 PASSED)");
+
+    // Stage 352: Dual-PMIC Slave Enumeration (INV-PMIC-002)
+    stage_marker!("352_SP80_DUAL_PMIC_SLAVE_ENUMERATION", "Dual-PMIC slave enumeration (PM7150 SID 0, PM7150L SID 2) verified");
+    pmic_harness.probe_pmic_slaves().expect("PMIC slave probe failed");
+    assert!(pmic_harness.is_pm7150_present());
+    assert!(pmic_harness.is_pm7150l_present());
+    assert_eq!(pmic_harness.active_regulators(), 18);
+    log_info!("pmic", "Dual-PMIC enumerated: PM7150 (SID 0) & PM7150L (SID 2) active with 18 regulators (INV-PMIC-002 PASSED)");
+
+    // Stage 353: Power Rail Telemetry Gating (INV-PMIC-003)
+    stage_marker!("353_SP80_POWER_RAIL_TELEMETRY_GATING", "Capability-gated regulator telemetry access enforced");
+    let unpriv_pwr_err = pmic_harness.read_regulator_voltage_mv(0, crate::hal::KERNEL_PMIC_PM7150_SID);
+    assert_eq!(unpriv_pwr_err, Err(crate::hal::KernelPmicError::PermissionDenied));
+
+    let vdd_io = pmic_harness.read_regulator_voltage_mv(crate::hal::KERNEL_CAP_POWER_MGMT, crate::hal::KERNEL_PMIC_PM7150_SID)
+        .expect("VDD_IO read failed");
+    assert_eq!(vdd_io, 1800); // 1.8V VDD_IO
+    log_info!("pmic", "Telemetry verified: VDD_IO (1.8V) telemetry capability-gated via CAP_POWER_MGMT (INV-PMIC-003 PASSED)");
+
+    // Stage 354: Sprint SP-80 Milestone Reached
+    stage_marker!("354_SP80_PMIC_SPMI_READY", "Sprint SP-80 Qualcomm PMIC & SPMI Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-80] Sprint SP-80 Qualcomm PMIC & SPMI Milestone REACHED.");
+    println!(" [SP-80] - SPMI Arbiter Mapped at 0x0940_0000 (INV-PMIC-001, REQ-HW-108),");
+    println!(" [SP-80] - Dual-PMIC PM7150 (SID 0) & PM7150L (SID 2) Enumerated (INV-PMIC-002),");
+    println!(" [SP-80] - Power Rail Telemetry Gated via CAP_POWER_MGMT (INV-PMIC-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
     }
 }
+
 
 
 
