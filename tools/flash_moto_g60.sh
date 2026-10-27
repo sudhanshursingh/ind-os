@@ -69,10 +69,23 @@ case "$ACTION" in
     "boot"|"test-boot")
         echo "=================================================="
         echo " [SAFE TEST] Booting Ind OS in RAM via fastboot   "
+        echo " Image: $BOOT_IMG ($(ls -lh "$BOOT_IMG" | awk '{print $5}'))"
+        echo " Components: Pure Rust IndK + SM7150 DTB + Ramdisk"
         echo " Rule N-06 Compliance: Zero flash partitions modified!"
         echo " If the system halts, hold Power to reboot stock."
         echo "=================================================="
         "$FASTBOOT_BIN" boot "$BOOT_IMG"
+        ;;
+
+    "boot-v3")
+        BOOT_IMG_V3="target/indos-hanoip-boot-v3.img"
+        echo "=================================================="
+        echo " [SAFE TEST] Booting Ind OS (Header v3) in RAM    "
+        echo " Image: $BOOT_IMG_V3 ($(ls -lh "$BOOT_IMG_V3" | awk '{print $5}'))"
+        echo " Components: Pure Rust IndK + GKI Ramdisk"
+        echo " Rule N-06 Compliance: Zero flash partitions modified!"
+        echo "=================================================="
+        "$FASTBOOT_BIN" boot "$BOOT_IMG_V3"
         ;;
 
     "flash-inactive")
@@ -80,12 +93,17 @@ case "$ACTION" in
         if [ "$CURRENT_SLOT" = "a" ]; then
             INACTIVE_SLOT="b"
         fi
+        IMG_TO_FLASH="$BOOT_IMG"
+        if [ "${2:-}" = "v3" ]; then
+            IMG_TO_FLASH="target/indos-hanoip-boot-v3.img"
+        fi
         echo "=================================================="
         echo " Flashing Inactive Slot boot_$INACTIVE_SLOT      "
+        echo " Image: $IMG_TO_FLASH ($(ls -lh "$IMG_TO_FLASH" | awk '{print $5}'))"
         echo " Active Slot ($CURRENT_SLOT) remains untouched stock ROM."
         echo "=================================================="
-        "$FASTBOOT_BIN" flash "boot_$INACTIVE_SLOT" "$BOOT_IMG"
-        echo "✓ Flashed to boot_$INACTIVE_SLOT successfully."
+        "$FASTBOOT_BIN" flash "boot_$INACTIVE_SLOT" "$IMG_TO_FLASH"
+        echo "✓ Flashed $IMG_TO_FLASH to boot_$INACTIVE_SLOT successfully."
         echo "To test booting into slot $INACTIVE_SLOT:"
         echo "  $FASTBOOT_BIN --set-active=$INACTIVE_SLOT"
         echo "  $FASTBOOT_BIN reboot"
@@ -145,14 +163,16 @@ case "$ACTION" in
         echo "Usage: ./tools/flash_moto_g60.sh [action]"
         echo ""
         echo "Actions:"
-        echo "  build          - Rebuild kernel and package boot.img for Moto G60"
-        echo "  boot           - [SAFE TEST] Boot kernel directly in RAM (Rule N-06)"
-        echo "  flash-inactive - Flash to inactive slot (boot_a)"
-        echo "  boot-slot-a    - Set active slot to A and reboot to test Ind OS"
-        echo "  set-slot-a     - Set active slot to A"
-        echo "  revert-stock   - Set active slot back to B (Stock ROM)"
-        echo "  reboot         - Reboot device"
-        echo "  status         - Query all fastboot device variables"
+        echo "  build              - Rebuild kernel and package boot.img for Moto G60"
+        echo "  boot               - [RECOMMENDED] Boot Complete Image (v2 with DTB & Ramdisk) directly in RAM"
+        echo "  boot-v3            - Boot GKI Image (v3 with Ramdisk) directly in RAM"
+        echo "  flash-inactive     - Flash complete v2 image to inactive slot (boot_a)"
+        echo "  flash-inactive v3  - Flash v3 image to inactive slot (boot_a)"
+        echo "  boot-slot-a        - Set active slot to A and reboot to test Ind OS"
+        echo "  set-slot-a         - Set active slot to A"
+        echo "  revert-stock       - Set active slot back to B (Stock ROM)"
+        echo "  reboot             - Reboot device"
+        echo "  status             - Query all fastboot device variables"
         echo ""
         ;;
 esac
