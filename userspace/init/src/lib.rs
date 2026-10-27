@@ -29,6 +29,11 @@ pub use hw_matrix::{
     HwMatrixAuditor, HwMatrixEntry, HwMatrixError, HwStatus, CAP_AUDIT_HARDWARE,
     OUT_OF_SCOPE_COUNT, PARTIAL_COUNT, TOTAL_MATRIX_ENTRIES, WORKS_COUNT,
 };
+pub mod recovery_audit;
+pub use recovery_audit::{
+    RecoveryAuditEngine, RecoveryError, RecoveryMode, RecoveryStatus, CAP_RECOVERY_ADMIN,
+    QUALCOMM_EDL_PID, QUALCOMM_EDL_VID, SAHARA_HELLO_CMD, STOCK_IMAGE_CRC32,
+};
 
 /// Central Init Subsystem Controller coordinating bring-up and process supervision.
 pub struct InitSubsystem {

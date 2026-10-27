@@ -41,6 +41,7 @@ pub mod settings_power_core;
 pub mod ab_update_core;
 pub mod g5_userspace_core;
 pub mod hw_matrix_core;
+pub mod recovery_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -210,6 +211,11 @@ pub use hw_matrix_core::{
     KernelHwMatrixEntry, KernelHwMatrixError, KernelHwMatrixHarness, KernelHwStatus,
     KERNEL_CAP_AUDIT_HARDWARE, KERNEL_OUT_OF_SCOPE_COUNT, KERNEL_PARTIAL_COUNT,
     KERNEL_TOTAL_MATRIX_ENTRIES, KERNEL_WORKS_COUNT,
+};
+pub use recovery_core::{
+    KernelRecoveryError, KernelRecoveryHarness, KernelRecoveryMode, KernelRecoveryStatus,
+    KERNEL_CAP_RECOVERY_ADMIN, KERNEL_QUALCOMM_EDL_PID, KERNEL_QUALCOMM_EDL_VID,
+    KERNEL_SAHARA_HELLO_CMD, KERNEL_STOCK_IMAGE_CRC32,
 };
 
 

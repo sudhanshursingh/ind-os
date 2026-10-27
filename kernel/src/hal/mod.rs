@@ -186,6 +186,11 @@ pub use platform::hw_matrix_core::{
     KERNEL_CAP_AUDIT_HARDWARE, KERNEL_OUT_OF_SCOPE_COUNT, KERNEL_PARTIAL_COUNT,
     KERNEL_TOTAL_MATRIX_ENTRIES, KERNEL_WORKS_COUNT,
 };
+pub use platform::recovery_core::{
+    KernelRecoveryError, KernelRecoveryHarness, KernelRecoveryMode, KernelRecoveryStatus,
+    KERNEL_CAP_RECOVERY_ADMIN, KERNEL_QUALCOMM_EDL_PID, KERNEL_QUALCOMM_EDL_VID,
+    KERNEL_SAHARA_HELLO_CMD, KERNEL_STOCK_IMAGE_CRC32,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
