@@ -64,3 +64,27 @@ pub use settings_power::{
     SettingsPowerError, BATTERY_EMPTY_MV, BATTERY_FULL_MV, CAP_POWER_MGMT, DISPLAY_RATE_ECO_HZ,
     DISPLAY_RATE_PERF_HZ, THERMAL_CRITICAL_MC, THERMAL_MILD_MC, THERMAL_SEVERE_MC,
 };
+
+pub mod perf_profile;
+pub use perf_profile::{
+    PerfHotspot, PerfMetricSample, PerfProfileError, PerfProfileHarness, CAP_PERF_PROFILE,
+    MAX_PERF_HOTSPOTS,
+};
+pub mod touch_opt;
+pub use touch_opt::{
+    FastTouchPoint, TouchOptEngine, TouchOptError, CAP_TOUCH_OPT, TOUCH_OPT_MAX_BATCH,
+};
+pub mod storage_opt;
+pub use storage_opt::{
+    CachedBlock, StorageOptError, StorageOptHarness, CAP_STORAGE_OPT, STORAGE_PAGE_CACHE_SIZE,
+};
+pub mod compositor_opt;
+pub use compositor_opt::{
+    CompositorOptEngine, CompositorOptError, FrameTimingSample, CAP_COMPOSITOR_OPT,
+    TARGET_FRAME_TIME_US,
+};
+pub mod interactive_shell;
+pub use interactive_shell::{
+    ActiveCard, AppAction, InteractiveShellEngine, InteractiveShellError, CAP_INTERACTIVE_SHELL,
+};
+

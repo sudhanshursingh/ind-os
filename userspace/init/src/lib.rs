@@ -55,6 +55,11 @@ pub mod g9_audit;
 pub use g9_audit::{
     GateG9Auditor, GateG9Criterion, GateG9Error, CAP_GATE_G9_RATIFY, G9_AUDIT_CRITERIA_COUNT,
 };
+pub mod g9_5_audit;
+pub use g9_5_audit::{
+    GateG9_5Auditor, GateG9_5Criterion, GateG9_5Error, CAP_GATE_G9_5_RATIFY,
+    G9_5_AUDIT_CRITERIA_COUNT,
+};
 
 
 

@@ -211,6 +211,30 @@ pub use platform::g9_audit_core::{
     KernelGateG9Auditor, KernelGateG9Criterion, KernelGateG9Error, KERNEL_CAP_GATE_G9_RATIFY,
     KERNEL_G9_AUDIT_CRITERIA_COUNT,
 };
+pub use platform::perf_profile_core::{
+    KernelPerfHotspot, KernelPerfMetricSample, KernelPerfProfileError, KernelPerfProfileHarness,
+    KERNEL_CAP_PERF_PROFILE, KERNEL_MAX_PERF_HOTSPOTS,
+};
+pub use platform::touch_opt_core::{
+    KernelFastTouchPoint, KernelTouchOptEngine, KernelTouchOptError, KERNEL_CAP_TOUCH_OPT,
+    KERNEL_TOUCH_OPT_MAX_BATCH,
+};
+pub use platform::storage_opt_core::{
+    KernelCachedBlock, KernelStorageOptError, KernelStorageOptHarness, KERNEL_CAP_STORAGE_OPT,
+    KERNEL_STORAGE_PAGE_CACHE_SIZE,
+};
+pub use platform::compositor_opt_core::{
+    KernelCompositorOptEngine, KernelCompositorOptError, KernelFrameTimingSample,
+    KERNEL_CAP_COMPOSITOR_OPT, KERNEL_TARGET_FRAME_TIME_US,
+};
+pub use platform::interactive_shell_core::{
+    KernelActiveCard, KernelAppAction, KernelInteractiveShellEngine, KernelInteractiveShellError,
+    KERNEL_CAP_INTERACTIVE_SHELL,
+};
+pub use platform::g9_5_audit_core::{
+    KernelGateG9_5Auditor, KernelGateG9_5Criterion, KernelGateG9_5Error,
+    KERNEL_CAP_GATE_G9_5_RATIFY, KERNEL_G9_5_AUDIT_CRITERIA_COUNT,
+};
 
 
 
