@@ -7,9 +7,14 @@
 pub mod qemu_virt;
 pub mod hanoip;
 pub mod lab_prep_core;
+pub mod device_evidence_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
     KERNEL_SAFE_VOLTAGE_MAX_MV, KERNEL_SAFE_VOLTAGE_MIN_MV,
     KERNEL_THERMAL_CUTOFF_MILLICELSIUS,
+};
+pub use device_evidence_core::{
+    KernelDeviceEvidenceError, KernelDeviceEvidenceHarness, KernelPartitionDescriptor,
+    KERNEL_MAX_PARTITION_RECORDS, KERNEL_MOTO_G60_DEVICE_CODENAME, KERNEL_MOTO_G60_SOC_ID,
 };
