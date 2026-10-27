@@ -267,6 +267,10 @@ pub use platform::g10_audit_core::{
     KernelGateG10Auditor, KernelGateG10Criterion, KernelGateG10Error,
     KERNEL_CAP_GATE_G10_RATIFY, KERNEL_G10_AUDIT_CRITERIA_COUNT,
 };
+pub use platform::boot_animation_core::{
+    KernelBootAnimationEngine, COLOR_BG_IGNITION, COLOR_CYAN_PULSE, COLOR_GOLD_MANDALA,
+    COLOR_ORANGE_BRAND, COLOR_WHITE_TEXT, KERNEL_CAP_BOOT_ANIM,
+};
 
 
 

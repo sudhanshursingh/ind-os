@@ -61,6 +61,7 @@ pub mod redteam_campaign_core;
 pub mod production_ops_core;
 pub mod beta_telemetry_core;
 pub mod g10_audit_core;
+pub mod boot_animation_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -311,6 +312,10 @@ pub use beta_telemetry_core::{
 pub use g10_audit_core::{
     KernelGateG10Auditor, KernelGateG10Criterion, KernelGateG10Error,
     KERNEL_CAP_GATE_G10_RATIFY, KERNEL_G10_AUDIT_CRITERIA_COUNT,
+};
+pub use boot_animation_core::{
+    KernelBootAnimationEngine, COLOR_BG_IGNITION, COLOR_CYAN_PULSE, COLOR_GOLD_MANDALA,
+    COLOR_ORANGE_BRAND, COLOR_WHITE_TEXT, KERNEL_CAP_BOOT_ANIM,
 };
 
 

@@ -125,4 +125,11 @@ pub use beta_telemetry::{
     MAX_LOCAL_EVENTS,
 };
 
+pub mod boot_animation;
+pub use boot_animation::{
+    BootAnimStage, BootAnimationEngine, MascotTransform, COLOR_ANIM_BG, COLOR_CYAN_CIRCUIT,
+    COLOR_GOLD_MANDALA, COLOR_ORANGE_BRAND as ANIM_ORANGE_BRAND, COLOR_WHITE_TEXT as ANIM_WHITE_TEXT,
+    TOTAL_ANIM_DURATION_MS,
+};
+
 

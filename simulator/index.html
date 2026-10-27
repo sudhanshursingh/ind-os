@@ -100,6 +100,12 @@
               </div>
             </div>
 
+            <!-- LAYER 1.5: Cold Boot Animation Canvas (4-Stage Sequence: Silicon Ignition -> Gaja Mascot -> Sovereignty Pulse -> Shell) -->
+            <div class="screen-layer hidden" id="layer-boot-animation">
+              <canvas id="boot-anim-canvas" width="346" height="736"></canvas>
+              <div class="anim-hud-badge" id="anim-stage-badge">STAGE 1: SILICON IGNITION</div>
+            </div>
+
             <!-- LAYER 2: Gate G9 Milestone Celebration Screen -->
             <div class="screen-layer hidden" id="layer-g9-celebration">
               <div class="celebration-container">
@@ -244,6 +250,9 @@
           </button>
           <button id="btn-pause-boot" class="ctrl-btn" title="Pause / Step Boot Stages">
             <span id="pause-icon">⏸</span> Pause
+          </button>
+          <button id="btn-play-boot-anim" class="ctrl-btn anim-play-btn" title="Play 120Hz Cold Boot Animation (2.8s)">
+            <span>🎬</span> Boot Animation
           </button>
           <button id="btn-open-terminal-app" class="ctrl-btn" title="Open Shell Terminal">
             <span>💻</span> Terminal

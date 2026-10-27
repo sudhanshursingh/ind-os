@@ -173,6 +173,20 @@ pub unsafe fn paint_indos_hardware_splash() {
     }
 }
 
+/// Plays the 2.8-second 4-stage Cold Boot Animation
+pub unsafe fn play_cold_boot_animation() {
+    let mut anim_engine = super::boot_animation_core::KernelBootAnimationEngine::new();
+    // 28 keyframe steps across the 2.8-second sequence (100ms per step)
+    for frame_step in 0..=28 {
+        let ms = frame_step * 100;
+        anim_engine.set_time(ms);
+        for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
+            let mut painter = HardwareScreenPainter::new(fb_addr);
+            anim_engine.render_frame(&mut painter);
+        }
+    }
+}
+
 /// Renders the top status bar chrome with live heartbeat
 pub unsafe fn paint_view_chrome(painter: &mut HardwareScreenPainter, _uptime_sec: u32, blink: bool) {
     painter.fill_rect(0, 0, HANOIP_PANEL_WIDTH, 90, 0xFF0F172A);

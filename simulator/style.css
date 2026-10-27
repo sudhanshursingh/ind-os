@@ -322,6 +322,55 @@ body.dark-theme {
   transform: scale(0.98);
 }
 
+/* Layer 1.5: Cold Boot Animation Canvas */
+#layer-boot-animation {
+  background: #0A0D12;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 55;
+}
+
+#boot-anim-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.anim-hud-badge {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: #00F0FF;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+.anim-play-btn {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(255, 179, 0, 0.15)) !important;
+  border-color: rgba(0, 240, 255, 0.4) !important;
+  color: #00F0FF !important;
+}
+.anim-play-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(255, 179, 0, 0.3)) !important;
+  border-color: #00F0FF !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+}
+
 /* Layer 1: Bootloader Screen */
 #layer-bootloader {
   background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);

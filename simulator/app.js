@@ -28,8 +28,11 @@
   const elChkAutoscroll = document.getElementById('chk-autoscroll');
 
   const layerBootloader = document.getElementById('layer-bootloader');
+  const layerBootAnim = document.getElementById('layer-boot-animation');
   const layerG9 = document.getElementById('layer-g9-celebration');
   const layerShell = document.getElementById('layer-shell');
+  const animCanvas = document.getElementById('boot-anim-canvas');
+  const animHudBadge = document.getElementById('anim-stage-badge');
 
   const elStatusClock = document.getElementById('status-clock');
   const elAmbientDate = document.getElementById('ambient-date');
@@ -230,8 +233,322 @@
 
   document.getElementById('btn-enter-shell')?.addEventListener('click', () => {
     layerG9.classList.add('hidden');
-    layerShell.classList.remove('hidden');
+    playBootAnimation(() => {
+      layerShell.classList.remove('hidden');
+    });
   });
+
+  document.getElementById('btn-play-boot-anim')?.addEventListener('click', () => {
+    appendSerialLog("[ANIMATION] Playing 120Hz Cold Boot Animation Sequence (2.8s)", 'milestone');
+    playBootAnimation(() => {
+      appendSerialLog("[ANIMATION] Cold Boot Animation finished: entered Ind Surface Shell", 'info');
+    });
+  });
+
+  // --- Cold Boot Animation Canvas Engine (120Hz/60Hz Double-Buffered) ---
+  let animFrameId = null;
+
+  function playBootAnimation(onComplete) {
+    if (!animCanvas) {
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
+    clearTimeout(bootTimer);
+    isPaused = true;
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+
+    // Switch to Animation Layer
+    layerBootloader?.classList.add('hidden');
+    layerG9?.classList.add('hidden');
+    layerShell?.classList.add('hidden');
+    layerBootAnim?.classList.remove('hidden');
+
+    const ctx = animCanvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const w = 346;
+    const h = 736;
+    animCanvas.width = w * dpr;
+    animCanvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    const startTime = performance.now();
+    const DURATION = 2800; // 2.8s total
+
+    function renderFrame(now) {
+      const elapsed = Math.min(now - startTime, DURATION);
+      const progress = elapsed / DURATION;
+
+      // Clear dark background (#0A0D12)
+      ctx.fillStyle = '#0A0D12';
+      ctx.fillRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2 - 20;
+
+      if (elapsed < 800) {
+        // ==========================================
+        // STAGE 1: SILICON IGNITION (0.0s -> 0.8s)
+        // ==========================================
+        const p1 = elapsed / 800;
+        if (animHudBadge) animHudBadge.textContent = `STAGE 1: SILICON IGNITION • ${(elapsed / 1000).toFixed(1)}s`;
+
+        // Central Microchip Square
+        const chipSize = 70;
+        ctx.strokeStyle = '#00F0FF';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#00F0FF';
+        ctx.shadowBlur = 12 * p1;
+        ctx.strokeRect(cx - chipSize / 2, cy - chipSize / 2, chipSize, chipSize);
+
+        // Core Silicon Die
+        ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
+        ctx.fillRect(cx - 20, cy - 20, 40, 40);
+        ctx.fillStyle = '#00F0FF';
+        ctx.fillRect(cx - 10, cy - 10, 20, 20);
+
+        // Radiating PCB Circuit Traces
+        const maxTrace = (w / 2) * p1;
+        ctx.beginPath();
+        ctx.moveTo(cx + chipSize / 2, cy - 12);
+        ctx.lineTo(cx + chipSize / 2 + maxTrace, cy - 12);
+        ctx.moveTo(cx - chipSize / 2, cy + 12);
+        ctx.lineTo(cx - chipSize / 2 - maxTrace, cy + 12);
+        ctx.moveTo(cx - 15, cy - chipSize / 2);
+        ctx.lineTo(cx - 15, cy - chipSize / 2 - maxTrace * 0.8);
+        ctx.moveTo(cx + 15, cy + chipSize / 2);
+        ctx.lineTo(cx + 15, cy + chipSize / 2 + maxTrace * 0.8);
+        ctx.stroke();
+
+        // Traveling Light Data Pulses
+        const pulseOffset = maxTrace * 0.7;
+        if (pulseOffset > 10) {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(cx + chipSize / 2 + pulseOffset, cy - 12, 3, 0, Math.PI * 2);
+          ctx.arc(cx - chipSize / 2 - pulseOffset, cy + 12, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Subtitle
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = '600 11px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('AARCH64-INDK SILICON IGNITION', cx, cy + 85);
+
+      } else if (elapsed < 1800) {
+        // ==========================================
+        // STAGE 2: MASCOT ASSEMBLY (0.8s -> 1.8s)
+        // ==========================================
+        const p2 = (elapsed - 800) / 1000;
+        if (animHudBadge) animHudBadge.textContent = `STAGE 2: MASCOT ASSEMBLY • ${(elapsed / 1000).toFixed(1)}s`;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Glowing Line-Art of Gaja the Elephant
+        ctx.strokeStyle = '#00F0FF';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = '#00F0FF';
+        ctx.shadowBlur = 16 * p2;
+
+        // Brow & Crown Arches
+        ctx.beginPath();
+        ctx.arc(0, -35, 42, Math.PI * 0.9, Math.PI * 2.1);
+        ctx.stroke();
+
+        // Sweeping Curved Trunk
+        ctx.beginPath();
+        ctx.moveTo(-10, -5);
+        ctx.bezierCurveTo(-15, 30, -30 * p2, 50 * p2, -22 * p2, 60 * p2);
+        ctx.stroke();
+
+        // Mandala Ear Geometry (Gold #FFB300)
+        ctx.strokeStyle = '#FFB300';
+        ctx.shadowColor = '#FFB300';
+        ctx.shadowBlur = 14 * p2;
+
+        // Left Mandala Ear
+        ctx.beginPath();
+        ctx.ellipse(-52, -18, 30 * p2, 45 * p2, -0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(-52, -18, 16 * p2, 25 * p2, -0.2, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Right Mandala Ear
+        ctx.beginPath();
+        ctx.ellipse(52, -18, 30 * p2, 45 * p2, 0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(52, -18, 16 * p2, 25 * p2, 0.2, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Forward Tusks
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#FFFFFF';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(-18, 10);
+        ctx.lineTo(-24, 28);
+        ctx.moveTo(18, 10);
+        ctx.lineTo(24, 28);
+        ctx.stroke();
+
+        // Forehead Node (Ajna Chakra / Intelligence Node)
+        ctx.fillStyle = '#FFB300';
+        ctx.beginPath();
+        ctx.arc(0, -18, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(0, -18, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        // Subtitle
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#FFB300';
+        ctx.font = '600 11px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAJA MASCOT VECTOR ASSEMBLY', cx, cy + 95);
+
+      } else if (elapsed < 2500) {
+        // ==========================================
+        // STAGE 3: THE SOVEREIGNTY PULSE (1.8s -> 2.5s)
+        // ==========================================
+        const p3 = (elapsed - 1800) / 700;
+        if (animHudBadge) animHudBadge.textContent = `STAGE 3: SOVEREIGNTY PULSE • ${(elapsed / 1000).toFixed(1)}s`;
+
+        // Draw Full Gaja Mascot
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        ctx.strokeStyle = '#00F0FF';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = '#00F0FF';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(0, -35, 42, Math.PI * 0.9, Math.PI * 2.1);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-10, -5);
+        ctx.bezierCurveTo(-15, 30, -30, 50, -22, 60);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#FFB300';
+        ctx.shadowColor = '#FFB300';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.ellipse(-52, -18, 30, 45, -0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(-52, -18, 16, 25, -0.2, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.ellipse(52, -18, 30, 45, 0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(52, -18, 16, 25, 0.2, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-18, 10);
+        ctx.lineTo(-24, 28);
+        ctx.moveTo(18, 10);
+        ctx.lineTo(24, 28);
+        ctx.stroke();
+
+        ctx.fillStyle = '#FFB300';
+        ctx.beginPath();
+        ctx.arc(0, -18, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(0, -18, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        // Expanding Energy Ring Shockwave
+        const pulseR = p3 * 180;
+        ctx.strokeStyle = `rgba(0, 240, 255, ${1 - p3})`;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#00F0FF';
+        ctx.shadowBlur = 24 * (1 - p3);
+        ctx.beginPath();
+        ctx.arc(cx, cy - 18, pulseR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Brand Typography
+        ctx.shadowBlur = 12 * p3;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 24px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Ind OS', cx, cy + 105);
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = '600 9px Inter, monospace';
+        ctx.letterSpacing = '2px';
+        ctx.fillText('FAST • SECURE • PRIVATE • INTELLIGENT', cx, cy + 128);
+
+      } else {
+        // ==========================================
+        // STAGE 4: TRANSITION TO SHELL (2.5s -> 2.8s)
+        // ==========================================
+        const p4 = (elapsed - 2500) / 300;
+        if (animHudBadge) animHudBadge.textContent = `STAGE 4: SHELL TRANSITION • ${(elapsed / 1000).toFixed(1)}s`;
+
+        // Mascot smoothly interpolates from center (cx, cy) to top-left status bar (28, 22)
+        const targetX = 26;
+        const targetY = 22;
+        const curX = cx + (targetX - cx) * p4;
+        const curY = cy + (targetY - cy) * p4;
+        const scale = 1 - 0.75 * p4;
+
+        ctx.save();
+        ctx.translate(curX, curY);
+        ctx.scale(scale, scale);
+
+        // Draw simplified morphing icon
+        ctx.strokeStyle = '#FF6D00';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(-12, -12, 24, 24);
+        ctx.strokeStyle = '#00F0FF';
+        ctx.strokeRect(-6, -6, 12, 12);
+        ctx.restore();
+
+        // Reveal shell by fading in
+        if (layerShell) {
+          layerShell.classList.remove('hidden');
+          layerShell.style.opacity = p4;
+        }
+      }
+
+      if (elapsed < DURATION) {
+        animFrameId = requestAnimationFrame(renderFrame);
+      } else {
+        // Animation Complete -> Lock into Shell
+        if (animHudBadge) animHudBadge.textContent = 'COLD BOOT ANIMATION COMPLETE (2.8s)';
+        setTimeout(() => {
+          layerBootAnim?.classList.add('hidden');
+          layerShell?.classList.remove('hidden');
+          if (layerShell) layerShell.style.opacity = '1';
+          if (typeof onComplete === 'function') onComplete();
+        }, 150);
+      }
+    }
+
+    animFrameId = requestAnimationFrame(renderFrame);
+  }
 
   // --- Indic Language Selector ---
   document.querySelectorAll('.lang-btn').forEach(btn => {

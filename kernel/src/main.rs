@@ -47,7 +47,8 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     if PLATFORM == "hanoip" {
         console::set_console_base(0); // Safely disable QEMU PL011 MMIO access
         unsafe {
-            hal::platform::hanoip_display::paint_indos_hardware_splash();
+            hal::platform::hanoip_display::play_cold_boot_animation();
+            hal::platform::hanoip_display::render_interactive_view(hal::KernelActiveCard::Telemetry, 0, false);
         }
 
         let mut shell_engine = hal::KernelInteractiveShellEngine::new();
