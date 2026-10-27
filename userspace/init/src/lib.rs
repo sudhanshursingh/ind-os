@@ -14,6 +14,7 @@ pub mod logger;
 pub mod manifest;
 pub mod supervisor;
 pub mod g5_hw;
+pub mod hw_matrix;
 
 pub use graph::{DependencyGraph, InitError, MAX_SERVICES};
 pub use logger::{BootStageRecord, StructuredBootLogger, MAX_BOOT_LOGS};
@@ -23,6 +24,10 @@ pub use g5_hw::{
     G5HwCoordinator, G5HwError, G5ProcessInfo, ProcessStatus, CAP_DISPLAY_RENDER, CAP_IPC_SYNC,
     CAP_LOG_RECORD, CAP_STORAGE_MOUNT, CAP_SYS_ADMIN, CAP_TOUCH_INPUT, G5_TOTAL_SERVICES,
     IPC_RING_TEST_CYCLES,
+};
+pub use hw_matrix::{
+    HwMatrixAuditor, HwMatrixEntry, HwMatrixError, HwStatus, CAP_AUDIT_HARDWARE,
+    OUT_OF_SCOPE_COUNT, PARTIAL_COUNT, TOTAL_MATRIX_ENTRIES, WORKS_COUNT,
 };
 
 /// Central Init Subsystem Controller coordinating bring-up and process supervision.

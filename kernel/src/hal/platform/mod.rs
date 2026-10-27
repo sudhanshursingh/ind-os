@@ -40,6 +40,7 @@ pub mod shell_hw_core;
 pub mod settings_power_core;
 pub mod ab_update_core;
 pub mod g5_userspace_core;
+pub mod hw_matrix_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -204,6 +205,11 @@ pub use g5_userspace_core::{
     KERNEL_CAP_G5_DISPLAY_RENDER, KERNEL_CAP_G5_IPC_SYNC, KERNEL_CAP_G5_LOG_RECORD,
     KERNEL_CAP_G5_STORAGE_MOUNT, KERNEL_CAP_G5_SYS_ADMIN, KERNEL_CAP_G5_TOUCH_INPUT,
     KERNEL_G5_TOTAL_SERVICES, KERNEL_IPC_RING_TEST_CYCLES,
+};
+pub use hw_matrix_core::{
+    KernelHwMatrixEntry, KernelHwMatrixError, KernelHwMatrixHarness, KernelHwStatus,
+    KERNEL_CAP_AUDIT_HARDWARE, KERNEL_OUT_OF_SCOPE_COUNT, KERNEL_PARTIAL_COUNT,
+    KERNEL_TOTAL_MATRIX_ENTRIES, KERNEL_WORKS_COUNT,
 };
 
 

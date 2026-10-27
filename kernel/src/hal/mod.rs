@@ -181,6 +181,11 @@ pub use platform::g5_userspace_core::{
     KERNEL_CAP_G5_STORAGE_MOUNT, KERNEL_CAP_G5_SYS_ADMIN, KERNEL_CAP_G5_TOUCH_INPUT,
     KERNEL_G5_TOTAL_SERVICES, KERNEL_IPC_RING_TEST_CYCLES,
 };
+pub use platform::hw_matrix_core::{
+    KernelHwMatrixEntry, KernelHwMatrixError, KernelHwMatrixHarness, KernelHwStatus,
+    KERNEL_CAP_AUDIT_HARDWARE, KERNEL_OUT_OF_SCOPE_COUNT, KERNEL_PARTIAL_COUNT,
+    KERNEL_TOTAL_MATRIX_ENTRIES, KERNEL_WORKS_COUNT,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
