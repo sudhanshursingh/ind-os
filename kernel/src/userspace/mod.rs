@@ -111,3 +111,8 @@ pub use net_core::{
     KERNEL_CAP_NET_RAW, KERNEL_CAP_NET_RECV, KERNEL_CAP_NET_SEND, KERNEL_CAP_NET_SOCKET,
     KERNEL_DEFAULT_MTU, KERNEL_MAX_SOCKETS, KERNEL_SOCKET_BUF_SIZE,
 };
+pub mod tls_core;
+pub use tls_core::{
+    KernelCipherSuite, KernelTlsHarness, KERNEL_TLS_VERSION_1_3,
+};
+

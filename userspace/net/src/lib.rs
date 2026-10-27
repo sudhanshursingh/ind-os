@@ -13,6 +13,7 @@ pub mod ipv4;
 pub mod udp;
 pub mod tcp;
 pub mod socket;
+pub mod tls;
 
 pub use types::{
     EtherType, Ipv4Address, IpProtocol, MacAddress, NetError, SocketType, TcpState,
@@ -28,3 +29,8 @@ pub use tcp::{
     TCP_FLAG_SYN, TCP_FLAG_URG, TCP_MIN_HEADER_LEN,
 };
 pub use socket::{Socket, SocketCapToken, SocketTable};
+pub use tls::{
+    CipherSuite, TlsCertificateValidator, TlsHandshakeEngine, TlsRecordHeader, TlsRecordType,
+    TlsSessionState, TlsStream, TLS_RECORD_HEADER_LEN, TLS_VERSION_1_3,
+};
+
