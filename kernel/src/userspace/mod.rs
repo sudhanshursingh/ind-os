@@ -74,3 +74,8 @@ pub use consent_v2::{
     KernelConsentBrokerV2, KernelConsentCard, KernelConsentRiskTier, KernelUserConsentDecision,
     MAX_PENDING_CONSENT_CARDS,
 };
+pub mod memory_store;
+pub use memory_store::{
+    KernelMemoryItem, KernelMemoryScope, KernelMemoryStatus, KernelMemoryStore,
+    KERNEL_MAX_MEMORY_ITEMS,
+};
