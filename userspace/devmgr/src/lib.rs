@@ -20,6 +20,7 @@ pub mod ufs_resilience;
 pub mod display_panel;
 pub mod cpu_compositor;
 pub mod touch_controller;
+pub mod input_pipeline;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -61,6 +62,11 @@ pub use touch_controller::{
     TouchAction, TouchControllerHarness, TouchError, TouchPoint,
     HANOIP_GENI_I2C1_BASE, TOUCH_I2C_SLAVE_ADDR, TOUCH_QUEUE_CAPACITY,
 };
+pub use input_pipeline::{
+    Gesture, InputPipelineError, InputPipelineHarness,
+    CAP_INPUT_SHELL,
+};
+
 
 
 

@@ -55,6 +55,10 @@ pub use platform::touch_controller_core::{
     KernelTouchAction, KernelTouchControllerHarness, KernelTouchError, KernelTouchPoint,
     KERNEL_HANOIP_GENI_I2C1_BASE, KERNEL_TOUCH_I2C_SLAVE_ADDR, KERNEL_TOUCH_QUEUE_CAPACITY,
 };
+pub use platform::input_pipeline_core::{
+    KernelGesture, KernelInputPipelineError, KernelInputPipelineHarness,
+    KERNEL_CAP_INPUT_SHELL,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
