@@ -1,0 +1,9 @@
+{
+  "docs/architecture/compositor-spec.md": "dd32a41a2ce4803a950227da8a76e5baa5d44393a9e9c9448161b3e57501f7ec",
+  "docs/evidence/SP-60-validation.md": "ef9fae53af4d858817b2441698a83d807f05ab996aa93c5fdb184275c07a3282",
+  "docs/evidence/golden-boot-sp60.log": "b5594a3e00b195ce41e0647852a20ef6e766599b106d23e3ffefb9dd27d8e6b8",
+  "userspace/ux/Cargo.toml": "906c36d18165c8d91a04db398bf82f1ca1b7ff44a0b21431530a0b0e8baf501e",
+  "userspace/ux/src/lib.rs": "5aa80c4964258331b3b2ac11f876c20fd7ac812543adb2de966652fd3112b744",
+  "userspace/ux/src/compositor.rs": "1a95614c5d40c3c506a47c61e06f45d12cb4bbc58d6aae1a9e4e42e8671bced4",
+  "kernel/src/userspace/compositor_core.rs": "978ed1b8466817b9e074be6861da9ae6b932fae95151d8391a2754a2b3b33fab"
+}

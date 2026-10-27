@@ -11,8 +11,10 @@ members = [
     "userspace/testsuite",
     "userspace/ais",
     "userspace/net",
+    "userspace/ux",
 ]
 resolver = "2"
+
 
 [profile.dev]
 panic = "abort"

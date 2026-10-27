@@ -76,5 +76,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "indus-ux"
+version = "0.1.0"
+dependencies = [
+ "indus-logd",
+ "libindus",
+]
+
+[[package]]
 name = "libindus"
 version = "0.1.0"

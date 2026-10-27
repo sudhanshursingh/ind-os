@@ -152,6 +152,13 @@ pub mod net_reliability;
 pub use net_reliability::{
     KernelNetAttackResult, KernelNetAttackType, KernelNetReliabilityHarness,
 };
+pub mod compositor_core;
+pub use compositor_core::{
+    KernelCompositorEngine, KernelCompositorError, KernelInputEvent, KernelInputEventType,
+    KernelRect, KernelWindowSurface, KERNEL_CAP_DISPLAY_OVERLAY, KERNEL_CAP_DISPLAY_RENDER,
+    KERNEL_MAX_DIRTY_RECTS, KERNEL_MAX_WINDOWS, KERNEL_SYSTEM_OVERLAY_Z_BASE,
+};
+
 
 
 

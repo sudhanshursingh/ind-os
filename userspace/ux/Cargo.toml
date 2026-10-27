@@ -1,0 +1,19 @@
+[package]
+name = "indus-ux"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <sudhanshurajsingh@users.noreply.github.com>"]
+description = "Ind OS UX Shell & App Framework (Phase 8, SP-60..SP-69)"
+license = "Apache-2.0"
+
+[lib]
+name = "ux"
+path = "src/lib.rs"
+
+[[bin]]
+name = "uxd"
+path = "src/main.rs"
+
+[dependencies]
+libindus = { path = "../libindus" }
+indus-logd = { path = "../logd" }
