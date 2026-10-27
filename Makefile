@@ -340,6 +340,15 @@ sp-108:
 	@echo "Running Ind OS Sprint SP-108 Verification Suite..."
 	@python3 ci/verify_sp108.py
 
+sp-109:
+	@echo "Running Ind OS Sprint SP-109 Verification Suite..."
+	@python3 ci/verify_sp109.py
+
+gate-g9:
+	@echo "Running Ind OS Gate G9 Hard-Stop Audit & Ratification..."
+	@python3 ci/verify_g9.py
+
+
 
 
 

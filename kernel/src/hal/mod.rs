@@ -207,6 +207,11 @@ pub use platform::g9_pack_core::{
     KERNEL_G9_MANIFEST_HASH_CRC32, KERNEL_G9_SBOM_COMPONENT_COUNT, KERNEL_G9_TCB_EXTERNAL_CRATES,
     KERNEL_G9_TOTAL_EVIDENCE_ITEMS,
 };
+pub use platform::g9_audit_core::{
+    KernelGateG9Auditor, KernelGateG9Criterion, KernelGateG9Error, KERNEL_CAP_GATE_G9_RATIFY,
+    KERNEL_G9_AUDIT_CRITERIA_COUNT,
+};
+
 
 
 pub use traits::{

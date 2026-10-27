@@ -51,6 +51,11 @@ pub use g9_pack::{
     EvidenceItem, G9PackEngine, G9PackError, CAP_G9_PACK_ADMIN, G9_MANIFEST_HASH_CRC32,
     G9_SBOM_COMPONENT_COUNT, G9_TCB_EXTERNAL_CRATES, G9_TOTAL_EVIDENCE_ITEMS,
 };
+pub mod g9_audit;
+pub use g9_audit::{
+    GateG9Auditor, GateG9Criterion, GateG9Error, CAP_GATE_G9_RATIFY, G9_AUDIT_CRITERIA_COUNT,
+};
+
 
 
 
