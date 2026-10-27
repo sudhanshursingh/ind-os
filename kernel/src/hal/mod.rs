@@ -149,6 +149,11 @@ pub use platform::ais_thermal_core::{
     KERNEL_AIS_TEMP_EMERGENCY_HALT_MC, KERNEL_AIS_TEMP_NORMAL_MC,
     KERNEL_AIS_TEMP_RECOVERY_MC, KERNEL_AIS_TEMP_THROTTLE_MC,
 };
+pub use platform::intent_hw_core::{
+    KernelHardwareIntentBrokerHarness, KernelHardwareIntentError,
+    KernelHardwareIntentState, KernelHardwareProposalCard,
+    KERNEL_CAP_INTENT_DISPATCH,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

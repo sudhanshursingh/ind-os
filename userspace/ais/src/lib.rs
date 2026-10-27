@@ -27,6 +27,7 @@ pub mod redteam;
 pub mod types;
 pub mod arm64_runtime;
 pub mod thermal_governor;
+pub mod intent_hw;
 
 pub use loader::{SignedModelLoader, AUTHORIZED_SIGNING_AUTHORITY};
 pub use profile::IndHardwareProfile;
@@ -49,6 +50,11 @@ pub use thermal_governor::{
     AisThermalGovernorHarness, AisThermalState,
     AIS_TEMP_EMERGENCY_HALT_MC, AIS_TEMP_NORMAL_MC,
     AIS_TEMP_RECOVERY_MC, AIS_TEMP_THROTTLE_MC,
+};
+pub use intent_hw::{
+    HardwareIntentBrokerHarness, HardwareIntentError,
+    HardwareIntentState, HardwareProposalCard,
+    CAP_INTENT_DISPATCH,
 };
 pub use types::{
     HardwareTier, InferenceConfig, InferenceError, ModelLoadError, ModelManifest,

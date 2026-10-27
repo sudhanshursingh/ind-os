@@ -34,6 +34,7 @@ pub mod audio_pcm_core;
 pub mod concurrency_suite_core;
 pub mod ais_arm64_core;
 pub mod ais_thermal_core;
+pub mod intent_hw_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -166,6 +167,11 @@ pub use ais_thermal_core::{
     KernelAisThermalGovernorHarness, KernelAisThermalState,
     KERNEL_AIS_TEMP_EMERGENCY_HALT_MC, KERNEL_AIS_TEMP_NORMAL_MC,
     KERNEL_AIS_TEMP_RECOVERY_MC, KERNEL_AIS_TEMP_THROTTLE_MC,
+};
+pub use intent_hw_core::{
+    KernelHardwareIntentBrokerHarness, KernelHardwareIntentError,
+    KernelHardwareIntentState, KernelHardwareProposalCard,
+    KERNEL_CAP_INTENT_DISPATCH,
 };
 
 
