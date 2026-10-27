@@ -45,5 +45,11 @@ pub use firewall::{
     FilterAction, FirewallEngine, FirewallRule, PacketDirection, CAP_NET_FIREWALL_ADMIN,
     MAX_FIREWALL_RULES,
 };
+pub mod update;
+pub use update::{
+    SlotId, SlotState, UpdateError, UpdateManager, UpdateManifest, UpdatePolicy,
+    AUTHORIZED_UPDATE_SIGNATURE,
+};
+
 
 

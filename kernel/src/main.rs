@@ -4524,6 +4524,82 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-53] - DNS Client Query Resolution & Spoof Rejection (INV-DNS-001).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-54: UPDATE SERVICE (REQ-USE-205, INV-UPD-001..004)
+    // ==================================================
+
+    // Stage 218: A/B Update Service Initialization (REQ-USE-205)
+    stage_marker!("218_UPDATE_SERVICE_INIT", "A/B update service initialized with Slot A active");
+    let mut update_mgr = crate::userspace::KernelUpdateManager::new(crate::userspace::KernelSlotId::SlotA);
+    assert_eq!(update_mgr.active_slot, crate::userspace::KernelSlotId::SlotA);
+    assert_eq!(update_mgr.slot_states[0], crate::userspace::KernelSlotState::Active);
+    assert_eq!(update_mgr.slot_states[1], crate::userspace::KernelSlotState::Inactive);
+    log_info!("update", "A/B update service online: Slot A active, Slot B standby (REQ-USE-205 PASSED)");
+
+    // Stage 219: Signed Manifest Verification & Tamper Rejection (INV-UPD-002, INV-UPD-004)
+    stage_marker!("219_UPDATE_SIGNED_MANIFEST_VERIFICATION", "Signed update manifest verification and tamper rejection verified");
+    let update_payload = b"INDOS_V0.2_SYSTEM_IMAGE_KERNEL_AND_ROOTFS_BLOB";
+    let expected_img_hash = crate::userspace::KernelUpdateManager::compute_checksum(update_payload);
+
+    let valid_manifest = crate::userspace::KernelUpdateManifest {
+        version_code: 200,
+        target_slot: crate::userspace::KernelSlotId::SlotB,
+        image_hash: expected_img_hash,
+        signature: crate::userspace::KERNEL_AUTHORIZED_UPDATE_SIGNATURE,
+        size_bytes: update_payload.len(),
+    };
+
+    // 1. Adversarial test: Policy denial without user consent (INV-UPD-004)
+    let no_consent_err = update_mgr.verify_and_stage(&valid_manifest, update_payload, false);
+    assert_eq!(no_consent_err, Err(crate::userspace::KernelUpdateError::PolicyDenied));
+
+    // 2. Adversarial test: Forged/invalid signature rejected (INV-UPD-002)
+    let mut bad_sig_manifest = valid_manifest;
+    bad_sig_manifest.signature = 0xDEAD_BEEF;
+    let bad_sig_err = update_mgr.verify_and_stage(&bad_sig_manifest, update_payload, true);
+    assert_eq!(bad_sig_err, Err(crate::userspace::KernelUpdateError::InvalidSignature));
+
+    // 3. Adversarial test: Tampered payload rejected (INV-UPD-002)
+    let mut tampered_payload = *update_payload;
+    tampered_payload[0] ^= 0xFF;
+    let tamper_err = update_mgr.verify_and_stage(&valid_manifest, &tampered_payload, true);
+    assert_eq!(tamper_err, Err(crate::userspace::KernelUpdateError::TamperedImage));
+
+    // 4. Valid manifest with user consent successfully staged
+    let stage_ok = update_mgr.verify_and_stage(&valid_manifest, update_payload, true);
+    assert!(stage_ok.is_ok());
+    assert_eq!(update_mgr.slot_states[1], crate::userspace::KernelSlotState::Updating);
+    log_info!("update", "Manifest verification verified: signatures validated, unsigned & tampered images rejected (INV-UPD-002 PASSED)");
+
+    // Stage 220: Atomic Slot Switch (INV-UPD-001)
+    stage_marker!("220_UPDATE_ATOMIC_SLOT_SWITCH", "Atomic boot slot switch from Slot A to Slot B verified");
+    let switched_slot = update_mgr.atomic_switch().expect("Atomic slot switch failed");
+    assert_eq!(switched_slot, crate::userspace::KernelSlotId::SlotB);
+    assert_eq!(update_mgr.active_slot, crate::userspace::KernelSlotId::SlotB);
+    assert_eq!(update_mgr.slot_states[0], crate::userspace::KernelSlotState::Inactive);
+    assert_eq!(update_mgr.slot_states[1], crate::userspace::KernelSlotState::PendingVerification);
+    log_info!("update", "Atomic slot switch verified: active slot safely transitioned to Slot B (PendingVerification) (INV-UPD-001 PASSED)");
+
+    // Stage 221: Automatic & Verified Rollback (INV-UPD-003)
+    stage_marker!("221_UPDATE_VERIFIED_ROLLBACK", "Health verification failure triggers automatic rollback to Slot A");
+    // Simulate failed health check in newly booted Slot B -> triggers rollback
+    let rollback_res = update_mgr.verify_health(false);
+    assert_eq!(rollback_res, Err(crate::userspace::KernelUpdateError::VerificationFailed));
+    assert_eq!(update_mgr.active_slot, crate::userspace::KernelSlotId::SlotA);
+    assert_eq!(update_mgr.slot_states[0], crate::userspace::KernelSlotState::Active);
+    assert_eq!(update_mgr.slot_states[1], crate::userspace::KernelSlotState::RolledBack);
+    log_info!("update", "Automatic rollback verified: unverified boot safely rolled back to known-good Slot A (INV-UPD-003 PASSED)");
+
+    // Stage 222: Sprint SP-54 Milestone Reached
+    stage_marker!("222_SP54_UPDATE_READY", "Sprint SP-54 Update Service Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-54] Sprint SP-54 Update Service Milestone REACHED.");
+    println!(" [SP-54] - Dual A/B Partition Slots with Atomic Switch (INV-UPD-001),");
+    println!(" [SP-54] - Cryptographically Signed Manifests & Tamper Rejection (INV-UPD-002),");
+    println!(" [SP-54] - Automatic & Verified Rollback on Boot Failure (INV-UPD-003),");
+    println!(" [SP-54] - User-Controlled Update Policy Without Silent Reboots (INV-UPD-004).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

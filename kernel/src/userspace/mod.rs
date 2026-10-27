@@ -121,5 +121,11 @@ pub use net_services::{
     KernelFirewallRule, KernelPacketDirection, KERNEL_CAP_NET_FIREWALL_ADMIN,
     KERNEL_MAX_FIREWALL_RULES,
 };
+pub mod update_service;
+pub use update_service::{
+    KernelSlotId, KernelSlotState, KernelUpdateError, KernelUpdateManager, KernelUpdateManifest,
+    KernelUpdatePolicy, KERNEL_AUTHORIZED_UPDATE_SIGNATURE,
+};
+
 
 
