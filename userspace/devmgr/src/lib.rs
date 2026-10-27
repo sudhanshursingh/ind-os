@@ -13,6 +13,7 @@ pub mod types;
 pub mod virtio;
 pub mod lab_prep;
 pub mod device_evidence;
+pub mod boot_chain;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -25,4 +26,7 @@ pub use lab_prep::{
 pub use device_evidence::{
     DeviceEvidenceError, DeviceEvidenceHarness, PartitionDescriptor,
     MAX_PARTITION_RECORDS, MOTO_G60_DEVICE_CODENAME, MOTO_G60_SOC_ID,
+};
+pub use boot_chain::{
+    BootChainError, BootChainHarness, BOOT_MAGIC, QUALCOMM_PAGE_SIZE,
 };

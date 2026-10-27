@@ -26,6 +26,10 @@ pub use platform::device_evidence_core::{
     KernelDeviceEvidenceError, KernelDeviceEvidenceHarness, KernelPartitionDescriptor,
     KERNEL_MAX_PARTITION_RECORDS, KERNEL_MOTO_G60_DEVICE_CODENAME, KERNEL_MOTO_G60_SOC_ID,
 };
+pub use platform::boot_chain_core::{
+    KernelBootChainError, KernelBootChainHarness, KERNEL_BOOT_MAGIC,
+    KERNEL_QUALCOMM_PAGE_SIZE,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
