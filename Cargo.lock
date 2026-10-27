@@ -7,6 +7,15 @@ name = "indk-core"
 version = "0.1.0"
 
 [[package]]
+name = "indus-ais"
+version = "0.1.0"
+dependencies = [
+ "indus-logd",
+ "indus-store",
+ "libindus",
+]
+
+[[package]]
 name = "indus-devmgr"
 version = "0.1.0"
 dependencies = [

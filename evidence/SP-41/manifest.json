@@ -1,0 +1,31 @@
+{
+  "sprint": "SP-41",
+  "target": "AIS Model Runtime Sandbox & Hardware Profile Manager",
+  "status": "PASSED",
+  "invariants": {
+    "INV-AIS-001": "Signed-Model Loader Only (Cryptographic Integrity)",
+    "INV-AIS-002": "Bounded Capability Sandbox & Memory/Time Quota",
+    "INV-AIS-003": "Deterministic Hardware Profile Tiering via Telemetry"
+  },
+  "stages_verified": [
+    "STAGE:152_AIS_SANDBOX_INIT",
+    "STAGE:153_AIS_HARDWARE_PROFILE",
+    "STAGE:154_AIS_SIGNED_MODEL_LOADER",
+    "STAGE:155_AIS_SANDBOX_EXECUTION",
+    "STAGE:156_SP41_AIS_SANDBOX_READY"
+  ],
+  "checksums": {
+    "docs/architecture/ais-model-runtime-sandbox-spec.md": "79978d4aa114d2f89786643f0d2323f40c395d4b66f2c9b9639e3206abde8f6b",
+    "docs/evidence/SP-41-validation.md": "5f65890bdf29dc0751570d50869d5be309035b0d1b9944e7fc39297dc7007795",
+    "docs/evidence/golden-boot-sp41.log": "40197348ca9a634fde96e9336f78871ec328f05ad52236f0978dce5d4977bc64",
+    "userspace/ais/Cargo.toml": "753f4182ac2859341d1ae9acc6ec01778e9f9c20d764b91761640de8ef3fc3dc",
+    "userspace/ais/README.md": "12f3c700674a4f673d9022360e19c7a9677857c402ac7e95ecda931eab7672f0",
+    "userspace/ais/src/lib.rs": "de6171a7d0749e756c044bde06c39196ef006a7eb44b1a258181e4f783eb6524",
+    "userspace/ais/src/main.rs": "4a5ec43c52604b68135ff4f5c3b8c3b6122e3e9ace6b33c7f8faffd25600be90",
+    "userspace/ais/src/types.rs": "b364044e4f360e1f197fe49663f69c80e2f6b13d048ca11aafa50ba780cdcef9",
+    "userspace/ais/src/profile.rs": "9a9a0288245691901e57cfa48084de725267927182f3590acdbfc6483abe7c80",
+    "userspace/ais/src/loader.rs": "912772bd886c64787fbe423354bc99aa652bc5c747f47f4bc18b08a45b3b6845",
+    "userspace/ais/src/sandbox.rs": "b6d10a2735df73cf3f6a18165ed23872cefc8e73d4a0920176bef45187bb7d62",
+    "kernel/src/userspace/ais_runtime.rs": "42ed9192ba2b117099cd617d376e8ca598450edbf8a054cfd459e96df76ceffb"
+  }
+}

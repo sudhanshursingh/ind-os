@@ -1,0 +1,20 @@
+[package]
+name = "indus-ais"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <sudhanshurajsingh@users.noreply.github.com>"]
+description = "Ind OS AI Subsystem Runtime Sandbox & Hardware Profile Manager"
+license = "Apache-2.0"
+
+[lib]
+name = "ais"
+path = "src/lib.rs"
+
+[[bin]]
+name = "aisd"
+path = "src/main.rs"
+
+[dependencies]
+libindus = { path = "../libindus" }
+indus-logd = { path = "../logd" }
+indus-store = { path = "../store" }

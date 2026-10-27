@@ -9,6 +9,7 @@ members = [
     "userspace/store",
     "userspace/edit",
     "userspace/testsuite",
+    "userspace/ais",
 ]
 resolver = "2"
 

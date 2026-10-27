@@ -53,4 +53,10 @@ pub use qa::{
 pub use quality::{
     KernelManifestAudit, KernelQualityAuditor, KernelResourceAudit,
 };
+pub mod ais_runtime;
+pub use ais_runtime::{
+    KernelHardwareProfile, KernelHardwareTier, KernelInferenceConfig, KernelModelError,
+    KernelModelSandbox, KERNEL_AIS_AUTHORIZED_SIGNATURE, KERNEL_CAP_AIS_INFER,
+    KERNEL_CAP_AIS_LOAD,
+};
 
