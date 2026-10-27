@@ -106,6 +106,11 @@ pub use platform::sensor_imu_core::{
     KERNEL_BMI260_CHIP_ID, KERNEL_BMI260_I2C_ADDR, KERNEL_CAP_SENSOR_READ,
     KERNEL_HANOIP_IMU_I2C_BASE,
 };
+pub use platform::sensor_als_prox_core::{
+    KernelAlsGain, KernelAlsProxError, KernelProximityState, KernelSensorAlsProxHarness,
+    KERNEL_ALS_PROX_I2C_ADDR, KERNEL_HANOIP_ALS_I2C_BASE, KERNEL_PROX_THRESHOLD_HIGH,
+    KERNEL_PROX_THRESHOLD_LOW,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

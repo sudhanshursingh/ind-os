@@ -31,6 +31,7 @@ pub mod firmware_loader;
 pub mod wifi_wcn3990;
 pub mod bluetooth_hci;
 pub mod sensor_imu;
+pub mod sensor_als_prox;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -119,6 +120,10 @@ pub use bluetooth_hci::{
 pub use sensor_imu::{
     ImuError, ImuSample, SensorImuHarness,
     BMI260_CHIP_ID, BMI260_I2C_ADDR, CAP_SENSOR_READ, HANOIP_IMU_I2C_BASE,
+};
+pub use sensor_als_prox::{
+    AlsGain, AlsProxError, ProximityState, SensorAlsProxHarness,
+    ALS_PROX_I2C_ADDR, HANOIP_ALS_I2C_BASE, PROX_THRESHOLD_HIGH, PROX_THRESHOLD_LOW,
 };
 
 

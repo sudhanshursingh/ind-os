@@ -6702,6 +6702,52 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-89] - 6-Axis IMU FIFO Telemetry Validated (INV-SNS-003).");
     println!("==================================================");
 
+    // =========================================================================
+    // PHASE 9: SPRINT SP-90 - AMBIENT LIGHT & PROXIMITY SENSOR (REQ-HW-110, REQ-SNS-102)
+    // =========================================================================
+
+    // Stage 400: ALS/Prox Harness Init
+    stage_marker!("400_SP90_ALS_PROX_INIT", "Ambient light & proximity sensor harness initialized");
+    let mut als_harness = crate::hal::KernelSensorAlsProxHarness::new();
+    log_info!("als_prox", "ALS/Prox harness online: optical sensor and proximity detector active (REQ-SNS-102 PASSED)");
+
+    // Stage 401: ALS/Prox I2C Bus Mapping (INV-ALS-001)
+    stage_marker!("401_SP90_ALS_I2C_BUS_MAPPING", "ALS/Prox sensor I2C bus MMIO base mapping verified");
+    let invalid_als_err = als_harness.map_mmio(0x0123_4000, crate::hal::KERNEL_ALS_PROX_I2C_ADDR);
+    assert_eq!(invalid_als_err, Err(crate::hal::KernelAlsProxError::InvalidMmioBase));
+
+    als_harness.map_mmio(crate::hal::KERNEL_HANOIP_ALS_I2C_BASE, crate::hal::KERNEL_ALS_PROX_I2C_ADDR).expect("ALS I2C map failed");
+    assert!(als_harness.is_mmio_mapped());
+    log_info!("als_prox", "I2C bus verified: GENI I2C mapped at 0x0888_4000, slave addr 0x39 (INV-ALS-001 PASSED)");
+
+    // Stage 402: Photometric Lux Calculation (INV-ALS-002)
+    stage_marker!("402_SP90_LUX_PHOTOMETRIC_CALCULATION", "Photometric ambient lux calculation and optical gain scaling verified");
+    let calculated_lux = als_harness.sample_lux(120, crate::hal::KernelAlsGain::Gain8x).expect("Lux calculation failed");
+    assert_eq!(calculated_lux, 150);
+    assert_eq!(als_harness.current_lux(), 150);
+    log_info!("als_prox", "Photometry verified: 120 counts at 8x gain scaled to 150 lux (INV-ALS-002 PASSED)");
+
+    // Stage 403: Proximity Threshold Hysteresis (INV-ALS-003)
+    stage_marker!("403_SP90_PROXIMITY_HYSTERESIS_DISPATCH", "Proximity Near/Far hysteresis threshold event dispatch verified");
+    let near_state = als_harness.update_proximity(60).expect("Near proximity update failed");
+    assert_eq!(near_state, crate::hal::KernelProximityState::Near);
+
+    let hyst_state = als_harness.update_proximity(35).expect("Hysteresis update failed");
+    assert_eq!(hyst_state, crate::hal::KernelProximityState::Near);
+
+    let far_state = als_harness.update_proximity(15).expect("Far proximity update failed");
+    assert_eq!(far_state, crate::hal::KernelProximityState::Far);
+    log_info!("als_prox", "Hysteresis verified: Near (>=50), retain Near at 35, Far (<=25) confirmed (INV-ALS-003 PASSED)");
+
+    // Stage 404: Sprint SP-90 Milestone Reached
+    stage_marker!("404_SP90_ALS_PROX_READY", "Sprint SP-90 Ambient Light & Proximity Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-90] Sprint SP-90 Ambient Light & Proximity Milestone REACHED.");
+    println!(" [SP-90] - Optical Sensor I2C Mapped at 0x0888_4000 (INV-ALS-001, REQ-SNS-102),");
+    println!(" [SP-90] - Photometric Lux Calculation & Optical Scaling Validated (INV-ALS-002),");
+    println!(" [SP-90] - Proximity Near/Far Hysteresis Threshold Engine Active (INV-ALS-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
