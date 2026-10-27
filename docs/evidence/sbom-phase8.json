@@ -1,0 +1,81 @@
+{
+  "$schema": "https://cyclonedx.org/schema/bom-1.5.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-27T08:30:00Z",
+    "tools": [
+      {
+        "vendor": "Ind OS",
+        "name": "indos-sbom-auditor",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "operating-system",
+      "name": "Ind OS",
+      "version": "0.1.0-user-ready",
+      "description": "Ind OS User-Ready Milestone V0.1 (Phase 8)"
+    }
+  },
+  "components": [
+    {
+      "type": "operating-system",
+      "name": "indk-core",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:cargo/indk-core@0.1.0",
+      "properties": [
+        { "name": "tcb", "value": "true" },
+        { "name": "rule_n01_in_tree", "value": "true" }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "libindus",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:cargo/libindus@0.1.0",
+      "properties": [
+        { "name": "tcb", "value": "false" },
+        { "name": "rule_n01_in_tree", "value": "true" }
+      ]
+    },
+    {
+      "type": "application",
+      "name": "indus-logd",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:cargo/indus-logd@0.1.0",
+      "properties": [
+        { "name": "tcb", "value": "false" },
+        { "name": "rule_n01_in_tree", "value": "true" }
+      ]
+    },
+    {
+      "type": "application",
+      "name": "indus-net",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:cargo/indus-net@0.1.0",
+      "properties": [
+        { "name": "tcb", "value": "false" },
+        { "name": "rule_n01_in_tree", "value": "true" },
+        { "name": "def_004_vetted_crypto", "value": "true" }
+      ]
+    },
+    {
+      "type": "application",
+      "name": "indus-ux",
+      "version": "0.1.0",
+      "scope": "required",
+      "purl": "pkg:cargo/indus-ux@0.1.0",
+      "properties": [
+        { "name": "tcb", "value": "false" },
+        { "name": "rule_n01_in_tree", "value": "true" },
+        { "name": "rule_n04_zero_unsafe", "value": "true" }
+      ]
+    }
+  ]
+}

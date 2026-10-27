@@ -103,6 +103,10 @@ gate-g7:
 	@echo "Running Ind OS Gate G7 Audit & Verification Suite..."
 	@python3 ci/verify_g7.py
 
+gate-g8:
+	@echo "Running Ind OS Gate G8 Audit & Verification Suite..."
+	@python3 ci/verify_g8.py
+
 
 sp-51:
 	@echo "Running Ind OS Sprint SP-51 Verification Suite..."
