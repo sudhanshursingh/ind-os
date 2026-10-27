@@ -26,6 +26,7 @@ pub mod battery_gauge;
 pub mod thermal_mgmt;
 pub mod power_domains;
 pub mod usb_dwc3;
+pub mod usb_role;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -93,6 +94,11 @@ pub use usb_dwc3::{
     UsbDwc3Harness, UsbEndpointState, UsbError, UsbSpeed,
     CAP_USB_ADMIN, HANOIP_QUSB2_PHY_BASE, HANOIP_USB_DWC3_BASE,
     USB_DESC_TYPE_DEVICE, USB_REQ_GET_DESCRIPTOR, USB_REQ_SET_ADDRESS,
+};
+pub use usb_role::{
+    UsbRole, UsbRoleError, UsbRoleHarness,
+    CAP_USB_ROLE_SWITCH, CDC_ACM_BAUD_DEFAULT, CDC_ACM_LINE_CODING_LEN,
+    USB_ROLE_DEVICE, USB_ROLE_HOST,
 };
 
 

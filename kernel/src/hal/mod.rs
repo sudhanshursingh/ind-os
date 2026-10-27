@@ -82,6 +82,11 @@ pub use platform::usb_dwc3_core::{
     KERNEL_CAP_USB_ADMIN, KERNEL_HANOIP_QUSB2_PHY_BASE, KERNEL_HANOIP_USB_DWC3_BASE,
     KERNEL_USB_DESC_TYPE_DEVICE, KERNEL_USB_REQ_GET_DESCRIPTOR, KERNEL_USB_REQ_SET_ADDRESS,
 };
+pub use platform::usb_role_core::{
+    KernelUsbRole, KernelUsbRoleError, KernelUsbRoleHarness,
+    KERNEL_CAP_USB_ROLE_SWITCH, KERNEL_CDC_ACM_BAUD_DEFAULT, KERNEL_CDC_ACM_LINE_CODING_LEN,
+    KERNEL_USB_ROLE_DEVICE, KERNEL_USB_ROLE_HOST,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
