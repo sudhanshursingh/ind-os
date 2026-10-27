@@ -10,6 +10,7 @@ members = [
     "userspace/edit",
     "userspace/testsuite",
     "userspace/ais",
+    "userspace/net",
 ]
 resolver = "2"
 

@@ -1,0 +1,19 @@
+[package]
+name = "indus-net"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sudhanshu Raj Singh <sudhanshurajsingh@users.noreply.github.com>"]
+description = "Ind OS Network Stack Core (REQ-KRN-110, INV-NET-001..003)"
+license = "Apache-2.0"
+
+[lib]
+name = "net"
+path = "src/lib.rs"
+
+[[bin]]
+name = "netd"
+path = "src/main.rs"
+
+[dependencies]
+libindus = { path = "../libindus" }
+indus-logd = { path = "../logd" }

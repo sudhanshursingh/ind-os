@@ -41,6 +41,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "indus-net"
+version = "0.1.0"
+dependencies = [
+ "indus-logd",
+ "libindus",
+]
+
+[[package]]
 name = "indus-shell"
 version = "0.1.0"
 dependencies = [

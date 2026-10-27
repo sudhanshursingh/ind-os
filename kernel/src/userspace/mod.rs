@@ -103,3 +103,11 @@ pub mod ais_redteam;
 pub use ais_redteam::{
     KernelAttackType, KernelRedTeamAttackScenario, KernelRedTeamHarness,
 };
+pub mod net_core;
+pub use net_core::{
+    KernelEtherType, KernelIpProtocol, KernelIpv4Address, KernelMacAddress, KernelNetError,
+    KernelNetStack, KernelSocket, KernelSocketCapToken, KernelSocketTable, KernelSocketType,
+    KernelTcpState, KERNEL_CAP_NET_BIND, KERNEL_CAP_NET_CONNECT, KERNEL_CAP_NET_LISTEN,
+    KERNEL_CAP_NET_RAW, KERNEL_CAP_NET_RECV, KERNEL_CAP_NET_SEND, KERNEL_CAP_NET_SOCKET,
+    KERNEL_DEFAULT_MTU, KERNEL_MAX_SOCKETS, KERNEL_SOCKET_BUF_SIZE,
+};
