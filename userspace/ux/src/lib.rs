@@ -48,3 +48,7 @@ pub mod ux_validation;
 pub use ux_validation::{
     PersonaTaskResult, UxValidationError, UxValidationHarness, MAX_PERSONA_TASKS,
 };
+pub mod polish;
+pub use polish::{
+    AdversarialUiHarness, PolishSecurityError, EXPECTED_CONSENT_BROKER_MAGIC,
+};

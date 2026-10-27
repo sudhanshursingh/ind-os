@@ -198,6 +198,11 @@ pub use ux_validation_core::{
     KernelPersonaTaskResult, KernelUxValidationError, KernelUxValidationHarness,
     KERNEL_MAX_PERSONA_TASKS,
 };
+pub mod polish_core;
+pub use polish_core::{
+    KernelAdversarialUiHarness, KernelPolishSecurityError,
+    KERNEL_EXPECTED_CONSENT_BROKER_MAGIC,
+};
 
 
 
