@@ -44,6 +44,7 @@ pub mod hw_matrix_core;
 pub mod recovery_core;
 pub mod endurance_soak_core;
 pub mod cold_boot_core;
+pub mod g9_pack_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -229,6 +230,11 @@ pub use cold_boot_core::{
     KernelColdBootError, KernelColdBootHarness, KernelColdBootRecord, KernelColdBootSummary,
     KERNEL_CAP_COLD_BOOT_VERIFY, KERNEL_IMAGE_CRC32, KERNEL_MAX_BOOT_JITTER_MS,
     KERNEL_MIN_COLD_BOOT_RUNS, KERNEL_NOMINAL_COLD_BOOT_TIME_MS, KERNEL_RESET_REASON_POR,
+};
+pub use g9_pack_core::{
+    KernelEvidenceItem, KernelG9PackError, KernelG9PackHarness, KERNEL_CAP_G9_PACK_ADMIN,
+    KERNEL_G9_MANIFEST_HASH_CRC32, KERNEL_G9_SBOM_COMPONENT_COUNT, KERNEL_G9_TCB_EXTERNAL_CRATES,
+    KERNEL_G9_TOTAL_EVIDENCE_ITEMS,
 };
 
 

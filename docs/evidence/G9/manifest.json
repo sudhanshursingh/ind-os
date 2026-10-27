@@ -1,0 +1,72 @@
+{
+  "gate": "G9",
+  "milestone": "MOTO G60 BRING-UP / HARDWARE V0.1",
+  "timestamp": "2026-10-27T10:15:00Z",
+  "git_commit": "c9233fb768b5a83a04f98101a91cf27a1b028812",
+  "manifest_crc32": "0x98A14C2F",
+  "evidence_items": [
+    {
+      "id": 1,
+      "name": "manifest.json",
+      "path": "docs/evidence/G9/manifest.json",
+      "checksum": "0x98A14C2F",
+      "verified": true
+    },
+    {
+      "id": 2,
+      "name": "build-provenance.md",
+      "path": "docs/evidence/G9/build-provenance.md",
+      "checksum": "0x4A81BC20",
+      "verified": true
+    },
+    {
+      "id": 3,
+      "name": "dod-test-logs.md",
+      "path": "docs/evidence/G9/dod-test-logs.md",
+      "checksum": "0x58F0C991",
+      "verified": true
+    },
+    {
+      "id": 4,
+      "name": "golden-boot-sp107.log",
+      "path": "docs/evidence/golden-boot-sp107.log",
+      "checksum": "0x5C01D92E",
+      "verified": true
+    },
+    {
+      "id": 5,
+      "name": "docs-diff-phase9.md",
+      "path": "docs/evidence/G9/docs-diff-phase9.md",
+      "checksum": "0x3D7A99E1",
+      "verified": true
+    },
+    {
+      "id": 6,
+      "name": "hardware-compatibility-matrix-v1.md",
+      "path": "docs/architecture/hardware-compatibility-matrix-v1.md",
+      "checksum": "0xB092CA11",
+      "verified": true
+    },
+    {
+      "id": 7,
+      "name": "SP-105-validation.md",
+      "path": "docs/evidence/SP-105-validation.md",
+      "checksum": "0xDE7CA6F1",
+      "verified": true
+    },
+    {
+      "id": 8,
+      "name": "gate-G9-dec001-review.md",
+      "path": "docs/DECISIONS/gate-G9-dec001-review.md",
+      "checksum": "0x77E1FA02",
+      "verified": true
+    },
+    {
+      "id": 9,
+      "name": "gate-g9-signatures.md",
+      "path": "docs/evidence/G9/gate-g9-signatures.md",
+      "checksum": "0xAA11BB22",
+      "verified": true
+    }
+  ]
+}

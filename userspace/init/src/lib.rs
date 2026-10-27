@@ -46,6 +46,12 @@ pub use cold_boot::{
     EXPECTED_RESET_REASON_POR, KERNEL_IMAGE_CRC32, MAX_BOOT_JITTER_MS, MIN_COLD_BOOT_RUNS,
     NOMINAL_COLD_BOOT_TIME_MS,
 };
+pub mod g9_pack;
+pub use g9_pack::{
+    EvidenceItem, G9PackEngine, G9PackError, CAP_G9_PACK_ADMIN, G9_MANIFEST_HASH_CRC32,
+    G9_SBOM_COMPONENT_COUNT, G9_TCB_EXTERNAL_CRATES, G9_TOTAL_EVIDENCE_ITEMS,
+};
+
 
 
 /// Central Init Subsystem Controller coordinating bring-up and process supervision.
