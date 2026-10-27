@@ -13,3 +13,9 @@ pub use compositor::{
     WindowSurface, CAP_DISPLAY_OVERLAY, CAP_DISPLAY_RENDER, MAX_DIRTY_RECTS, MAX_WINDOWS,
     SYSTEM_OVERLAY_Z_BASE,
 };
+pub mod shell_v2;
+pub use shell_v2::{
+    NotificationAction, NotificationItem, NotificationSource, ShellError, ShellV2Engine,
+    INTENT_BUF_LEN, MAX_LAUNCHER_APPS, MAX_NOTIFICATIONS,
+};
+

@@ -158,6 +158,12 @@ pub use compositor_core::{
     KernelRect, KernelWindowSurface, KERNEL_CAP_DISPLAY_OVERLAY, KERNEL_CAP_DISPLAY_RENDER,
     KERNEL_MAX_DIRTY_RECTS, KERNEL_MAX_WINDOWS, KERNEL_SYSTEM_OVERLAY_Z_BASE,
 };
+pub mod shell_v2_core;
+pub use shell_v2_core::{
+    KernelNotificationAction, KernelNotificationItem, KernelNotificationSource, KernelShellError,
+    KernelShellV2Engine, KERNEL_INTENT_BUF_LEN, KERNEL_MAX_LAUNCHER_APPS, KERNEL_MAX_NOTIFICATIONS,
+};
+
 
 
 

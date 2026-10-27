@@ -131,7 +131,8 @@ while True:
         if out_file:
             out_file.write(text)
             out_file.flush()
-        if 'SP60_COMPOSITOR_READY' in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
+        stop_pat = os.environ.get('QEMU_STOP_PATTERN', 'SP61_SHELL2_READY')
+        if stop_pat in text or '[PANIC]' in text or 'System halted' in text or 'FDT_ERR' in text:
             time.sleep(0.1)
             while True:
                 r, _, _ = select.select([p.stdout], [], [], 0.05)

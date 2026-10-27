@@ -5085,6 +5085,68 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-60] - Input Routing with Focus Integrity & Anti-Tapjacking (INV-COMP-004).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-61: SHELL V2 (THE IND SURFACE)
+    // ==================================================
+
+    // Stage 254: Shell v2 Initialization & Launcher Core Apps (REQ-UX-305)
+    stage_marker!("254_SHELL_V2_INIT", "Shell v2 Ind Surface initialized with core app launcher");
+    let mut shell_v2 = crate::userspace::KernelShellV2Engine::new();
+    assert_eq!(shell_v2.app_count(), 5);
+    assert_eq!(shell_v2.launcher_apps()[0], "Files");
+    assert_eq!(shell_v2.launcher_apps()[1], "Settings");
+    assert_eq!(shell_v2.launcher_apps()[2], "Why-Explorer");
+    assert_eq!(shell_v2.launcher_apps()[3], "Terminal");
+    assert_eq!(shell_v2.launcher_apps()[4], "Notes");
+    assert_eq!(shell_v2.notification_count(), 0);
+    log_info!("shell_v2", "Shell v2 initialized: 5 core apps verified on launcher grid (REQ-UX-305 PASSED)");
+
+    // Stage 255: AIS Suggestion Visual Distinction Verification (REQ-UX-305, INV-SHELL2-001)
+    stage_marker!("255_SHELL_AIS_VISUAL_DISTINCTION", "Visual distinction of AIS suggestions verified");
+    let app_notif_id = shell_v2.post_notification(
+        crate::userspace::KernelNotificationSource::App,
+        "File Manager",
+        "Backup download completed",
+    ).expect("App notification post failed");
+    let ais_notif_id = shell_v2.post_notification(
+        crate::userspace::KernelNotificationSource::AisSuggestion,
+        "Ind AIS Assistant",
+        "Battery saving profile suggested based on current usage",
+    ).expect("AIS suggestion notification post failed");
+
+    let notifs = shell_v2.active_notifications();
+    let app_item = notifs.iter().flatten().find(|n| n.id == app_notif_id).expect("App notif missing");
+    let ais_item = notifs.iter().flatten().find(|n| n.id == ais_notif_id).expect("AIS notif missing");
+
+    assert!(!app_item.is_ais_distinct, "App notification must NOT have AIS visual badge");
+    assert!(ais_item.is_ais_distinct, "AIS suggestion MUST have mandatory visual distinction badge (REQ-UX-305, INV-SHELL2-001)");
+    log_info!("shell_v2", "Visual distinction verified: AIS suggestions carry distinct presentation badge (INV-SHELL2-001 PASSED)");
+
+    // Stage 256: Notification Lifecycle & Action Dispatch (INV-SHELL2-003)
+    stage_marker!("256_SHELL_NOTIFICATION_LIFECYCLE", "Notification dismiss and snooze lifecycle actions verified");
+    assert_eq!(shell_v2.notification_count(), 2);
+    shell_v2.snooze_notification(ais_notif_id).expect("Snooze notification failed");
+    shell_v2.dismiss_notification(app_notif_id).expect("Dismiss notification failed");
+    assert_eq!(shell_v2.notification_count(), 1);
+    log_info!("shell_v2", "Notification lifecycle verified: dismiss and snooze actions dispatched safely (INV-SHELL2-003 PASSED)");
+
+    // Stage 257: Unified Intent Input Bar & Broker Routing (INV-SHELL2-002)
+    stage_marker!("257_SHELL_INTENT_QUERY_BAR", "Intent query bar accepts input and dispatches to intent broker");
+    let intent_token = shell_v2.submit_intent_query("open why-explorer for wifi disconnect")
+        .expect("Intent query submission failed");
+    assert!(intent_token >= 0x1000, "Intent broker proposal token must be generated");
+    log_info!("shell_v2", "Intent query bar verified: natural language query accepted and routed to broker (INV-SHELL2-002 PASSED)");
+
+    // Stage 258: Sprint SP-61 Milestone Reached
+    stage_marker!("258_SP61_SHELL2_READY", "Sprint SP-61 Shell v2 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-61] Sprint SP-61 Shell v2 Milestone REACHED.");
+    println!(" [SP-61] - Ind Surface Home & Launcher Apps (REQ-UX-305),");
+    println!(" [SP-61] - AIS Suggestions Visual Distinction (INV-SHELL2-001, REQ-UX-305),");
+    println!(" [SP-61] - Intent Input Bar Routing (INV-SHELL2-002),");
+    println!(" [SP-61] - Notification Lifecycle Actions (INV-SHELL2-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
