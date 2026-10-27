@@ -13,6 +13,7 @@ pub mod hardware_core;
 pub mod ufs_core;
 pub mod ufs_resilience_core;
 pub mod display_panel_core;
+pub mod cpu_compositor_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -44,5 +45,10 @@ pub use display_panel_core::{
     KERNEL_DCS_CMD_PIXEL_FORMAT, KERNEL_DCS_CMD_SLEEP_OUT, KERNEL_HANOIP_MDSS_DSI0_BASE,
     KERNEL_PANEL_HEIGHT, KERNEL_PANEL_REFRESH_HZ, KERNEL_PANEL_WIDTH,
 };
+pub use cpu_compositor_core::{
+    KernelCompositorError, KernelCpuCompositorHarness, KernelDirtyRect,
+    KERNEL_CAP_SURFACE_COMPOSITOR, KERNEL_MAX_PANEL_HEIGHT, KERNEL_MAX_PANEL_WIDTH,
+};
+
 
 

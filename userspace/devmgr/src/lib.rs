@@ -18,6 +18,7 @@ pub mod hardware_core;
 pub mod ufs;
 pub mod ufs_resilience;
 pub mod display_panel;
+pub mod cpu_compositor;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -51,5 +52,10 @@ pub use display_panel::{
     DCS_CMD_PIXEL_FORMAT, DCS_CMD_SLEEP_OUT, HANOIP_MDSS_DSI0_BASE,
     PANEL_HEIGHT, PANEL_REFRESH_HZ, PANEL_WIDTH,
 };
+pub use cpu_compositor::{
+    CompositorError, CpuCompositorHarness, DirtyRect,
+    CAP_SURFACE_COMPOSITOR, MAX_PANEL_HEIGHT, MAX_PANEL_WIDTH,
+};
+
 
 
