@@ -69,3 +69,8 @@ pub use policy_v2::{
     KernelDryRunReport, KernelPolicyEngineV2, KernelPolicyLifecycleState, KernelStandingPolicy,
     MAX_STANDING_POLICIES,
 };
+pub mod consent_v2;
+pub use consent_v2::{
+    KernelConsentBrokerV2, KernelConsentCard, KernelConsentRiskTier, KernelUserConsentDecision,
+    MAX_PENDING_CONSENT_CARDS,
+};

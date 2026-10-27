@@ -17,6 +17,7 @@ pub mod sandbox;
 pub mod schema;
 pub mod intent;
 pub mod policy;
+pub mod consent;
 pub mod types;
 
 pub use loader::{SignedModelLoader, AUTHORIZED_SIGNING_AUTHORITY};
@@ -25,6 +26,7 @@ pub use sandbox::{ModelRuntimeSandbox, MAX_INFERENCE_TICKS, MAX_WORKSPACE_BYTES}
 pub use schema::{ActionCategory, SchemaDescriptor, SchemaError, SchemaRegistry, MAX_REGISTERED_SCHEMAS};
 pub use intent::{IntentBroker, IntentError, IntentSource, TypedProposal};
 pub use policy::{DryRunReport, PolicyLifecycleState, PolicyRegistry, PolicyStatus, RuleEffect, StandingPolicy};
+pub use consent::{ConsentBrokerV2, ConsentCard, ConsentRiskTier, UserConsentDecision, MAX_PENDING_CONSENT_CARDS};
 pub use types::{
     HardwareTier, InferenceConfig, InferenceError, ModelLoadError, ModelManifest,
     QuantizationType, SandboxStatus, CAP_AIS_ADMIN, CAP_AIS_INFER, CAP_AIS_LOAD,

@@ -125,7 +125,6 @@ impl KernelPolicyEngineV2 {
     pub fn simulate_dry_run(&self, category: KernelActionCategory, action_code: u32) -> KernelDryRunReport {
         let mut highest_deny: Option<(u16, u32)> = None;
         let mut highest_allow: Option<(u16, u32)> = None;
-        let mut matching_rules = 0u32;
 
         for i in 0..self.count {
             if let Some(ref p) = self.policies[i] {
@@ -134,7 +133,6 @@ impl KernelPolicyEngineV2 {
                     && p.category == category
                     && p.action_code == action_code
                 {
-                    matching_rules += 1;
                     if p.is_deny {
                         if highest_deny.is_none() || p.priority > highest_deny.unwrap().0 {
                             highest_deny = Some((p.priority, p.policy_id));

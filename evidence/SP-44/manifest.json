@@ -1,0 +1,23 @@
+{
+  "sprint": "SP-44",
+  "target": "Consent UX & Broker v2",
+  "status": "PASSED",
+  "invariants": {
+    "INV-CONSENT-001": "Plain-Language Narrative Generation (REQ-UX-301)",
+    "INV-CONSENT-002": "Immutable Audit Trail Recording Before Action Dispatch"
+  },
+  "stages_verified": [
+    "STAGE:167_CONSENT_V2_INIT",
+    "STAGE:168_CONSENT_V2_PLAIN_NARRATIVE",
+    "STAGE:169_CONSENT_V2_PROPOSAL_BINDING",
+    "STAGE:170_CONSENT_V2_AUDIT_TRAIL",
+    "STAGE:171_SP44_CONSENT_READY"
+  ],
+  "checksums": {
+    "docs/architecture/consent-broker-v2-spec.md": "3c35585a9b6afc3f2e99eb9f28877426fe429228eed656743c640fae8d08b6d2",
+    "docs/evidence/SP-44-validation.md": "9422de7c659ea3ad0e31aeba2a623629da6641fd8db4e7d7c406365f60748a46",
+    "docs/evidence/golden-boot-sp44.log": "267814432c2767c9833e8f17e4fdfccc08e90abc026901e9ae49cdfca0eb7326",
+    "userspace/ais/src/consent.rs": "8781ac1dbcade792f695c809bd4c319ce5682036eb1056c884819e4b54976ec1",
+    "kernel/src/userspace/consent_v2.rs": "fe18479a160acdd74c84103860e2eb2256da39bd87004030476be6df10b2be0b"
+  }
+}

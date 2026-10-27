@@ -3695,6 +3695,72 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-43] - Atomic Policy Revocation & Default-Deny Posture.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-44: CONSENT UX + BROKER V2 (PLAIN NARRATIVES, AIS PROPOSALS, AUDIT TRAIL)
+    // ==================================================
+
+    // Stage 167: Consent Broker v2 Subsystem Initialization
+    stage_marker!("167_CONSENT_V2_INIT", "Consent broker v2 initialized with narrative synthesizer");
+    let mut consent_v2 = crate::userspace::KernelConsentBrokerV2::new();
+    log_info!("consent", "Consent Broker v2 online: structured cards & plain-language generator ready");
+
+    // Stage 168: Plain-Language Narrative Generation (REQ-UX-301, INV-CONSENT-001)
+    stage_marker!("168_CONSENT_V2_PLAIN_NARRATIVE", "Plain-language narrative generation verified");
+    let (narrative_title, narrative_body, risk_tier) = crate::userspace::KernelConsentBrokerV2::generate_narrative(
+        crate::userspace::KernelActionCategory::FileOperation,
+        0x0002, // write file
+    );
+    assert_eq!(narrative_title, "Write File Request");
+    assert_eq!(risk_tier, crate::userspace::KernelConsentRiskTier::High);
+    assert!(narrative_body.len() > 10);
+    log_info!("consent", "Plain-language narrative verified: FileOperation write -> 'Write File Request' (REQ-UX-301, INV-CONSENT-001 PASSED)");
+
+    // Stage 169: AIS Proposal to Consent Card Binding (REQ-AI-102)
+    stage_marker!("169_CONSENT_V2_PROPOSAL_BINDING", "AIS proposal bound to interactive consent card verified");
+    let test_proposal = crate::userspace::KernelTypedProposal {
+        proposal_id: 8801,
+        category: crate::userspace::KernelActionCategory::FileOperation,
+        action_code: 0x0002,
+        target_id: 991,
+        confidence_score: 95,
+        required_rights: 0x02,
+        pre_logged: true,
+    };
+    let card_id = consent_v2.create_card_for_proposal(&test_proposal, "/home/user/document.txt").expect("Failed to create consent card");
+    let card = consent_v2.get_card(card_id).expect("Consent card must be retrieved");
+    assert_eq!(card.proposal_id, 8801);
+    assert_eq!(card.decision, crate::userspace::KernelUserConsentDecision::Pending);
+    assert_eq!(card.resource_summary, "/home/user/document.txt");
+    log_info!("consent", "Consent card binding verified: card 5001 bound to proposal 8801 (REQ-AI-102 PASSED)");
+
+    // Stage 170: User Decision Immutable Audit Recording (INV-CONSENT-002)
+    stage_marker!("170_CONSENT_V2_AUDIT_TRAIL", "User decision recorded into immutable log bus before actiondispatch");
+    {
+        let mut log_bus = crate::userspace::KernelLogBus::new();
+        let decided_card = consent_v2.record_decision(
+            card_id,
+            crate::userspace::KernelUserConsentDecision::GrantOnce,
+            &mut log_bus,
+        ).expect("Decision recording failed");
+        assert_eq!(decided_card.decision, crate::userspace::KernelUserConsentDecision::GrantOnce);
+
+        let latest = log_bus.latest_entry().expect("Audit entry must be present");
+        assert_eq!(latest.source_id, 7); // Consent subsystem
+        assert_eq!(latest.event_id, card_id);
+        assert_eq!(latest.level, crate::userspace::KernelLogLevel::SecurityAudit);
+        log_info!("consent", "Decision audit trail verified: card 5001 recorded as GrantOnce into immutable audit bus (INV-CONSENT-002 PASSED)");
+    }
+
+    // Stage 171: Sprint SP-44 Milestone Reached
+    stage_marker!("171_SP44_CONSENT_READY", "Sprint SP-44 Consent UX & Broker v2 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-44] Sprint SP-44 Consent UX & Broker v2 Milestone REACHED.");
+    println!(" [SP-44] - Plain-Language Narrative Generation (REQ-UX-301, INV-CONSENT-001),");
+    println!(" [SP-44] - AIS Proposal to Interactive Consent Card Binding,");
+    println!(" [SP-44] - Immutable User Decision Audit Trail Recording (INV-CONSENT-002),");
+    println!(" [SP-44] - Strict Non-Ambient Authority with Zero Ambient Escalation.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

@@ -48,7 +48,7 @@ pub const MAX_USER_POLICIES: usize = 16;
 pub struct PolicyRegistry {
     policies: [Option<StandingPolicy>; MAX_USER_POLICIES],
     count: usize,
-    next_id: u32,
+    _next_id: u32,
 }
 
 impl PolicyRegistry {
@@ -56,7 +56,7 @@ impl PolicyRegistry {
         Self {
             policies: [None; MAX_USER_POLICIES],
             count: 0,
-            next_id: 1001,
+            _next_id: 1001,
         }
     }
 
