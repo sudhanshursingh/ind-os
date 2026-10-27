@@ -35,14 +35,20 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$KERNEL_PATH" ]]; then
-    echo "❌ ERROR: --kernel <path> is required." >&2
-    exit 2
+    DEFAULT_KERNEL="kernel/target/aarch64-unknown-none/debug/indk"
+    if [[ -f "$DEFAULT_KERNEL" ]]; then
+        KERNEL_PATH="$DEFAULT_KERNEL"
+    else
+        echo "❌ ERROR: --kernel <path> is required and default $DEFAULT_KERNEL not found." >&2
+        exit 2
+    fi
 fi
 
 if [[ ! -f "$KERNEL_PATH" ]]; then
     echo "❌ ERROR: Kernel ELF not found: $KERNEL_PATH" >&2
     exit 2
 fi
+
 
 CONTAINER_NAME="indos-qemu-$$-$RANDOM"
 export CONTAINER_NAME
