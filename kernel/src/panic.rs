@@ -99,6 +99,16 @@ fn panic(info: &PanicInfo) -> ! {
     EarlyUart::write_str(" System halted.\n");
     EarlyUart::write_str("==================================================\n");
 
+    // Visual hardware panic alert on physical screen (0x9c000000 / 0x9d000000)
+    unsafe {
+        for &fb_addr in &[0x9c00_0000usize, 0x9d00_0000usize] {
+            let fb = fb_addr as *mut u32;
+            for i in 0..(1080 * 120) {
+                core::ptr::write_volatile(fb.add(i), 0xFFFF_0055); // Crimson panic banner
+            }
+        }
+    }
+
     loop {
         core::hint::spin_loop();
     }

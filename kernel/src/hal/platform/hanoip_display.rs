@@ -106,6 +106,9 @@ impl HardwareScreenPainter {
     }
 
     pub unsafe fn fill_rect(&mut self, x: usize, y: usize, w: usize, h: usize, color: u32) {
+        if x >= self.width || y >= self.height || w == 0 || h == 0 {
+            return;
+        }
         let x_end = core::cmp::min(x + w, self.width);
         let y_end = core::cmp::min(y + h, self.height);
 
@@ -118,6 +121,9 @@ impl HardwareScreenPainter {
     }
 
     pub unsafe fn draw_char(&mut self, x: usize, y: usize, c: u8, color: u32, scale: usize) {
+        if x >= self.width || y >= self.height {
+            return;
+        }
         let glyph_idx = match c {
             b' ' => 0,
             b'-' => 1,
@@ -162,6 +168,30 @@ impl HardwareScreenPainter {
     }
 }
 
+/// Precise millisecond busy-wait using ARMv8-A architectural generic physical timer
+pub fn delay_ms(ms: u32) {
+    let mut cnt_start: u64;
+    unsafe {
+        core::arch::asm!("mrs {}, cntpct_el0", out(reg) cnt_start, options(nomem, nostack));
+    }
+    // SM7150 hardware timer: 19.2 MHz = 19,200 ticks per millisecond
+    let target_ticks = (ms as u64) * 19_200;
+    let max_spins = (ms as u64) * 200_000;
+    let mut spins = 0u64;
+
+    while spins < max_spins {
+        let mut cnt_now: u64;
+        unsafe {
+            core::arch::asm!("mrs {}, cntpct_el0", out(reg) cnt_now, options(nomem, nostack));
+        }
+        if cnt_now.wrapping_sub(cnt_start) >= target_ticks {
+            break;
+        }
+        spins += 1;
+        core::hint::spin_loop();
+    }
+}
+
 /// Paints the initial boot splash on both framebuffer buffers
 pub unsafe fn paint_indos_hardware_splash() {
     for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
@@ -173,17 +203,18 @@ pub unsafe fn paint_indos_hardware_splash() {
     }
 }
 
-/// Plays the 2.8-second 4-stage Cold Boot Animation
+/// Plays the 2.8-second 4-stage Cold Boot Animation with hardware-paced timing
 pub unsafe fn play_cold_boot_animation() {
     let mut anim_engine = super::boot_animation_core::KernelBootAnimationEngine::new();
-    // 28 keyframe steps across the 2.8-second sequence (100ms per step)
-    for frame_step in 0..=28 {
-        let ms = frame_step * 100;
+    // 56 keyframe steps across the 2.8-second sequence (50ms per step = 20 fps hardware double-buffer)
+    for frame_step in 0..=56 {
+        let ms = frame_step * 50;
         anim_engine.set_time(ms);
         for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
             let mut painter = HardwareScreenPainter::new(fb_addr);
             anim_engine.render_frame(&mut painter);
         }
+        delay_ms(50);
     }
 }
 
