@@ -18,4 +18,8 @@ pub use shell_v2::{
     NotificationAction, NotificationItem, NotificationSource, ShellError, ShellV2Engine,
     INTENT_BUF_LEN, MAX_LAUNCHER_APPS, MAX_NOTIFICATIONS,
 };
-
+pub mod intent_ui;
+pub use intent_ui::{
+    ExplanationReceipt, IndicImeEngine, IntentError, IntentSession, IntentState, IntentUiEngine,
+    ProposalCard, MAX_INTENT_STR_LEN,
+};

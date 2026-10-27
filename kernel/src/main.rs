@@ -5147,6 +5147,73 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-61] - Notification Lifecycle Actions (INV-SHELL2-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-62: INTENT SURFACE UI & INDIC IME
+    // ==================================================
+
+    // Stage 259: Intent Surface UI Initialization (REQ-AI-104)
+    stage_marker!("259_INTENT_UI_INIT", "Intent surface engine initialized");
+    let mut intent_ui = crate::userspace::KernelIntentUiEngine::new();
+    let session_id = intent_ui.create_intent("free up memory by compressing inactive cache");
+    assert_eq!(session_id, 1);
+    assert_eq!(intent_ui.session_state(), Some(crate::userspace::KernelIntentState::Drafting));
+    log_info!("intent_ui", "Intent surface engine online: intent session drafting initialized (REQ-AI-104 PASSED)");
+
+    // Stage 260: Proposal Card Generation (REQ-AI-104, INV-INTENT-UI-001)
+    stage_marker!("260_INTENT_PROPOSAL_CARD", "Proposal card generated with plain-language capability requirements");
+    let proposal = intent_ui.generate_proposal(
+        session_id,
+        "Compress 24MB inactive cache in background",
+        (crate::userspace::CORE_CAP_READ | crate::userspace::CORE_CAP_WRITE) as u64,
+        1, // low risk tier
+    ).expect("Proposal generation failed");
+    assert_eq!(proposal.risk_tier, 1);
+    assert_eq!(intent_ui.session_state(), Some(crate::userspace::KernelIntentState::ProposalGenerated));
+    log_info!("intent_ui", "Proposal card generated: capability & risk tier displayed to user (INV-INTENT-UI-001 PASSED)");
+
+    // Stage 261: Mandatory Consent Gating & Execution (INV-INTENT-UI-001)
+    stage_marker!("261_INTENT_CONSENT_EXECUTION_PROGRESSION", "Execution blocked prior to consent, permitted after user approval");
+    // Attempt execution before consent: MUST FAIL with ConsentRequired
+    let pre_consent_err = intent_ui.execute_intent(session_id);
+    assert_eq!(pre_consent_err, Err(crate::userspace::KernelIntentError::ConsentRequired));
+
+    // User approves proposal
+    let consent_state = intent_ui.record_consent(session_id, true).expect("Recording consent failed");
+    assert_eq!(consent_state, crate::userspace::KernelIntentState::ConsentGranted);
+
+    // Now execute: MUST SUCCEED
+    intent_ui.execute_intent(session_id).expect("Execution failed after consent granted");
+    assert_eq!(intent_ui.session_state(), Some(crate::userspace::KernelIntentState::Executed));
+    log_info!("intent_ui", "Consent gating verified: execution blocked before approval, dispatched safely after (INV-INTENT-UI-001 PASSED)");
+
+    // Stage 262: Explanation Receipt & Zero-Heap Indic IME Transliteration (INV-INTENT-UI-002, INV-INTENT-UI-003, REQ-AI-105, REQ-AI-108)
+    stage_marker!("262_INTENT_EXPLANATION_RECEIPT_AND_IME", "Auditable explanation receipt and Indic IME transliteration verified");
+    let receipt = intent_ui.generate_explanation_receipt(
+        session_id,
+        "Compressed 24MB inactive cache; freed 16MB physical RAM",
+    ).expect("Receipt generation failed");
+    assert_eq!(receipt.intent_id, session_id);
+    assert_eq!(receipt.audit_hash, 0xABCD_0001);
+    assert_eq!(intent_ui.session_state(), Some(crate::userspace::KernelIntentState::ReceiptGenerated));
+
+    // Indic IME phonetic transliteration test (zero-heap)
+    let mut devanagari_buf = [0u8; 32];
+    let written_len = crate::userspace::KernelIndicImeEngine::transliterate_to_devanagari("namaste", &mut devanagari_buf)
+        .expect("Transliteration failed");
+    assert_eq!(written_len, "नमस्ते".as_bytes().len());
+    assert_eq!(&devanagari_buf[..written_len], "नमस्ते".as_bytes());
+    log_info!("intent_ui", "Explanation receipt generated and Indic IME Devanagari transliteration verified (INV-INTENT-UI-002, INV-INTENT-UI-003 PASSED)");
+
+    // Stage 263: Sprint SP-62 Milestone Reached
+    stage_marker!("263_SP62_INTENT_UI_READY", "Sprint SP-62 Intent Surface Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-62] Sprint SP-62 Intent Surface Milestone REACHED.");
+    println!(" [SP-62] - Intent Proposal Card & Risk Tiering (REQ-AI-104),");
+    println!(" [SP-62] - Strict Consent Gating prior to Execution (INV-INTENT-UI-001),");
+    println!(" [SP-62] - Auditable Explanation Receipt (INV-INTENT-UI-002, REQ-AI-105),");
+    println!(" [SP-62] - Indic IME Devanagari Transliteration Architecture (INV-INTENT-UI-003, REQ-AI-108).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

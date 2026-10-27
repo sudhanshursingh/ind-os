@@ -163,6 +163,11 @@ pub use shell_v2_core::{
     KernelNotificationAction, KernelNotificationItem, KernelNotificationSource, KernelShellError,
     KernelShellV2Engine, KERNEL_INTENT_BUF_LEN, KERNEL_MAX_LAUNCHER_APPS, KERNEL_MAX_NOTIFICATIONS,
 };
+pub mod intent_ui_core;
+pub use intent_ui_core::{
+    KernelExplanationReceipt, KernelIndicImeEngine, KernelIntentError, KernelIntentSession,
+    KernelIntentState, KernelIntentUiEngine, KernelProposalCard,
+};
 
 
 
