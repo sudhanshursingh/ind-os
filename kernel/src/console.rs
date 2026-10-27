@@ -15,6 +15,11 @@ pub fn init_console() {
     CONSOLE.lock().init();
 }
 
+/// Update the physical base address of the console
+pub fn set_console_base(base: usize) {
+    CONSOLE.lock().set_base(base);
+}
+
 /// Low-level formatted print dispatcher
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {

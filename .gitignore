@@ -1,6 +1,7 @@
 # Target build artifacts
 target/
 **/target/
+**/target_hanoip/
 build/
 *.bin
 

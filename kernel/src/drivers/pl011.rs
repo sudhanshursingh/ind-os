@@ -59,18 +59,34 @@ impl Pl011Uart {
         }
     }
 
+    /// Updates the physical base address of the UART controller
+    pub fn set_base(&mut self, base: usize) {
+        self.base = base;
+        self.initialized = false;
+    }
+
     #[inline(always)]
     unsafe fn read_reg(&self, offset: usize) -> u32 {
+        if self.base == 0 {
+            return 0;
+        }
         core::ptr::read_volatile((self.base + offset) as *const u32)
     }
 
     #[inline(always)]
     unsafe fn write_reg(&mut self, offset: usize, val: u32) {
+        if self.base == 0 {
+            return;
+        }
         core::ptr::write_volatile((self.base + offset) as *mut u32, val);
     }
 
     /// Initialize the PL011 UART hardware for polled 115200 8N1 operation
     pub fn init(&mut self) {
+        if self.base == 0 {
+            self.initialized = true;
+            return;
+        }
         unsafe {
             // 1. Disable UART before reprogramming
             self.write_reg(UARTCR, 0);
@@ -99,17 +115,26 @@ impl Pl011Uart {
     /// Check if the transmit FIFO is full
     #[inline(always)]
     pub fn is_tx_full(&self) -> bool {
+        if self.base == 0 {
+            return false;
+        }
         unsafe { (self.read_reg(UARTFR) & FR_TXFF) != 0 }
     }
 
     /// Check if the receive FIFO is empty
     #[inline(always)]
     pub fn is_rx_empty(&self) -> bool {
+        if self.base == 0 {
+            return true;
+        }
         unsafe { (self.read_reg(UARTFR) & FR_RXFE) != 0 }
     }
 
     /// Transmit a single byte, blocking until the TX FIFO has available space
     pub fn write_byte(&mut self, byte: u8) {
+        if self.base == 0 {
+            return;
+        }
         while self.is_tx_full() {
             core::hint::spin_loop();
         }

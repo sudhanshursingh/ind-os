@@ -6,6 +6,7 @@
 
 pub mod qemu_virt;
 pub mod hanoip;
+pub mod hanoip_display;
 pub mod lab_prep_core;
 pub mod device_evidence_core;
 pub mod boot_chain_core;

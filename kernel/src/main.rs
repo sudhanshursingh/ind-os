@@ -44,8 +44,15 @@ const PLATFORM: &str = env!("INDK_PLATFORM");
 /// Kernel main entry point called from `boot.s` after EL1 transition & stack setup
 #[no_mangle]
 pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
-    // Initialize the PL011 UART early serial console
-    console::init_console();
+    if PLATFORM == "hanoip" {
+        console::set_console_base(0); // Safely disable QEMU PL011 MMIO access
+        unsafe {
+            hal::platform::hanoip_display::paint_indos_hardware_splash();
+        }
+    } else {
+        // Initialize the PL011 UART early serial console on QEMU virt
+        console::init_console();
+    }
 
     // Print authoritative IndK boot banner with Gate G1 provenance
     println!();
@@ -61,7 +68,7 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     // Emit boot-stage transition markers (Bible §8.7 standard)
     stage_marker!("01_RESET", "ARM64 EL1 entry and early stack established");
     stage_marker!("02_VECTORS", "VBAR_EL1 exception vectors armed (INV-BOOT-004)");
-    stage_marker!("03_CONSOLE", "PL011 early serial console driver online");
+    stage_marker!("03_CONSOLE", "Early serial console driver online");
 
     // Leveled logging demonstration
     log_info!("boot", "IndK microkernel core initialization sequence starting");
@@ -69,24 +76,28 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
 
     // Stage 04: Validate Device Tree Blob (INV-BOOT-003)
     stage_marker!("04_DTB", "Validating Device Tree Blob header");
-    println!(" [BOOT] Device Tree Blob at: 0x{:08x}", dtb_addr);
+    println!(" [BOOT] Device Tree Blob pointer: 0x{:08x}", dtb_addr);
 
-    let (magic, totalsize) = unsafe {
-        let ptr = dtb_addr as *const u32;
-        let m = u32::from_be(*ptr);
-        let sz = u32::from_be(*ptr.add(1));
-        (m, sz)
-    };
+    if dtb_addr != 0 {
+        let (magic, totalsize) = unsafe {
+            let ptr = dtb_addr as *const u32;
+            let m = u32::from_be(*ptr);
+            let sz = u32::from_be(*ptr.add(1));
+            (m, sz)
+        };
 
-    if magic == 0xd00dfeed {
-        println!(" [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).");
-        log_info!("dtb", "DTB header verified (magic 0xd00dfeed, size {} bytes)", totalsize);
+        if magic == 0xd00dfeed {
+            println!(" [BOOT] DTB magic 0xd00dfeed verified (INV-BOOT-003).");
+            log_info!("dtb", "DTB header verified (magic 0xd00dfeed, size {} bytes)", totalsize);
+        } else {
+            println!(" [BOOT] External DTB has non-standard magic; using built-in hardware topology.");
+        }
     } else {
-        panic!("DTB magic corrupted or unmapped at pointer!");
+        println!(" [BOOT] Built-in hardware memory topology active (Moto G60 Snapdragon 732G).");
     }
 
     log_warn!("sched", "Preemptive multitasking disabled (scheduled for Phase 2)");
-    log_trace!("uart", "PL011 115200 8N1 FIFO depth: 32 bytes");
+    log_trace!("uart", "Early console FIFO ready");
 
     // Stage 06: Memory Discovery via DTB
     stage_marker!("06_MEMORY_DISCOVERY", "Discovering physical RAM topology from DTB");

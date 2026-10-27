@@ -30,17 +30,28 @@ pub static OOM_KILLER: Spinlock<OomKiller> = Spinlock::new(OomKiller::new());
 #[global_allocator]
 pub static HEAP: LockedHeap = LockedHeap::empty();
 
-/// Initialize memory management from the Device Tree Blob
+/// Initialize memory management from the Device Tree Blob (or hardware fallback)
 pub fn init_memory(dtb_ptr: usize) -> Result<PhysicalMemoryRegion, DtbError> {
-    let parser = unsafe { DtbParser::from_raw(dtb_ptr)? };
-    let dtb_size = parser.total_size();
-    let mem_region = parser.discover_memory()?;
+    let (mem_region, dtb_size) = if dtb_ptr != 0 {
+        let parser = unsafe { DtbParser::from_raw(dtb_ptr)? };
+        let dtb_size = parser.total_size();
+        let mem_region = parser.discover_memory()?;
+        (mem_region, dtb_size)
+    } else {
+        (PhysicalMemoryRegion { base: 0x80000000, size: 256 * 1024 * 1024 }, 0)
+    };
 
     let mut allocator = FRAME_ALLOCATOR.lock();
     allocator.init(mem_region.base, mem_region.size);
 
-    // Reserve physical region below kernel image start (0x40000000 .. 0x40080000)
-    let kernel_start = 0x40080000;
+    // Dynamic kernel start detection based on DRAM base
+    let kernel_start = if mem_region.base >= 0x80000000 {
+        0x80080000
+    } else {
+        0x40080000
+    };
+
+    // Reserve physical region below kernel image start
     if mem_region.base < kernel_start {
         allocator.mark_reserved(mem_region.base, kernel_start - mem_region.base);
     }
@@ -51,8 +62,10 @@ pub fn init_memory(dtb_ptr: usize) -> Result<PhysicalMemoryRegion, DtbError> {
         allocator.mark_reserved(kernel_start, kernel_end - kernel_start);
     }
 
-    // Reserve Device Tree Blob
-    allocator.mark_reserved(dtb_ptr, dtb_size);
+    // Reserve Device Tree Blob if present
+    if dtb_ptr != 0 && dtb_size != 0 {
+        allocator.mark_reserved(dtb_ptr, dtb_size);
+    }
 
     Ok(mem_region)
 }

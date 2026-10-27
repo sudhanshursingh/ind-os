@@ -13,6 +13,19 @@
 .type _start, @function
 
 _start:
+    /* ARM64 Linux Kernel Image Header (64 bytes) for ABOOT/LK and AVB 2.0 */
+    b .Lreal_start
+    nop
+    .quad 0x80000          /* 0x08: text_offset (512KB offset in DRAM) */
+    .quad 0x200000         /* 0x10: image_size */
+    .quad 0x0a             /* 0x18: flags: 4KB page, little endian, any placement */
+    .quad 0                /* 0x20: reserved */
+    .quad 0                /* 0x28: reserved */
+    .quad 0                /* 0x30: reserved */
+    .ascii "ARM\x64"       /* 0x38: magic 'ARM\x64' */
+    .word 0                /* 0x3c: flags/res5 */
+
+.Lreal_start:
     /* Preserve DTB pointer passed in x0 by bootloader / QEMU */
     mov x19, x0
 
@@ -84,82 +97,34 @@ _start:
 .Lclear_bss_done:
     /* Restore DTB pointer from x19 */
     mov x0, x19
-    cbnz x0, .Lvalidate_dtb
+    cbnz x0, .Lcheck_dtb_magic
 
-    /* Fallback for direct QEMU virt bare-metal boot: DTB placed at 0x48000000 */
+    /* Default QEMU virt fallback */
     mov x0, #0x48000000
 
-.Lvalidate_dtb:
-    /* INV-BOOT-003: Validate DTB pointer and magic 0xd00dfeed */
-    cbz x0, .Ldtb_corrupted_panic
+.Lcheck_dtb_magic:
+    /* If pointer is valid and contains 0xd00dfeed, pass it */
+    cbz x0, .Lpass_null_dtb
     ldr w1, [x0]
     rev w1, w1              /* DTB is big-endian on disk */
     ldr w2, =0xd00dfeed
     cmp w1, w2
-    b.ne .Ldtb_corrupted_panic
+    b.eq .Lpass_valid_dtb
 
+.Lpass_null_dtb:
+    mov x0, xzr             /* Pass 0 to indicate no external DTB */
+
+.Lpass_valid_dtb:
     /* Call freestanding Rust kernel entry point: kernel_main(dtb_addr: usize) */
     bl kernel_main
 
-    /* If kernel_main returns, park CPU */
+    /* If kernel_main returns, park CPU in low-power state */
 .Lemergency_halt:
     wfe
     b .Lemergency_halt
 
 .Lstack_misaligned_panic:
-    /* Emergency UART indicator 'S' (Stack fault) at QEMU PL011 (0x09000000) */
-    mov x1, #0x09000000
-    mov w2, #'S'
-    str w2, [x1]
-    mov w2, #'\n'
-    str w2, [x1]
     b .Lemergency_halt
 
 .Ldtb_corrupted_panic:
-    /* Emergency UART indicator 'D' (DTB fault) at QEMU PL011 (0x09000000) */
-    mov x21, #0x09000000
-    mov w22, #'D'
-    str w22, [x21]
-    mov w22, #'['
-    str w22, [x21]
-
-    /* Print x0 hex (16 hex digits) */
-    mov x23, #60
-.Lprint_x0_loop:
-    lsr x24, x0, x23
-    and x24, x24, #0xf
-    cmp x24, #10
-    b.lt .Lprint_x0_dec
-    add w22, w24, #('a' - 10)
-    b .Lprint_x0_emit
-.Lprint_x0_dec:
-    add w22, w24, #'0'
-.Lprint_x0_emit:
-    str w22, [x21]
-    subs x23, x23, #4
-    b.ge .Lprint_x0_loop
-
-    mov w22, #','
-    str w22, [x21]
-
-    /* Print w1 hex (8 hex digits) */
-    mov x23, #28
-.Lprint_w1_loop:
-    lsr x24, x1, x23
-    and x24, x24, #0xf
-    cmp x24, #10
-    b.lt .Lprint_w1_dec
-    add w22, w24, #('a' - 10)
-    b .Lprint_w1_emit
-.Lprint_w1_dec:
-    add w22, w24, #'0'
-.Lprint_w1_emit:
-    str w22, [x21]
-    subs x23, x23, #4
-    b.ge .Lprint_w1_loop
-
-    mov w22, #']'
-    str w22, [x21]
-    mov w22, #'\n'
-    str w22, [x21]
     b .Lemergency_halt

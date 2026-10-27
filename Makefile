@@ -17,6 +17,15 @@ kernel:
 		$(LLVM_OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN); \
 	fi
 
+kernel-hanoip:
+	@echo "Building IndK ARM64 microkernel for Qualcomm SM7150 (Moto G60)..."
+	@cd kernel && INDK_PLATFORM=hanoip RUSTFLAGS="-C link-arg=-L. -C link-arg=-Lkernel -C link-arg=-Tlinker_hanoip.ld -C link-arg=-nostdlib" cargo build --target aarch64-unknown-none --target-dir target_hanoip
+	@mkdir -p target
+	@if [ -n "$(LLVM_OBJCOPY)" ]; then \
+		$(LLVM_OBJCOPY) -O binary kernel/target_hanoip/aarch64-unknown-none/debug/indk target/indk-hanoip.bin; \
+	fi
+	@python3 tools/package_boot_image.py target/indk-hanoip.bin target/indos-hanoip-boot.img
+
 qemu-boot: kernel
 	@echo "Booting IndK kernel in headless QEMU..."
 	@./tools/run_qemu.sh --kernel $(KERNEL_ELF) --timeout 5

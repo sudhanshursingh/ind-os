@@ -28,7 +28,9 @@ fn main() {
         .map(|out| if out.stdout.is_empty() { "" } else { "-dirty" })
         .unwrap_or("");
 
+    println!("cargo:rerun-if-env-changed=INDK_PLATFORM");
+    let platform = std::env::var("INDK_PLATFORM").unwrap_or_else(|_| "qemu-virt".to_string());
     println!("cargo:rustc-env=INDK_GIT_HASH={}{}", git_hash, git_dirty);
     println!("cargo:rustc-env=INDK_TARGET_ARCH=aarch64");
-    println!("cargo:rustc-env=INDK_PLATFORM=qemu-virt");
+    println!("cargo:rustc-env=INDK_PLATFORM={}", platform);
 }
