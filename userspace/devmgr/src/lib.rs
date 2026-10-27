@@ -19,6 +19,7 @@ pub mod ufs;
 pub mod ufs_resilience;
 pub mod display_panel;
 pub mod cpu_compositor;
+pub mod touch_controller;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -56,6 +57,11 @@ pub use cpu_compositor::{
     CompositorError, CpuCompositorHarness, DirtyRect,
     CAP_SURFACE_COMPOSITOR, MAX_PANEL_HEIGHT, MAX_PANEL_WIDTH,
 };
+pub use touch_controller::{
+    TouchAction, TouchControllerHarness, TouchError, TouchPoint,
+    HANOIP_GENI_I2C1_BASE, TOUCH_I2C_SLAVE_ADDR, TOUCH_QUEUE_CAPACITY,
+};
+
 
 
 

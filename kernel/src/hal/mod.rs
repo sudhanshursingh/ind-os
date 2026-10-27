@@ -51,6 +51,10 @@ pub use platform::cpu_compositor_core::{
     KernelCompositorError, KernelCpuCompositorHarness, KernelDirtyRect,
     KERNEL_CAP_SURFACE_COMPOSITOR, KERNEL_MAX_PANEL_HEIGHT, KERNEL_MAX_PANEL_WIDTH,
 };
+pub use platform::touch_controller_core::{
+    KernelTouchAction, KernelTouchControllerHarness, KernelTouchError, KernelTouchPoint,
+    KERNEL_HANOIP_GENI_I2C1_BASE, KERNEL_TOUCH_I2C_SLAVE_ADDR, KERNEL_TOUCH_QUEUE_CAPACITY,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
