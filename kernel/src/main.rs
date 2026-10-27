@@ -5929,6 +5929,53 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-73] - 6GB Physical DRAM Mapped at 0x8000_0000 (INV-CORE-HW-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-74: STORAGE - QUALCOMM UFS 2.2 BRING-UP
+    // ==================================================
+
+    // Stage 320: UFS Driver Initialization (REQ-HW-105, REQ-KRN-106)
+    stage_marker!("320_SP74_UFS_DRIVER_INIT", "Qualcomm UFS 2.2 host controller harness initialized");
+    let mut ufs_harness = crate::hal::KernelUfsControllerHarness::new();
+    assert!(!ufs_harness.mmio_mapped());
+    assert_eq!(ufs_harness.active_transfers(), 0);
+    assert!(!ufs_harness.lun_ready());
+    log_info!("ufs", "UFS 2.2 controller harness online: UFSHCI and UTP transfer engine armed (REQ-HW-105 PASSED)");
+
+    // Stage 321: UFSHCI Hardware MMIO Register Mapping (INV-UFS-001)
+    stage_marker!("321_SP74_UFSHCI_REGISTER_MAPPING", "UFSHCI hardware register MMIO address mapping verified");
+    let invalid_mmio_err = ufs_harness.map_mmio(0x0100_0000);
+    assert_eq!(invalid_mmio_err, Err(crate::hal::KernelUfsDriverError::InvalidMmioBase));
+
+    ufs_harness.map_mmio(crate::hal::KERNEL_HANOIP_UFS_BASE).expect("UFSHCI MMIO mapping failed");
+    assert!(ufs_harness.mmio_mapped());
+    log_info!("ufs", "UFSHCI verified: controller registers mapped at 0x01d8_4000 (INV-UFS-001 PASSED)");
+
+    // Stage 322: UTP Transfer Capability Gating (INV-UFS-002)
+    stage_marker!("322_SP74_UTP_TRANSFER_CAPABILITY_GATING", "UTP transfer request capability gating enforced");
+    let unpriv_transfer_err = ufs_harness.submit_utp_transfer(0, 0, 8);
+    assert_eq!(unpriv_transfer_err, Err(crate::hal::KernelUfsDriverError::PermissionDenied));
+
+    let zero_block_err = ufs_harness.submit_utp_transfer(crate::hal::KERNEL_CAP_STORAGE_ADMIN, 0, 0);
+    assert_eq!(zero_block_err, Err(crate::hal::KernelUfsDriverError::TransferFailed));
+    log_info!("ufs", "Capability gating verified: unprivileged or malformed transfers strictly rejected (INV-UFS-002 PASSED)");
+
+    // Stage 323: LUN 0 Block I/O Operations (INV-UFS-003)
+    stage_marker!("323_SP74_UFS_LUN_BLOCK_IO", "LUN 0 system storage block transfer operations verified");
+    ufs_harness.submit_utp_transfer(crate::hal::KERNEL_CAP_STORAGE_ADMIN, 0x1000, 16)
+        .expect("Valid UTP block transfer failed");
+    assert_eq!(ufs_harness.active_transfers(), 1);
+    assert!(ufs_harness.lun_ready());
+    log_info!("ufs", "LUN block I/O verified: 16 blocks transferred to LBA 0x1000 (INV-UFS-003 PASSED)");
+
+    // Stage 324: Sprint SP-74 Milestone Reached
+    stage_marker!("324_SP74_UFS_DRIVER_READY", "Sprint SP-74 Qualcomm UFS 2.2 Storage Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-74] Sprint SP-74 Qualcomm UFS 2.2 Storage Milestone REACHED.");
+    println!(" [SP-74] - UFSHCI Controller Mapped at 0x01d8_4000 (INV-UFS-001, REQ-HW-105),");
+    println!(" [SP-74] - UTP Transfer Descriptor Capability Gating Enforced (INV-UFS-002),");
+    println!(" [SP-74] - LUN 0 System Block Storage I/O Operational (INV-UFS-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

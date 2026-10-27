@@ -15,6 +15,7 @@ pub mod lab_prep;
 pub mod device_evidence;
 pub mod boot_chain;
 pub mod hardware_core;
+pub mod ufs;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -34,4 +35,8 @@ pub use boot_chain::{
 pub use hardware_core::{
     HardwareCoreError, HardwareCoreHarness, HANOIP_DRAM_BASE,
     HANOIP_DRAM_SIZE_BYTES, HANOIP_GENI_UART_BASE, HANOIP_PDC_GIC_BASE,
+};
+pub use ufs::{
+    UfsControllerHarness, UfsDriverError, CAP_STORAGE_ADMIN,
+    HANOIP_UFS_BASE,
 };
