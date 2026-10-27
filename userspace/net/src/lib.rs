@@ -66,6 +66,11 @@ pub use interop::{
     NetworkFileTransferEngine, NETSHELL_AUTH_SECRET, NFTP_PAYLOAD_SIZE, REQUIRED_FILE_READ_CAP,
     REQUIRED_FILE_WRITE_CAP,
 };
+pub mod soak;
+pub use soak::{
+    NetFuzzScenario, NetSoakHarness, NetSoakReport, DEFAULT_STORM_PACKET_COUNT,
+};
+
 
 
 

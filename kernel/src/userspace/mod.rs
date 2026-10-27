@@ -143,6 +143,12 @@ pub use net_interop::{
     KernelNetRemoteShellSession, KernelNetworkFileTransferEngine, KERNEL_NETSHELL_AUTH_SECRET,
     KERNEL_NFTP_PAYLOAD_SIZE, KERNEL_REQUIRED_FILE_READ_CAP, KERNEL_REQUIRED_FILE_WRITE_CAP,
 };
+pub mod net_soak;
+pub use net_soak::{
+    KernelNetFuzzScenario, KernelNetSoakHarness, KernelNetSoakReport,
+    KERNEL_DEFAULT_STORM_PACKET_COUNT,
+};
+
 
 
 

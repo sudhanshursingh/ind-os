@@ -1,0 +1,7 @@
+{
+  "docs/architecture/integration-suite-v2-spec.md": "96e69b4b64aef119c35d345054ecba0018c2bf96ef1a99da3e5a4168dd12b083",
+  "docs/evidence/SP-58-validation.md": "3f4038162c88ac706a08bb3ed47e62f1dc8857c818d491291adb8df9d1ee7e0d",
+  "docs/evidence/golden-boot-sp58.log": "8c0a250ea34eed70764ea5b0815581f3d0c7c82c1dee9e20bfb1aa36e9e55eab",
+  "userspace/net/src/soak.rs": "d74dc82bd058479abee40fac246ec0524ea18d2f1e0aa6373ff4209707da6b76",
+  "kernel/src/userspace/net_soak.rs": "552b0e19b7fdbc0c97cf863f5ff18b0236d8cca87ad5fef3aa6e1564e86700c7"
+}

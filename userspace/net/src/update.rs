@@ -149,4 +149,20 @@ impl UpdateManager {
             Err(UpdateError::VerificationFailed)
         }
     }
+
+    /// Simulate sudden power cut or crash during update (INV-SOAK-NET-001)
+    pub fn simulate_power_interruption(&mut self) {
+        let other = self.active_slot.other();
+        if self.slot_states[other as usize] == SlotState::Updating {
+            // Updating partition discarded upon reboot
+            self.slot_states[other as usize] = SlotState::RolledBack;
+        } else if self.slot_states[self.active_slot as usize] == SlotState::PendingVerification {
+            // Unverified slot rolled back to other
+            let prev = self.active_slot.other();
+            self.slot_states[self.active_slot as usize] = SlotState::RolledBack;
+            self.slot_states[prev as usize] = SlotState::Active;
+            self.active_slot = prev;
+        }
+    }
 }
+

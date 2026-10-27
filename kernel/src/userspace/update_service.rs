@@ -134,4 +134,17 @@ impl KernelUpdateManager {
             Err(KernelUpdateError::VerificationFailed)
         }
     }
+
+    pub fn simulate_power_interruption(&mut self) {
+        let other = self.active_slot.other();
+        if self.slot_states[other as usize] == KernelSlotState::Updating {
+            self.slot_states[other as usize] = KernelSlotState::RolledBack;
+        } else if self.slot_states[self.active_slot as usize] == KernelSlotState::PendingVerification {
+            let prev = self.active_slot.other();
+            self.slot_states[self.active_slot as usize] = KernelSlotState::RolledBack;
+            self.slot_states[prev as usize] = KernelSlotState::Active;
+            self.active_slot = prev;
+        }
+    }
 }
+
