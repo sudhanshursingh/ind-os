@@ -49,6 +49,11 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
         unsafe {
             hal::platform::hanoip_display::paint_indos_hardware_splash();
         }
+
+        // On real hardware, maintain the active display and keep CPU alive!
+        loop {
+            core::hint::spin_loop();
+        }
     } else {
         // Initialize the PL011 UART early serial console on QEMU virt
         console::init_console();

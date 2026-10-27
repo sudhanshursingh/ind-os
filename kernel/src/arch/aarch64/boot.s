@@ -97,14 +97,9 @@ _start:
 .Lclear_bss_done:
     /* Restore DTB pointer from x19 */
     mov x0, x19
-    cbnz x0, .Lcheck_dtb_magic
-
-    /* Default QEMU virt fallback */
-    mov x0, #0x48000000
-
-.Lcheck_dtb_magic:
-    /* If pointer is valid and contains 0xd00dfeed, pass it */
     cbz x0, .Lpass_null_dtb
+
+    /* Only if non-null, check DTB magic 0xd00dfeed */
     ldr w1, [x0]
     rev w1, w1              /* DTB is big-endian on disk */
     ldr w2, =0xd00dfeed
