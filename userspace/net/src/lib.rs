@@ -14,6 +14,9 @@ pub mod udp;
 pub mod tcp;
 pub mod socket;
 pub mod tls;
+pub mod dns;
+pub mod dhcp;
+pub mod firewall;
 
 pub use types::{
     EtherType, Ipv4Address, IpProtocol, MacAddress, NetError, SocketType, TcpState,
@@ -33,4 +36,14 @@ pub use tls::{
     CipherSuite, TlsCertificateValidator, TlsHandshakeEngine, TlsRecordHeader, TlsRecordType,
     TlsSessionState, TlsStream, TLS_RECORD_HEADER_LEN, TLS_VERSION_1_3,
 };
+pub use dns::{DnsHeader, DnsResolver, DNS_HEADER_LEN, DNS_PORT};
+pub use dhcp::{
+    DhcpClient, DhcpLease, DhcpMessageType, DhcpState, DHCP_CLIENT_PORT, DHCP_MAGIC_COOKIE,
+    DHCP_SERVER_PORT,
+};
+pub use firewall::{
+    FilterAction, FirewallEngine, FirewallRule, PacketDirection, CAP_NET_FIREWALL_ADMIN,
+    MAX_FIREWALL_RULES,
+};
+
 

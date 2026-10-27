@@ -4409,6 +4409,121 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-52] - ADR-004 Ratified and SBOM-Tracked.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-53: DNS, DHCP, FIREWALL (IN-KERNEL FIREWALL, CAPABILITY-GATED)
+    // ==================================================
+
+    // Stage 213: In-Kernel Firewall Initialization with Default-Deny Inbound (INV-FW-001)
+    stage_marker!("213_FIREWALL_INIT", "In-kernel firewall initialized with default-deny inbound posture");
+    let mut firewall = crate::userspace::KernelFirewallEngine::new();
+    {
+        // 1. Verify default-deny inbound posture: unprompted inbound packet to port 80 is dropped
+        let unprompted_in = firewall.filter_packet(
+            crate::userspace::KernelPacketDirection::Inbound,
+            crate::userspace::KernelIpProtocol::Tcp,
+            crate::userspace::KernelIpv4Address([192, 168, 1, 100]),
+            80,
+        );
+        assert_eq!(unprompted_in, crate::userspace::KernelFilterAction::Deny, "Default inbound must be Deny (INV-FW-001)");
+
+        // 2. Verify default-allow outbound posture: outbound DNS request to port 53 is allowed
+        let outbound_dns = firewall.filter_packet(
+            crate::userspace::KernelPacketDirection::Outbound,
+            crate::userspace::KernelIpProtocol::Udp,
+            crate::userspace::KernelIpv4Address([10, 0, 2, 3]),
+            53,
+        );
+        assert_eq!(outbound_dns, crate::userspace::KernelFilterAction::Allow);
+
+        log_info!("firewall", "Firewall initialized: default-deny inbound verified, outbound permissive (INV-FW-001 PASSED)");
+    }
+
+    // Stage 214: Capability-Gated Firewall Rule Modification (INV-FW-002)
+    stage_marker!("214_FIREWALL_CAPABILITY_GATING", "Capability-gated firewall rule modification verified");
+    {
+        // 1. Adversarial test: Unprivileged caller denied rule addition
+        let unpriv_err = firewall.add_rule(
+            0, // No rights
+            crate::userspace::KernelPacketDirection::Inbound,
+            crate::userspace::KernelIpProtocol::Tcp,
+            None,
+            443,
+            443,
+            crate::userspace::KernelFilterAction::Allow,
+        );
+        assert_eq!(unpriv_err, Err(crate::userspace::KernelNetError::PermissionDenied));
+
+        // 2. Admin caller with CAP_NET_FIREWALL_ADMIN succeeds
+        let rule_id = firewall.add_rule(
+            crate::userspace::KERNEL_CAP_NET_FIREWALL_ADMIN,
+            crate::userspace::KernelPacketDirection::Inbound,
+            crate::userspace::KernelIpProtocol::Tcp,
+            None,
+            443,
+            443,
+            crate::userspace::KernelFilterAction::Allow,
+        ).expect("Admin firewall add failed");
+
+        // 3. Verify rule takes effect: inbound port 443 now allowed
+        let allowed_443 = firewall.filter_packet(
+            crate::userspace::KernelPacketDirection::Inbound,
+            crate::userspace::KernelIpProtocol::Tcp,
+            crate::userspace::KernelIpv4Address([192, 168, 1, 100]),
+            443,
+        );
+        assert_eq!(allowed_443, crate::userspace::KernelFilterAction::Allow);
+
+        // 4. Admin removes rule
+        firewall.remove_rule(crate::userspace::KERNEL_CAP_NET_FIREWALL_ADMIN, rule_id).expect("Remove rule failed");
+
+        // 5. Inbound 443 reverts to default-deny
+        let reverted_443 = firewall.filter_packet(
+            crate::userspace::KernelPacketDirection::Inbound,
+            crate::userspace::KernelIpProtocol::Tcp,
+            crate::userspace::KernelIpv4Address([192, 168, 1, 100]),
+            443,
+        );
+        assert_eq!(reverted_443, crate::userspace::KernelFilterAction::Deny);
+
+        log_info!("firewall", "Firewall rules verified: capability gating strictly enforced, rule lifecycle verified (INV-FW-002 PASSED)");
+    }
+
+    // Stage 215: DHCP Dynamic Lease Negotiation (INV-DHCP-001)
+    stage_marker!("215_DHCP_LEASE_NEGOTIATION", "DHCP Discover/Offer/Request/Ack state machine verified");
+    {
+        let dev_mac = crate::userspace::KernelMacAddress([0x52, 0x54, 0x00, 0x12, 0x34, 0x56]);
+        let (leased_ip, gateway_ip, dns_ip) = crate::userspace::KernelDhcpHarness::simulate_lease(dev_mac, 0x1234_5678);
+        assert_eq!(leased_ip.0, [10, 0, 2, 15]);
+        assert_eq!(gateway_ip.0, [10, 0, 2, 2]);
+        assert_eq!(dns_ip.0, [10, 0, 2, 3]);
+
+        log_info!("dhcp", "DHCP negotiation verified: leased 10.0.2.15 via gateway 10.0.2.2 with DNS 10.0.2.3 (INV-DHCP-001 PASSED)");
+    }
+
+    // Stage 216: DNS Client Resolution & Spoof Rejection (INV-DNS-001)
+    stage_marker!("216_DNS_CLIENT_RESOLUTION", "DNS client resolution and spoofed response rejection verified");
+    {
+        // 1. Valid resolution
+        let resolved_ip = crate::userspace::KernelDnsHarness::resolve("api.indos.internal", 0x4321, 0x4321).expect("DNS query failed");
+        assert_eq!(resolved_ip.0, [10, 0, 2, 50]);
+
+        // 2. Adversarial test: Mismatched / spoofed TxID rejected (PermissionDenied)
+        let spoof_err = crate::userspace::KernelDnsHarness::resolve("api.indos.internal", 0x4321, 0x9999);
+        assert_eq!(spoof_err, Err(crate::userspace::KernelNetError::PermissionDenied));
+
+        log_info!("dns", "DNS resolution verified: api.indos.internal -> 10.0.2.50, spoofed TxID rejected (INV-DNS-001 PASSED)");
+    }
+
+    // Stage 217: Sprint SP-53 Milestone Reached
+    stage_marker!("217_SP53_NET_SERVICES_READY", "Sprint SP-53 DNS, DHCP & Firewall Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-53] Sprint SP-53 DNS, DHCP & Firewall Milestone REACHED.");
+    println!(" [SP-53] - In-Kernel Firewall with Default-Deny Inbound Posture (INV-FW-001),");
+    println!(" [SP-53] - Capability-Gated Rule Changes with CAP_NET_FIREWALL_ADMIN (INV-FW-002),");
+    println!(" [SP-53] - Dynamic DHCP Lease Negotiation (INV-DHCP-001),");
+    println!(" [SP-53] - DNS Client Query Resolution & Spoof Rejection (INV-DNS-001).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

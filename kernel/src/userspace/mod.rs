@@ -115,4 +115,11 @@ pub mod tls_core;
 pub use tls_core::{
     KernelCipherSuite, KernelTlsHarness, KERNEL_TLS_VERSION_1_3,
 };
+pub mod net_services;
+pub use net_services::{
+    KernelDhcpHarness, KernelDnsHarness, KernelFilterAction, KernelFirewallEngine,
+    KernelFirewallRule, KernelPacketDirection, KERNEL_CAP_NET_FIREWALL_ADMIN,
+    KERNEL_MAX_FIREWALL_RULES,
+};
+
 
