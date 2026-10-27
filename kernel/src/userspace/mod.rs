@@ -168,6 +168,11 @@ pub use intent_ui_core::{
     KernelExplanationReceipt, KernelIndicImeEngine, KernelIntentError, KernelIntentSession,
     KernelIntentState, KernelIntentUiEngine, KernelProposalCard,
 };
+pub mod app_framework_core;
+pub use app_framework_core::{
+    KernelAppFrameworkEngine, KernelAppFrameworkError, KernelAppManifest, KernelSandboxedApp,
+    KernelUserMediationGrant, KERNEL_DEFAULT_APP_MEMORY_BUDGET_KB, KERNEL_MAX_SANDBOXED_APPS,
+};
 
 
 

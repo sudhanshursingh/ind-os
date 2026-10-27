@@ -22,4 +22,8 @@ pub mod intent_ui;
 pub use intent_ui::{
     ExplanationReceipt, IndicImeEngine, IntentError, IntentSession, IntentState, IntentUiEngine,
     ProposalCard, MAX_INTENT_STR_LEN,
+};pub mod app_framework;
+pub use app_framework::{
+    AppFrameworkError, AppFrameworkEngine, AppManifest, SandboxedApp, UserMediationGrant,
+    DEFAULT_APP_MEMORY_BUDGET_KB, MAX_SANDBOXED_APPS,
 };

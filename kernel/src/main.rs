@@ -5214,6 +5214,92 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-62] - Indic IME Devanagari Transliteration Architecture (INV-INTENT-UI-003, REQ-AI-108).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-63: APP FRAMEWORK & MANIFESTS
+    // ==================================================
+
+    // Stage 264: App Framework Subsystem Initialization (REQ-USE-207)
+    stage_marker!("264_APP_FRAMEWORK_INIT", "App framework subsystem initialized");
+    let mut app_framework = crate::userspace::KernelAppFrameworkEngine::new();
+    assert_eq!(app_framework.app_count(), 0);
+    log_info!("app_framework", "App framework subsystem online: sandbox manager and grant broker armed (REQ-USE-207 PASSED)");
+
+    // Stage 265: Plain-Language Manifest Validation (REQ-USE-207, INV-APP-001)
+    stage_marker!("265_APP_PLAIN_LANGUAGE_MANIFEST_VALIDATION", "Plain-language capability manifest validation verified");
+    let valid_files_manifest = crate::userspace::KernelAppManifest {
+        app_id: "org.indos.files",
+        display_name: "Files",
+        declared_caps: (crate::userspace::CORE_CAP_READ | crate::userspace::CORE_CAP_WRITE) as u64,
+        justification: "Access internal flash storage to browse and save user documents",
+    };
+    app_framework.validate_manifest(&valid_files_manifest).expect("Valid manifest rejected");
+
+    let invalid_manifest = crate::userspace::KernelAppManifest {
+        app_id: "org.indos.suspicious",
+        display_name: "SneakyApp",
+        declared_caps: crate::userspace::CORE_CAP_READ as u64,
+        justification: "", // Missing justification: MUST FAIL
+    };
+    let manifest_err = app_framework.validate_manifest(&invalid_manifest);
+    assert_eq!(manifest_err, Err(crate::userspace::KernelAppFrameworkError::InvalidManifest));
+    log_info!("app_framework", "Plain-language manifest validation verified: missing justification denied (INV-APP-001 PASSED)");
+
+    // Stage 266: Sandboxed Process Spawn & Capability Binding (INV-APP-002)
+    stage_marker!("266_APP_SANDBOXED_SPAWN_CAPABILITY_BINDING", "Sandboxed spawn and capability binding verified");
+    // Attempting to spawn with undeclared capability must fail
+    let undeclared_err = app_framework.spawn_app(&valid_files_manifest, 0x8000_0000);
+    assert_eq!(undeclared_err, Err(crate::userspace::KernelAppFrameworkError::UndeclaredCapability));
+
+    let files_pid = app_framework.spawn_app(
+        &valid_files_manifest,
+        (crate::userspace::CORE_CAP_READ | crate::userspace::CORE_CAP_WRITE) as u64,
+    ).expect("Files app spawn failed");
+    assert_eq!(files_pid, 100);
+
+    let notes_manifest = crate::userspace::KernelAppManifest {
+        app_id: "org.indos.notes",
+        display_name: "Notes",
+        declared_caps: crate::userspace::CORE_CAP_READ as u64,
+        justification: "Read notes from storage",
+    };
+    let notes_pid = app_framework.spawn_app(
+        &notes_manifest,
+        crate::userspace::CORE_CAP_READ as u64,
+    ).expect("Notes app spawn failed");
+    assert_eq!(notes_pid, 101);
+    assert_eq!(app_framework.app_count(), 2);
+    log_info!("app_framework", "Sandboxed app spawn verified: PID assigned and capability bounds locked (INV-APP-002 PASSED)");
+
+    // Stage 267: User-Mediated Capability Sharing & Inter-App Transfer (INV-APP-003)
+    stage_marker!("267_APP_USER_MEDIATED_SHARING", "Inter-app capability sharing with mandatory user mediation grant verified");
+    let mut grant = app_framework.create_user_grant(
+        files_pid,
+        notes_pid,
+        crate::userspace::CORE_CAP_WRITE as u64,
+    ).expect("Grant creation failed");
+
+    // Unconfirmed grant application MUST FAIL
+    let unconfirmed_err = app_framework.apply_user_grant(&mut grant, false);
+    assert_eq!(unconfirmed_err, Err(crate::userspace::KernelAppFrameworkError::UnconfirmedGrant));
+
+    // User confirms transfer
+    app_framework.apply_user_grant(&mut grant, true).expect("Applying confirmed grant failed");
+    let notes_app = app_framework.find_app(notes_pid).expect("Notes app not found");
+    assert_eq!(
+        notes_app.active_caps,
+        (crate::userspace::CORE_CAP_READ | crate::userspace::CORE_CAP_WRITE) as u64
+    );
+    log_info!("app_framework", "User-mediated inter-app sharing verified: capability transferred safely upon explicit user grant (INV-APP-003 PASSED)");
+
+    // Stage 268: Sprint SP-63 Milestone Reached
+    stage_marker!("268_SP63_APP_FRAMEWORK_READY", "Sprint SP-63 App Framework Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-63] Sprint SP-63 App Framework Milestone REACHED.");
+    println!(" [SP-63] - Plain-Language Capability Manifests (INV-APP-001, REQ-USE-207),");
+    println!(" [SP-63] - Sandboxed App Process Spawn & Cap Binding (INV-APP-002),");
+    println!(" [SP-63] - User-Mediated Capability Sharing Grants (INV-APP-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
