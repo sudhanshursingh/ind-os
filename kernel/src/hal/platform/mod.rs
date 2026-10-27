@@ -25,6 +25,7 @@ pub mod usb_role_core;
 pub mod firmware_loader_core;
 pub mod wifi_wcn3990_core;
 pub mod bluetooth_hci_core;
+pub mod sensor_imu_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -109,6 +110,11 @@ pub use bluetooth_hci_core::{
     KernelBluetoothHciHarness, KernelBtError, KernelBtState,
     KERNEL_CAP_BT_ADMIN, KERNEL_HANOIP_BT_UART_BASE,
     KERNEL_HCI_CMD_LE_SET_SCAN_ENABLE, KERNEL_HCI_CMD_RESET,
+};
+pub use sensor_imu_core::{
+    KernelImuError, KernelImuSample, KernelSensorImuHarness,
+    KERNEL_BMI260_CHIP_ID, KERNEL_BMI260_I2C_ADDR, KERNEL_CAP_SENSOR_READ,
+    KERNEL_HANOIP_IMU_I2C_BASE,
 };
 
 

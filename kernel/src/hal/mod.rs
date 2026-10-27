@@ -101,6 +101,11 @@ pub use platform::bluetooth_hci_core::{
     KERNEL_CAP_BT_ADMIN, KERNEL_HANOIP_BT_UART_BASE,
     KERNEL_HCI_CMD_LE_SET_SCAN_ENABLE, KERNEL_HCI_CMD_RESET,
 };
+pub use platform::sensor_imu_core::{
+    KernelImuError, KernelImuSample, KernelSensorImuHarness,
+    KERNEL_BMI260_CHIP_ID, KERNEL_BMI260_I2C_ADDR, KERNEL_CAP_SENSOR_READ,
+    KERNEL_HANOIP_IMU_I2C_BASE,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

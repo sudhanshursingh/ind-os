@@ -30,6 +30,7 @@ pub mod usb_role;
 pub mod firmware_loader;
 pub mod wifi_wcn3990;
 pub mod bluetooth_hci;
+pub mod sensor_imu;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -114,6 +115,10 @@ pub use wifi_wcn3990::{
 pub use bluetooth_hci::{
     BluetoothHciHarness, BtError, BtState,
     CAP_BT_ADMIN, HANOIP_BT_UART_BASE, HCI_CMD_LE_SET_SCAN_ENABLE, HCI_CMD_RESET,
+};
+pub use sensor_imu::{
+    ImuError, ImuSample, SensorImuHarness,
+    BMI260_CHIP_ID, BMI260_I2C_ADDR, CAP_SENSOR_READ, HANOIP_IMU_I2C_BASE,
 };
 
 
