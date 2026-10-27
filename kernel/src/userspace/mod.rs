@@ -184,6 +184,10 @@ pub use proactive_ui_core::{
     KernelAggressivenessDial, KernelProactiveError, KernelProactiveSuggestion,
     KernelProactiveUiEngine, KERNEL_MAX_SUGGESTIONS,
 };
+pub mod core_apps_core;
+pub use core_apps_core::{
+    KernelCoreAppDescriptor, KernelCoreAppError, KernelCoreAppsSuite, KERNEL_CORE_APPS_COUNT,
+};
 
 
 

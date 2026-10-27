@@ -35,3 +35,7 @@ pub mod proactive_ui;
 pub use proactive_ui::{
     AggressivenessDial, ProactiveError, ProactiveSuggestion, ProactiveUiEngine, MAX_SUGGESTIONS,
 };
+pub mod core_apps;
+pub use core_apps::{
+    CoreAppDescriptor, CoreAppError, CoreAppsSuite, CORE_APPS_COUNT,
+};
