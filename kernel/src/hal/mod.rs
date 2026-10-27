@@ -116,6 +116,13 @@ pub use platform::sensor_mag_core::{
     KERNEL_AK09918_I2C_ADDR, KERNEL_AK09918_WIA1_COMPANY, KERNEL_AK09918_WIA2_DEVICE,
     KERNEL_HANOIP_MAG_I2C_BASE,
 };
+pub use platform::sensor_hub_core::{
+    KernelSensorChannel, KernelSensorEvent, KernelSensorHubError, KernelSensorHubHarness,
+    KernelSensorSubscriber, KERNEL_CHANNEL_MASK_ACCEL, KERNEL_CHANNEL_MASK_ALL,
+    KERNEL_CHANNEL_MASK_ALS, KERNEL_CHANNEL_MASK_GYRO, KERNEL_CHANNEL_MASK_MAG,
+    KERNEL_CHANNEL_MASK_PROX, KERNEL_MAX_SENSOR_SUBSCRIBERS,
+    KERNEL_SENSOR_EVENT_RING_CAPACITY,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

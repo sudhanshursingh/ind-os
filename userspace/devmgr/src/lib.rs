@@ -33,6 +33,7 @@ pub mod bluetooth_hci;
 pub mod sensor_imu;
 pub mod sensor_als_prox;
 pub mod sensor_mag;
+pub mod sensor_hub;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -129,6 +130,12 @@ pub use sensor_als_prox::{
 pub use sensor_mag::{
     compute_heading_deg, MagError, MagReading, SensorMagHarness,
     AK09918_I2C_ADDR, AK09918_WIA1_COMPANY, AK09918_WIA2_DEVICE, HANOIP_MAG_I2C_BASE,
+};
+pub use sensor_hub::{
+    SensorChannel, SensorEvent, SensorHubError, SensorHubHarness, SensorSubscriber,
+    CHANNEL_MASK_ACCEL, CHANNEL_MASK_ALL, CHANNEL_MASK_ALS, CHANNEL_MASK_GYRO,
+    CHANNEL_MASK_MAG, CHANNEL_MASK_PROX, MAX_SENSOR_SUBSCRIBERS,
+    SENSOR_EVENT_RING_CAPACITY,
 };
 
 
