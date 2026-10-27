@@ -171,6 +171,10 @@ pub use platform::settings_power_core::{
     KERNEL_DISPLAY_RATE_PERF_HZ, KERNEL_THERMAL_CRITICAL_MC, KERNEL_THERMAL_MILD_MC,
     KERNEL_THERMAL_SEVERE_MC,
 };
+pub use platform::ab_update_core::{
+    KernelAbUpdateError, KernelAbUpdateHarness, KernelSlotId, KernelSlotMetadata,
+    KERNEL_CAP_AB_UPDATE, KERNEL_MAX_BOOT_TRIES, KERNEL_PAYLOAD_BLOCK_SIZE,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

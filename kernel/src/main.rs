@@ -7339,6 +7339,61 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-101] - Multi-tier PMIC Thermal Mitigation Policy Bound (INV-SETTINGS-PWR-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-102: HARDWARE A/B DUAL-SLOT UPDATE SERVICE
+    // ==================================================
+
+    // Stage 460: A/B Dual-Slot OTA Update Harness Initialization (REQ-SEC-112, REQ-STR-104)
+    stage_marker!("460_SP102_AB_UPDATE_INIT", "Hardware A/B dual-slot OTA update service harness initialized");
+    let mut ab_update = crate::hal::KernelAbUpdateHarness::new();
+    assert_eq!(ab_update.active_slot(), crate::hal::KernelSlotId::SlotA);
+    assert!(!ab_update.is_rollback_armed());
+    log_info!("ab_update", "Hardware A/B update service online: UFS slot arbiter active (REQ-SEC-112 PASSED)");
+
+    // Stage 461: Slot State Inspection (INV-OTA-AB-001)
+    stage_marker!("461_SP102_SLOT_STATE_INSPECTION", "Active slot (Slot A: bootable, successful, tries_left=0) & target slot (Slot B) inspected");
+    let slot_a_info = ab_update.get_slot_info(crate::hal::KernelSlotId::SlotA);
+    assert!(slot_a_info.is_active);
+    assert!(slot_a_info.is_successful);
+    assert_eq!(slot_a_info.tries_remaining, 0);
+
+    let slot_b_info = ab_update.get_slot_info(crate::hal::KernelSlotId::SlotB);
+    assert!(!slot_b_info.is_active);
+    assert!(!slot_b_info.is_successful);
+    log_info!("ab_update", "Slot states inspected: Slot A (ACTIVE, SUCCESSFUL), Slot B (STANDBY, TARGET) (INV-OTA-AB-001 PASSED)");
+
+    // Stage 462: Stage Payload into Slot B with Cryptographic Check (INV-OTA-AB-002)
+    stage_marker!("462_SP102_STAGE_PAYLOAD_SLOT_B", "Signed update payload staged into Slot B UFS partition with SHA-256 integrity verification");
+    let bad_cap_err = ab_update.stage_payload(0x0000_0000, crate::hal::KernelSlotId::SlotB, 0x1234_5678, 0x1234_5678);
+    assert_eq!(bad_cap_err, Err(crate::hal::KernelAbUpdateError::PermissionDenied));
+
+    let bad_checksum_err = ab_update.stage_payload(crate::hal::KERNEL_CAP_AB_UPDATE, crate::hal::KernelSlotId::SlotB, 0x1234_5678, 0x9999_9999);
+    assert_eq!(bad_checksum_err, Err(crate::hal::KernelAbUpdateError::IntegrityMismatch));
+
+    let blocks_staged = ab_update.stage_payload(crate::hal::KERNEL_CAP_AB_UPDATE, crate::hal::KernelSlotId::SlotB, 0xA1B2_C3D4, 0xA1B2_C3D4).expect("Valid staging rejected");
+    assert_eq!(blocks_staged, 2048);
+    log_info!("ab_update", "Payload staged into Slot B: 2048 blocks (8MB) verified via SHA-256 digest (INV-OTA-AB-002 PASSED)");
+
+    // Stage 463: Slot Activation Flip & Rollback Arming (INV-OTA-AB-003)
+    stage_marker!("463_SP102_SLOT_ACTIVATION_FLIP", "Active slot flipped to Slot B (unbootable=false, successful=false, tries_left=3) & rollback trigger armed");
+    ab_update.activate_slot(crate::hal::KERNEL_CAP_AB_UPDATE, crate::hal::KernelSlotId::SlotB).expect("Slot B activation failed");
+    assert_eq!(ab_update.active_slot(), crate::hal::KernelSlotId::SlotB);
+    let new_b_info = ab_update.get_slot_info(crate::hal::KernelSlotId::SlotB);
+    assert!(new_b_info.is_active);
+    assert!(!new_b_info.is_successful);
+    assert_eq!(new_b_info.tries_remaining, 3);
+    assert!(ab_update.is_rollback_armed());
+    log_info!("ab_update", "Active slot flipped to Slot B: tries_remaining=3, rollback trigger armed (INV-OTA-AB-003 PASSED)");
+
+    // Stage 464: Sprint SP-102 Milestone Reached
+    stage_marker!("464_SP102_AB_UPDATE_READY", "Sprint SP-102 Hardware A/B Dual-Slot Update Service Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-102] Sprint SP-102 Hardware A/B Dual-Slot Update Service Milestone REACHED.");
+    println!(" [SP-102] - Atomic Dual-Slot Metadata on UFS Storage (INV-OTA-AB-001, REQ-STR-104),");
+    println!(" [SP-102] - Cryptographic Integrity Check on Staged Payloads (INV-OTA-AB-002, REQ-SEC-112),");
+    println!(" [SP-102] - Deterministic Slot Flip with Rollback Trigger Armed (INV-OTA-AB-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

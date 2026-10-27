@@ -11,12 +11,17 @@ pub mod consent;
 pub mod integrity;
 pub mod types;
 pub mod ufs_mount;
+pub mod ab_update;
 
 pub use consent::SettingsAndConsentStore;
 pub use integrity::IntegrityEngine;
 pub use ufs_mount::{
     UfsMountError, UfsMountHarness, UfsMountState,
     CAP_STORAGE_MOUNT, INDFS_BLOCK_SIZE_BYTES, INDFS_SUPERBLOCK_MAGIC,
+};
+pub use ab_update::{
+    AbUpdateEngine, AbUpdateError, SlotId, SlotMetadata, CAP_STORAGE_ADMIN, MAX_BOOT_TRIES,
+    PAYLOAD_BLOCK_SIZE,
 };
 pub use types::{
     ConsentRecord, ConsentState, SettingEntry, StoreError, CAP_STORE_ADMIN, CAP_STORE_READ,

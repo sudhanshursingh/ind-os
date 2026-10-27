@@ -38,6 +38,7 @@ pub mod intent_hw_core;
 pub mod ufs_mount_core;
 pub mod shell_hw_core;
 pub mod settings_power_core;
+pub mod ab_update_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -192,6 +193,10 @@ pub use settings_power_core::{
     KERNEL_BATTERY_FULL_MV, KERNEL_CAP_SETTINGS_POWER, KERNEL_DISPLAY_RATE_ECO_HZ,
     KERNEL_DISPLAY_RATE_PERF_HZ, KERNEL_THERMAL_CRITICAL_MC, KERNEL_THERMAL_MILD_MC,
     KERNEL_THERMAL_SEVERE_MC,
+};
+pub use ab_update_core::{
+    KernelAbUpdateError, KernelAbUpdateHarness, KernelSlotId, KernelSlotMetadata,
+    KERNEL_CAP_AB_UPDATE, KERNEL_MAX_BOOT_TRIES, KERNEL_PAYLOAD_BLOCK_SIZE,
 };
 
 
