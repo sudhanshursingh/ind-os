@@ -87,6 +87,11 @@ pub use platform::usb_role_core::{
     KERNEL_CAP_USB_ROLE_SWITCH, KERNEL_CDC_ACM_BAUD_DEFAULT, KERNEL_CDC_ACM_LINE_CODING_LEN,
     KERNEL_USB_ROLE_DEVICE, KERNEL_USB_ROLE_HOST,
 };
+pub use platform::firmware_loader_core::{
+    KernelFirmwareError, KernelFirmwareLoaderHarness, KernelFirmwareSubsystem,
+    KERNEL_CAP_FIRMWARE_LOAD, KERNEL_FW_DEST_ADSP, KERNEL_FW_DEST_BT,
+    KERNEL_FW_DEST_MODEM, KERNEL_FW_DEST_WLAN,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

@@ -248,6 +248,10 @@ sp-85:
 	@echo "Running Ind OS Sprint SP-85 Verification Suite..."
 	@python3 ci/verify_sp85.py
 
+sp-86:
+	@echo "Running Ind OS Sprint SP-86 Verification Suite..."
+	@python3 ci/verify_sp86.py
+
 
 
 

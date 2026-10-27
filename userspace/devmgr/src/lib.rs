@@ -27,6 +27,7 @@ pub mod thermal_mgmt;
 pub mod power_domains;
 pub mod usb_dwc3;
 pub mod usb_role;
+pub mod firmware_loader;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -99,6 +100,10 @@ pub use usb_role::{
     UsbRole, UsbRoleError, UsbRoleHarness,
     CAP_USB_ROLE_SWITCH, CDC_ACM_BAUD_DEFAULT, CDC_ACM_LINE_CODING_LEN,
     USB_ROLE_DEVICE, USB_ROLE_HOST,
+};
+pub use firmware_loader::{
+    FirmwareError, FirmwareLoaderHarness, FirmwareManifestEntry, FirmwareSubsystem,
+    CAP_FIRMWARE_LOAD, FW_DEST_ADSP, FW_DEST_BT, FW_DEST_MODEM, FW_DEST_WLAN,
 };
 
 
