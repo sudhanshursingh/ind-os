@@ -188,6 +188,11 @@ pub mod core_apps_core;
 pub use core_apps_core::{
     KernelCoreAppDescriptor, KernelCoreAppError, KernelCoreAppsSuite, KERNEL_CORE_APPS_COUNT,
 };
+pub mod perf_budget_core;
+pub use perf_budget_core::{
+    KernelPerfBudgetAuditor, KernelPerfBudgetError, KernelPerfBudgetRecord,
+    KERNEL_MAX_APP_MEMORY_KB, KERNEL_MAX_COLD_START_MS, KERNEL_MAX_FRAME_TIME_US,
+};
 
 
 

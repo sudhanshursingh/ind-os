@@ -39,3 +39,8 @@ pub mod core_apps;
 pub use core_apps::{
     CoreAppDescriptor, CoreAppError, CoreAppsSuite, CORE_APPS_COUNT,
 };
+pub mod perf_budget;
+pub use perf_budget::{
+    PerfBudgetAuditor, PerfBudgetError, PerfBudgetRecord, MAX_APP_MEMORY_KB, MAX_COLD_START_MS,
+    MAX_FRAME_TIME_US,
+};
