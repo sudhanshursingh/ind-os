@@ -17,6 +17,11 @@ pub use platform::qemu_virt::{
     QemuVirtMmio, QemuVirtPower, QEMU_VIRT_DMA_BASE, QEMU_VIRT_DMA_SIZE,
     QEMU_VIRT_GIC_DIST_BASE, QEMU_VIRT_UART_BASE, QEMU_VIRT_VIRTIO_BASE,
 };
+pub use platform::lab_prep_core::{
+    KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
+    KERNEL_SAFE_VOLTAGE_MAX_MV, KERNEL_SAFE_VOLTAGE_MIN_MV,
+    KERNEL_THERMAL_CUTOFF_MILLICELSIUS,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

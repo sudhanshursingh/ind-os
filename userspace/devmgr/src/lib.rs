@@ -11,8 +11,13 @@ pub mod bus;
 pub mod handout;
 pub mod types;
 pub mod virtio;
+pub mod lab_prep;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
 pub use types::{BusType, DeviceError, DeviceId, DeviceState, DeviceType, HardwareDescriptor};
 pub use virtio::VirtioDeviceManager;
+pub use lab_prep::{
+    HardwareLabHarness, LabPrepError, EXPECTED_UART_BAUD, SAFE_VOLTAGE_MAX_MV,
+    SAFE_VOLTAGE_MIN_MV, THERMAL_CUTOFF_MILLICELSIUS,
+};
