@@ -44,3 +44,7 @@ pub use perf_budget::{
     PerfBudgetAuditor, PerfBudgetError, PerfBudgetRecord, MAX_APP_MEMORY_KB, MAX_COLD_START_MS,
     MAX_FRAME_TIME_US,
 };
+pub mod ux_validation;
+pub use ux_validation::{
+    PersonaTaskResult, UxValidationError, UxValidationHarness, MAX_PERSONA_TASKS,
+};

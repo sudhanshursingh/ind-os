@@ -193,6 +193,11 @@ pub use perf_budget_core::{
     KernelPerfBudgetAuditor, KernelPerfBudgetError, KernelPerfBudgetRecord,
     KERNEL_MAX_APP_MEMORY_KB, KERNEL_MAX_COLD_START_MS, KERNEL_MAX_FRAME_TIME_US,
 };
+pub mod ux_validation_core;
+pub use ux_validation_core::{
+    KernelPersonaTaskResult, KernelUxValidationError, KernelUxValidationHarness,
+    KERNEL_MAX_PERSONA_TASKS,
+};
 
 
 
