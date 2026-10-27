@@ -173,6 +173,12 @@ pub use app_framework_core::{
     KernelAppFrameworkEngine, KernelAppFrameworkError, KernelAppManifest, KernelSandboxedApp,
     KernelUserMediationGrant, KERNEL_DEFAULT_APP_MEMORY_BUDGET_KB, KERNEL_MAX_SANDBOXED_APPS,
 };
+pub mod accessibility_core;
+pub use accessibility_core::{
+    KernelA11yError, KernelA11yNode, KernelA11yRole, KernelAccessibilitySubsystem,
+    KernelMagnifierService, KernelScreenReaderEngine, KernelSwitchAccessEngine,
+    KERNEL_MAX_A11Y_NODES, KERNEL_MAX_ZOOM_PERCENT, KERNEL_MIN_ZOOM_PERCENT,
+};
 
 
 

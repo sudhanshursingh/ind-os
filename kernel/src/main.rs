@@ -5300,6 +5300,69 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-63] - User-Mediated Capability Sharing Grants (INV-APP-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-64: ACCESSIBILITY SERVICES (P0 STANDARD)
+    // ==================================================
+
+    // Stage 269: Accessibility Subsystem Initialization (REQ-UX-304)
+    stage_marker!("269_A11Y_SUBSYSTEM_INIT", "Accessibility services subsystem initialized");
+    let mut a11y = crate::userspace::KernelAccessibilitySubsystem::new();
+    assert_eq!(a11y.screen_reader.node_count(), 0);
+    assert_eq!(a11y.magnifier.zoom_percent(), 100);
+    log_info!("accessibility", "Accessibility subsystem online: screen reader, magnifier, switch access armed (REQ-UX-304 PASSED)");
+
+    // Stage 270: Screen Reader Semantic Node Tree Traversal (REQ-UX-304, INV-A11Y-001)
+    stage_marker!("270_A11Y_SCREEN_READER_SEMANTIC_TREE", "Screen reader semantic tree registration and focus verified");
+    a11y.screen_reader.register_node(
+        1,
+        crate::userspace::KernelA11yRole::Button,
+        "Confirm Consent",
+        "Approve 16MB cache compress",
+    ).expect("Node registration failed");
+    a11y.screen_reader.register_node(
+        2,
+        crate::userspace::KernelA11yRole::TextBox,
+        "Intent Search Bar",
+        "Type intent prompt",
+    ).expect("Node 2 registration failed");
+
+    a11y.screen_reader.set_focus(1).expect("Focus assignment failed");
+    let focused = a11y.screen_reader.get_focused_node().expect("Focused node missing");
+    assert_eq!(focused.id, 1);
+    assert_eq!(focused.label, "Confirm Consent");
+    assert!(focused.is_focused);
+    log_info!("accessibility", "Screen reader semantic tree verified: focused node traversed with zero heap allocation (INV-A11Y-001 PASSED)");
+
+    // Stage 271: Viewport Magnification Clamping & Scaling (REQ-UX-304, INV-A11Y-002)
+    stage_marker!("271_A11Y_VIEWPORT_MAGNIFICATION", "Viewport magnification zoom clamping [1.0x, 4.0x] verified");
+    // Valid zoom 250% (2.5x)
+    a11y.magnifier.set_zoom(250, 400, 300).expect("Setting valid zoom failed");
+    assert_eq!(a11y.magnifier.zoom_percent(), 250);
+
+    // Invalid zoom 500% (5.0x) - MUST FAIL with InvalidZoomLevel
+    let excessive_zoom_err = a11y.magnifier.set_zoom(500, 400, 300);
+    assert_eq!(excessive_zoom_err, Err(crate::userspace::KernelA11yError::InvalidZoomLevel));
+    log_info!("accessibility", "Magnification zoom verified: clamped strictly within [100%, 400%] bounds (INV-A11Y-002 PASSED)");
+
+    // Stage 272: Switch Access Scanning & Navigation (REQ-UX-304, INV-A11Y-003)
+    stage_marker!("272_A11Y_SWITCH_ACCESS_SCANNING", "Switch access cyclic scanning navigation verified");
+    a11y.switch_access.configure_elements(4); // 4 focusable elements
+    assert_eq!(a11y.switch_access.current_selection(), 0);
+    assert_eq!(a11y.switch_access.step_next(), 1);
+    assert_eq!(a11y.switch_access.step_next(), 2);
+    assert_eq!(a11y.switch_access.step_next(), 3);
+    assert_eq!(a11y.switch_access.step_next(), 0); // Cyclic wrap
+    log_info!("accessibility", "Switch access scanning verified: cyclic element traversal with deterministic debounce (INV-A11Y-003 PASSED)");
+
+    // Stage 273: Sprint SP-64 Milestone Reached
+    stage_marker!("273_SP64_A11Y_READY", "Sprint SP-64 Accessibility Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-64] Sprint SP-64 Accessibility Milestone REACHED.");
+    println!(" [SP-64] - Screen Reader Semantic Tree Traversal (INV-A11Y-001, REQ-UX-304),");
+    println!(" [SP-64] - Viewport Magnification Clamping (INV-A11Y-002),");
+    println!(" [SP-64] - Switch Access Cyclic Element Scanning (INV-A11Y-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

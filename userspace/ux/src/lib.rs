@@ -26,4 +26,8 @@ pub use intent_ui::{
 pub use app_framework::{
     AppFrameworkError, AppFrameworkEngine, AppManifest, SandboxedApp, UserMediationGrant,
     DEFAULT_APP_MEMORY_BUDGET_KB, MAX_SANDBOXED_APPS,
+};pub mod accessibility;
+pub use accessibility::{
+    A11yError, A11yNode, A11yRole, AccessibilitySubsystem, MagnifierService, ScreenReaderEngine,
+    SwitchAccessEngine, MAX_A11Y_NODES, MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT,
 };
