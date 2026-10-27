@@ -1,0 +1,25 @@
+{
+  "sprint": "SP-42",
+  "target": "AIS Intent Broker & Typed Proposal Schema",
+  "status": "PASSED",
+  "invariants": {
+    "INV-INTENT-001": "Typed Proposal Schema Enforcement",
+    "INV-INTENT-002": "Pre-Routing Proposal Audit Logging (REQ-AI-003)",
+    "INV-INTENT-003": "Advisory-Only Intent Posture with Zero Ambient Authority"
+  },
+  "stages_verified": [
+    "STAGE:157_INTENT_BROKER_INIT",
+    "STAGE:158_INTENT_SCHEMA_REGISTRY",
+    "STAGE:159_INTENT_PRE_ROUTING_LOG",
+    "STAGE:160_INTENT_ADVISORY_ENFORCEMENT",
+    "STAGE:161_SP42_INTENT_READY"
+  ],
+  "checksums": {
+    "docs/architecture/intent-broker-spec.md": "a385a2730a1ffb8de8389d3da9faf91bb483614337be8ca726e86f1484fec5e8",
+    "docs/evidence/SP-42-validation.md": "b7e237ffd42d39dd026c6cb0b0954d676d4462425d6c1b8980484ca649e469a2",
+    "docs/evidence/golden-boot-sp42.log": "f8adfab7efc5d1d418213bc9d4f6b638770892c1b296bd077f01ee195a89cebb",
+    "userspace/ais/src/schema.rs": "8c0fde219d12da12ad082db36d0529d8d99f56e449269689cc6a0ba4e2764a77",
+    "userspace/ais/src/intent.rs": "0aa6930042e06d4f2efffe54c8e187c35a15af58344d68fdd9baa6d28524bcd2",
+    "kernel/src/userspace/intent_broker.rs": "7062116416002652b2ebfe6d039045c9b46b282366244611538e4efb2b3abe0c"
+  }
+}

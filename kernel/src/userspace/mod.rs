@@ -59,4 +59,8 @@ pub use ais_runtime::{
     KernelModelSandbox, KERNEL_AIS_AUTHORIZED_SIGNATURE, KERNEL_CAP_AIS_INFER,
     KERNEL_CAP_AIS_LOAD,
 };
-
+pub mod intent_broker;
+pub use intent_broker::{
+    KernelActionCategory, KernelIntentBroker, KernelSchemaDescriptor, KernelSchemaRegistry,
+    KernelTypedProposal,
+};
