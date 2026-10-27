@@ -95,6 +95,10 @@ gate-g5:
 	@echo "Running Ind OS Gate G5 Audit & Verification Suite..."
 	@python3 ci/verify_g5.py
 
+gate-g6:
+	@echo "Running Ind OS Gate G6 Audit & Verification Suite..."
+	@python3 ci/verify_g6.py
+
 test-harness:
 	@echo "Running Ind OS Test Harness Self-Test..."
 	@python3 ci/run_qemu_test.py --self-test

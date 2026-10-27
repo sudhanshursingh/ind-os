@@ -18,7 +18,7 @@
     "docs/architecture/policy-engine-v2-spec.md": "c82f388993ed7aba42469714496b9f7cc3f647040ce01d6a8aa595f1182f41c3",
     "docs/evidence/SP-43-validation.md": "a9fc566611a7d046497b0f6fc15d6422279e7b1bab473ff06d71c03e15264950",
     "docs/evidence/golden-boot-sp43.log": "7077e6420ca863cbdbc49c41d758672e7baaa482c2f89f1877e8baa3a86f7bd7",
-    "userspace/ais/src/policy.rs": "66693f20ab89ef7c052b9310a5133222003ee1b682f46c3e5f674edf46d8462a",
-    "kernel/src/userspace/policy_v2.rs": "3b8370fc5371b87f0d71eda878504bbd5628683ff5f9c3f90c49beb75f908a12"
+    "userspace/ais/src/policy.rs": "1e2f795f0b0838354e01ebca00eab042292991916d3eda1ff5676eeedd2e1cc7",
+    "kernel/src/userspace/policy_v2.rs": "4259f38b5c265a5b5feedb8553cef93f9602b1221220d9d3eca255a62fc1c0bc"
   }
 }
