@@ -42,11 +42,15 @@ pub fn run_user_process(mut process: Process) -> i32 {
     process.state = ProcessState::Running;
     process.address_space.activate();
 
-    let user_ctx_ptr = &process.context as *const UserContext;
     let kctx_ptr = core::ptr::addr_of_mut!(KERNEL_SAVED_CONTEXT);
 
     // Save active process in CURRENT_PROCESS
     *CURRENT_PROCESS.lock() = Some(process);
+
+    let user_ctx_ptr = {
+        let lock = CURRENT_PROCESS.lock();
+        &lock.as_ref().unwrap().context as *const UserContext
+    };
 
     // Call into assembly user entry trampoline (saves kernel registers into kctx, then eret to EL0)
     // SAFETY: user_ctx_ptr points to valid UserContext with EL0t configuration and valid stack/PC.
@@ -73,10 +77,14 @@ pub fn run_scheduler() -> (u64, u64, u64, u64) {
     first_proc.state = ProcessState::Running;
     first_proc.address_space.activate();
 
-    let user_ctx_ptr = &first_proc.context as *const UserContext;
     let kctx_ptr = core::ptr::addr_of_mut!(KERNEL_SAVED_CONTEXT);
 
     SCHEDULER.lock().set_current(Some(first_proc));
+
+    let user_ctx_ptr = {
+        let lock = SCHEDULER.lock();
+        &lock.current_process().unwrap().context as *const UserContext
+    };
 
     // Call into assembly user trampoline; executes until all scheduled processes call SYS_EXIT
     // SAFETY: user_ctx_ptr points to valid UserContext with EL0t configuration and valid stack/PC.

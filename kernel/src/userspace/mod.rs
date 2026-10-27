@@ -179,6 +179,11 @@ pub use accessibility_core::{
     KernelMagnifierService, KernelScreenReaderEngine, KernelSwitchAccessEngine,
     KERNEL_MAX_A11Y_NODES, KERNEL_MAX_ZOOM_PERCENT, KERNEL_MIN_ZOOM_PERCENT,
 };
+pub mod proactive_ui_core;
+pub use proactive_ui_core::{
+    KernelAggressivenessDial, KernelProactiveError, KernelProactiveSuggestion,
+    KernelProactiveUiEngine, KERNEL_MAX_SUGGESTIONS,
+};
 
 
 

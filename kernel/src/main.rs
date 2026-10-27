@@ -5363,6 +5363,78 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-64] - Switch Access Cyclic Element Scanning (INV-A11Y-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-65: PROACTIVE ENGINE UI & AGGRESSIVENESS DIAL
+    // ==================================================
+
+    // Stage 274: Proactive Engine UI Initialization (REQ-AI-106)
+    stage_marker!("274_PROACTIVE_UI_INIT", "Proactive engine UI initialized with aggressiveness dial");
+    let mut proactive_ui = crate::userspace::KernelProactiveUiEngine::new();
+    assert_eq!(proactive_ui.dial(), crate::userspace::KernelAggressivenessDial::Balanced);
+    assert_eq!(proactive_ui.suggestion_count(), 0);
+    log_info!("proactive_ui", "Proactive engine UI online: initial dial set to Balanced (70% threshold) (REQ-AI-106 PASSED)");
+
+    // Stage 275: Aggressiveness Dial Filtering (REQ-AI-106, INV-PROACTIVE-001)
+    stage_marker!("275_PROACTIVE_AGGRESSIVENESS_DIAL_FILTER", "Aggressiveness dial threshold filtering verified");
+    // Switch dial to Conservative (90% minimum confidence)
+    proactive_ui.set_dial(crate::userspace::KernelAggressivenessDial::Conservative);
+    let low_conf_err = proactive_ui.submit_candidate(
+        "Bluetooth Suggestion",
+        "Connect to nearby speaker",
+        75, // Below 90% threshold: MUST FAIL
+    );
+    assert_eq!(low_conf_err, Err(crate::userspace::KernelProactiveError::ThresholdNotMet));
+
+    let high_conf_id = proactive_ui.submit_candidate(
+        "Thermal Throttling Alert",
+        "Enable passive cooling profile",
+        95, // Above 90% threshold: MUST SUCCEED
+    ).expect("High confidence candidate rejected");
+    assert_eq!(high_conf_id, 1);
+    assert_eq!(proactive_ui.visible_count(), 1);
+
+    // Switch dial to Off (no proactive interruptions)
+    proactive_ui.set_dial(crate::userspace::KernelAggressivenessDial::Off);
+    let off_err = proactive_ui.submit_candidate("Critical Hint", "Hint text", 100);
+    assert_eq!(off_err, Err(crate::userspace::KernelProactiveError::ThresholdNotMet));
+
+    // Restore to Balanced
+    proactive_ui.set_dial(crate::userspace::KernelAggressivenessDial::Balanced);
+    let balanced_id = proactive_ui.submit_candidate(
+        "Storage Cleanup",
+        "Compress duplicate cache files",
+        80, // Meets Balanced (70%)
+    ).expect("Balanced candidate submission failed");
+    assert_eq!(balanced_id, 2);
+    assert_eq!(proactive_ui.visible_count(), 2);
+    log_info!("proactive_ui", "Aggressiveness dial filtering verified: candidate suggestions filtered strictly by confidence threshold (INV-PROACTIVE-001 PASSED)");
+
+    // Stage 276: User Feedback Lifecycle: Dismiss & Snooze (INV-PROACTIVE-003)
+    stage_marker!("276_PROACTIVE_FEEDBACK_ACTIONS", "Dismiss and snooze feedback actions verified");
+    assert_eq!(proactive_ui.visible_count(), 2);
+    // Dismiss storage cleanup
+    proactive_ui.dismiss(balanced_id).expect("Dismiss failed");
+    assert_eq!(proactive_ui.visible_count(), 1);
+    // Snooze thermal alert
+    proactive_ui.snooze(high_conf_id).expect("Snooze failed");
+    assert_eq!(proactive_ui.visible_count(), 0);
+    log_info!("proactive_ui", "Feedback actions verified: dismiss and snooze reduce visible suggestion count deterministically (INV-PROACTIVE-003 PASSED)");
+
+    // Stage 277: Why-Engine Explanation Token Generation (INV-PROACTIVE-003, REQ-AI-106)
+    stage_marker!("277_PROACTIVE_EXPLAIN_TOKEN", "Why-engine explanation audit token generation verified");
+    let explain_token = proactive_ui.explain(high_conf_id).expect("Explain token generation failed");
+    assert_eq!(explain_token, 0xEE00_0001);
+    log_info!("proactive_ui", "Why-engine integration verified: explain action produces deterministic audit token (INV-PROACTIVE-003 PASSED)");
+
+    // Stage 278: Sprint SP-65 Milestone Reached
+    stage_marker!("278_SP65_PROACTIVE_UI_READY", "Sprint SP-65 Proactive UI Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-65] Sprint SP-65 Proactive UI Milestone REACHED.");
+    println!(" [SP-65] - Aggressiveness Dial Confidence Filtering (INV-PROACTIVE-001, REQ-AI-106),");
+    println!(" [SP-65] - Suggestion Queue Management & Ranking (INV-PROACTIVE-002),");
+    println!(" [SP-65] - Dismiss, Snooze, and Explain Feedback Actions (INV-PROACTIVE-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
