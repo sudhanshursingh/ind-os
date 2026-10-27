@@ -32,6 +32,7 @@ pub mod wifi_wcn3990;
 pub mod bluetooth_hci;
 pub mod sensor_imu;
 pub mod sensor_als_prox;
+pub mod sensor_mag;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -124,6 +125,10 @@ pub use sensor_imu::{
 pub use sensor_als_prox::{
     AlsGain, AlsProxError, ProximityState, SensorAlsProxHarness,
     ALS_PROX_I2C_ADDR, HANOIP_ALS_I2C_BASE, PROX_THRESHOLD_HIGH, PROX_THRESHOLD_LOW,
+};
+pub use sensor_mag::{
+    compute_heading_deg, MagError, MagReading, SensorMagHarness,
+    AK09918_I2C_ADDR, AK09918_WIA1_COMPANY, AK09918_WIA2_DEVICE, HANOIP_MAG_I2C_BASE,
 };
 
 

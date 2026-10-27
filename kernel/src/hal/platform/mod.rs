@@ -27,6 +27,7 @@ pub mod wifi_wcn3990_core;
 pub mod bluetooth_hci_core;
 pub mod sensor_imu_core;
 pub mod sensor_als_prox_core;
+pub mod sensor_mag_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -121,6 +122,11 @@ pub use sensor_als_prox_core::{
     KernelAlsGain, KernelAlsProxError, KernelProximityState, KernelSensorAlsProxHarness,
     KERNEL_ALS_PROX_I2C_ADDR, KERNEL_HANOIP_ALS_I2C_BASE, KERNEL_PROX_THRESHOLD_HIGH,
     KERNEL_PROX_THRESHOLD_LOW,
+};
+pub use sensor_mag_core::{
+    kernel_compute_heading_deg, KernelMagError, KernelMagReading, KernelSensorMagHarness,
+    KERNEL_AK09918_I2C_ADDR, KERNEL_AK09918_WIA1_COMPANY, KERNEL_AK09918_WIA2_DEVICE,
+    KERNEL_HANOIP_MAG_I2C_BASE,
 };
 
 

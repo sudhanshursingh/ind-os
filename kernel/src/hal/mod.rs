@@ -111,6 +111,11 @@ pub use platform::sensor_als_prox_core::{
     KERNEL_ALS_PROX_I2C_ADDR, KERNEL_HANOIP_ALS_I2C_BASE, KERNEL_PROX_THRESHOLD_HIGH,
     KERNEL_PROX_THRESHOLD_LOW,
 };
+pub use platform::sensor_mag_core::{
+    kernel_compute_heading_deg, KernelMagError, KernelMagReading, KernelSensorMagHarness,
+    KERNEL_AK09918_I2C_ADDR, KERNEL_AK09918_WIA1_COMPANY, KERNEL_AK09918_WIA2_DEVICE,
+    KERNEL_HANOIP_MAG_I2C_BASE,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

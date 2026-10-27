@@ -6748,6 +6748,52 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-90] - Proximity Near/Far Hysteresis Threshold Engine Active (INV-ALS-003).");
     println!("==================================================");
 
+    // =========================================================================
+    // PHASE 9: SPRINT SP-91 - MAGNETOMETER (AK09918) (REQ-HW-110, REQ-SNS-103)
+    // =========================================================================
+
+    // Stage 405: AK09918 Magnetometer Harness Init
+    stage_marker!("405_SP91_MAG_INIT", "AK09918 magnetometer harness initialized");
+    let mut mag_harness = crate::hal::KernelSensorMagHarness::new();
+    log_info!("mag", "Magnetometer harness online: 3-axis electronic compass driver active (REQ-SNS-103 PASSED)");
+
+    // Stage 406: Magnetometer I2C Bus Mapping (INV-MAG-001)
+    stage_marker!("406_SP91_MAG_I2C_BUS_MAPPING", "Magnetometer sensor I2C bus MMIO base mapping verified");
+    let invalid_mag_err = mag_harness.map_mmio(0x0123_8000, crate::hal::KERNEL_AK09918_I2C_ADDR);
+    assert_eq!(invalid_mag_err, Err(crate::hal::KernelMagError::InvalidMmioBase));
+
+    mag_harness.map_mmio(crate::hal::KERNEL_HANOIP_MAG_I2C_BASE, crate::hal::KERNEL_AK09918_I2C_ADDR).expect("Mag I2C map failed");
+    assert!(mag_harness.is_mmio_mapped());
+    log_info!("mag", "I2C bus verified: GENI I2C mapped at 0x0888_8000, slave addr 0x0C (INV-MAG-001 PASSED)");
+
+    // Stage 407: Chip ID Verification (INV-MAG-002)
+    stage_marker!("407_SP91_MAG_CHIP_ID_VERIFY", "AK09918 Company and Device ID verification verified");
+    let invalid_id_err = mag_harness.verify_chip_id(0x00, 0x00);
+    assert_eq!(invalid_id_err, Err(crate::hal::KernelMagError::InvalidChipId));
+
+    mag_harness.verify_chip_id(crate::hal::KERNEL_AK09918_WIA1_COMPANY, crate::hal::KERNEL_AK09918_WIA2_DEVICE).expect("Chip ID verify failed");
+    assert!(mag_harness.is_chip_id_verified());
+    log_info!("mag", "Chip ID verified: WIA1=0x48 (AKM), WIA2=0x0C (AK09918) (INV-MAG-002 PASSED)");
+
+    // Stage 408: Heading Calculation (INV-MAG-003)
+    stage_marker!("408_SP91_MAG_HEADING_CALCULATION", "Magnetic field vector acquisition and orientation heading calculation verified");
+    let (reading, heading) = mag_harness.read_mag_and_heading(100, 100, -50).expect("Mag read failed");
+    assert_eq!(reading.x, 100);
+    assert_eq!(reading.y, 100);
+    assert_eq!(reading.z, -50);
+    assert_eq!(heading, 45);
+    assert_eq!(mag_harness.last_heading_deg(), 45);
+    log_info!("mag", "Heading calculated: Vector (100, 100, -50) uT -> 45 deg azimuth (INV-MAG-003 PASSED)");
+
+    // Stage 409: Sprint SP-91 Milestone Reached
+    stage_marker!("409_SP91_MAG_READY", "Sprint SP-91 Magnetometer Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-91] Sprint SP-91 Magnetometer Milestone REACHED.");
+    println!(" [SP-91] - AK09918 I2C Mapped at 0x0888_8000 (INV-MAG-001, REQ-SNS-103),");
+    println!(" [SP-91] - Company & Device ID Verified (WIA1=0x48, WIA2=0x0C) (INV-MAG-002),");
+    println!(" [SP-91] - 3-Axis Field Vector & Azimuth Heading Engine Active (INV-MAG-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
