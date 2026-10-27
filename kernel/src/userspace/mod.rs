@@ -99,3 +99,7 @@ pub use ais_quality::{
     KernelEvaluationSummary, KernelIntentQualityHarness, KernelIntentTestCase,
     KERNEL_EVAL_CORPUS_SIZE, KERNEL_MIN_COMPLETION_RATE_PERCENT,
 };
+pub mod ais_redteam;
+pub use ais_redteam::{
+    KernelAttackType, KernelRedTeamAttackScenario, KernelRedTeamHarness,
+};
