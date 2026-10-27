@@ -7394,6 +7394,55 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-102] - Deterministic Slot Flip with Rollback Trigger Armed (INV-OTA-AB-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-103: FULL G5 USERSPACE RUNNING ON HARDWARE
+    // ==================================================
+
+    // Stage 465: G5 Userspace Coordinator Harness Initialization (REQ-USR-101, REQ-SEC-113)
+    stage_marker!("465_SP103_G5_USERSPACE_INIT", "Full G5 userspace coordinator harness initialized on hardware");
+    let mut g5_coord = crate::hal::KernelG5HwHarness::new();
+    assert_eq!(g5_coord.total_running(), 0);
+    assert_eq!(g5_coord.ipc_rounds_completed(), 0);
+    log_info!("g5_hw", "G5 userspace coordinator online: multi-process supervisor active (REQ-USR-101 PASSED)");
+
+    // Stage 466: Spawn TCB Core Services (INV-G5-HW-001)
+    stage_marker!("466_SP103_TCB_SERVICES_SPAWN", "Init (PID 1), Logd (PID 2), and Store (PID 3) spawned with isolated capability domains");
+    let bad_spawn_err = g5_coord.spawn_tcb_services(0x0000_0000);
+    assert_eq!(bad_spawn_err, Err(crate::hal::KernelG5HwError::PermissionDenied));
+    g5_coord.spawn_tcb_services(crate::hal::KERNEL_CAP_G5_SYS_ADMIN).expect("Valid TCB spawn rejected");
+    assert_eq!(g5_coord.total_running(), 3);
+    assert_eq!(g5_coord.get_process_info(1).map(|p| p.status), Some(crate::hal::KernelProcessStatus::Running));
+    assert_eq!(g5_coord.get_process_info(2).map(|p| p.status), Some(crate::hal::KernelProcessStatus::Running));
+    assert_eq!(g5_coord.get_process_info(3).map(|p| p.status), Some(crate::hal::KernelProcessStatus::Running));
+    log_info!("g5_hw", "TCB services spawned: PID 1 (indus-init), PID 2 (indus-logd), PID 3 (indus-store) active (INV-G5-HW-001 PASSED)");
+
+    // Stage 467: Spawn UX Surface Applications (INV-G5-HW-002)
+    stage_marker!("467_SP103_UX_SERVICES_SPAWN", "Shell (PID 4) and Edit (PID 5) spawned with display/touch/input capabilities");
+    g5_coord.spawn_ux_services(crate::hal::KERNEL_CAP_G5_SYS_ADMIN).expect("Valid UX spawn rejected");
+    assert_eq!(g5_coord.total_running(), 5);
+    assert_eq!(g5_coord.get_process_info(4).map(|p| p.status), Some(crate::hal::KernelProcessStatus::Running));
+    assert_eq!(g5_coord.get_process_info(5).map(|p| p.status), Some(crate::hal::KernelProcessStatus::Running));
+    log_info!("g5_hw", "UX services spawned: PID 4 (indus-shell), PID 5 (indus-edit) active in isolated domains (INV-G5-HW-002 PASSED)");
+
+    // Stage 468: Cross-Process IPC Ring Concurrency Stress (INV-G5-HW-003)
+    stage_marker!("468_SP103_IPC_CONCURRENCY_STRESS", "500-round cross-process synchronous IPC ring stress across all 5 services with 0 drops");
+    let rounds = g5_coord.run_ipc_ring_stress(crate::hal::KERNEL_IPC_RING_TEST_CYCLES).expect("IPC ring stress failed");
+    assert_eq!(rounds, 500);
+    assert_eq!(g5_coord.ipc_rounds_completed(), 500);
+    for pid in 1..=5 {
+        assert_eq!(g5_coord.get_process_info(pid).map(|p| p.messages_processed), Some(500));
+    }
+    log_info!("g5_hw", "IPC concurrency verified: 500 synchronous rounds across 5 processes with 0 drops (INV-G5-HW-003 PASSED)");
+
+    // Stage 469: Sprint SP-103 Milestone Reached
+    stage_marker!("469_SP103_G5_USERSPACE_READY", "Sprint SP-103 Full G5 Userspace on Hardware Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-103] Sprint SP-103 Full G5 Userspace on Hardware Milestone REACHED.");
+    println!(" [SP-103] - TCB Core Services (Init, Logd, Store) Running on Hardware (INV-G5-HW-001, REQ-USR-101),");
+    println!(" [SP-103] - UX Applications (Shell, Edit) Running in Isolated Domains (INV-G5-HW-002),");
+    println!(" [SP-103] - 500-Round Cross-Process Synchronous IPC Ring Validated (INV-G5-HW-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

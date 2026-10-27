@@ -175,6 +175,12 @@ pub use platform::ab_update_core::{
     KernelAbUpdateError, KernelAbUpdateHarness, KernelSlotId, KernelSlotMetadata,
     KERNEL_CAP_AB_UPDATE, KERNEL_MAX_BOOT_TRIES, KERNEL_PAYLOAD_BLOCK_SIZE,
 };
+pub use platform::g5_userspace_core::{
+    KernelG5HwError, KernelG5HwHarness, KernelG5ProcessInfo, KernelProcessStatus,
+    KERNEL_CAP_G5_DISPLAY_RENDER, KERNEL_CAP_G5_IPC_SYNC, KERNEL_CAP_G5_LOG_RECORD,
+    KERNEL_CAP_G5_STORAGE_MOUNT, KERNEL_CAP_G5_SYS_ADMIN, KERNEL_CAP_G5_TOUCH_INPUT,
+    KERNEL_G5_TOTAL_SERVICES, KERNEL_IPC_RING_TEST_CYCLES,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
