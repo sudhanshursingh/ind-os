@@ -19,6 +19,7 @@ pub mod intent;
 pub mod policy;
 pub mod consent;
 pub mod memory;
+pub mod explain;
 pub mod types;
 
 pub use loader::{SignedModelLoader, AUTHORIZED_SIGNING_AUTHORITY};
@@ -29,6 +30,7 @@ pub use intent::{IntentBroker, IntentError, IntentSource, TypedProposal};
 pub use policy::{DryRunReport, PolicyLifecycleState, PolicyRegistry, PolicyStatus, RuleEffect, StandingPolicy};
 pub use consent::{ConsentBrokerV2, ConsentCard, ConsentRiskTier, UserConsentDecision, MAX_PENDING_CONSENT_CARDS};
 pub use memory::{MemoryItem, MemoryScope, MemoryStatus, PersonalMemoryStore, MAX_MEMORY_ITEMS};
+pub use explain::{ExplanationEngineV1, ExplanationReport, ProvenanceRecord, MAX_PROVENANCE_RECORDS};
 pub use types::{
     HardwareTier, InferenceConfig, InferenceError, ModelLoadError, ModelManifest,
     QuantizationType, SandboxStatus, CAP_AIS_ADMIN, CAP_AIS_INFER, CAP_AIS_LOAD,

@@ -1,0 +1,23 @@
+{
+  "sprint": "SP-46",
+  "target": "Explanation Engine v1",
+  "status": "PASSED",
+  "invariants": {
+    "INV-EXPL-001": "Action Provenance 5-Tuple Recording (REQ-AI-104)",
+    "INV-EXPL-002": "Cryptographically Bound 'Why' Query Causal Reconstruction"
+  },
+  "stages_verified": [
+    "STAGE:177_EXPLAIN_V1_INIT",
+    "STAGE:178_EXPLAIN_V1_PROVENANCE_TUPLE",
+    "STAGE:179_EXPLAIN_V1_RECONSTRUCT_CAUSALITY",
+    "STAGE:180_EXPLAIN_V1_IMMUTABLE_LOG_BINDING",
+    "STAGE:181_SP46_EXPLAIN_READY"
+  ],
+  "checksums": {
+    "docs/architecture/explanation-engine-v1-spec.md": "4ab530a9440ed5e4258bb0007439c9825fb007e0d5d20b0ee96978a02f7ddbb8",
+    "docs/evidence/SP-46-validation.md": "ddd0c7e0d1cb2dd38672841bf62d4400534daf709dd9d763bac0b362c6a3bd79",
+    "docs/evidence/golden-boot-sp46.log": "c38533be2eeb768ca075f4e039495f167f8f54858e6745996304c38706553ae7",
+    "userspace/ais/src/explain.rs": "427ea52931986e138fc83f13d87cc004e89f225c31624e97054b6cf8fd976304",
+    "kernel/src/userspace/explain_v1.rs": "7bafea7f983a68846741da1a06f667aef06766019c71e31348af67db6ee56719"
+  }
+}

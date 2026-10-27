@@ -79,3 +79,8 @@ pub use memory_store::{
     KernelMemoryItem, KernelMemoryScope, KernelMemoryStatus, KernelMemoryStore,
     KERNEL_MAX_MEMORY_ITEMS,
 };
+pub mod explain_v1;
+pub use explain_v1::{
+    KernelExplanationEngineV1, KernelExplanationReport, KernelProvenanceRecord,
+    KERNEL_MAX_PROVENANCE_RECORDS,
+};

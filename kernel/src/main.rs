@@ -3833,6 +3833,63 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-45] - Standalone Memory Management with Zero Ambient Model Persistence.");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-46: EXPLANATION ENGINE V1 (ACTION PROVENANCE, WHY QUERY, CAUSALITY)
+    // ==================================================
+
+    // Stage 177: Explanation Engine v1 Subsystem Initialization
+    stage_marker!("177_EXPLAIN_V1_INIT", "Explanation engine v1 initialized with provenance tracker");
+    let mut explain_engine = crate::userspace::KernelExplanationEngineV1::new();
+    log_info!("explain", "Explanation Engine v1 online: action provenance & causal query engine ready");
+
+    // Stage 178: Action Provenance 5-Tuple Generation (REQ-AI-104, INV-EXPL-001)
+    stage_marker!("178_EXPLAIN_V1_PROVENANCE_TUPLE", "Action provenance tuple recording verified");
+    let mut log_bus_explain = crate::userspace::KernelLogBus::new();
+    let rec_id = explain_engine.record_action_provenance(
+        9901, // action_id
+        crate::userspace::KernelActionCategory::FileOperation,
+        Some(3001), // rule_fired_id
+        Some(5001), // consent_card_id
+        0xABCD_1234, // model_version_hash
+        "User Voice Command: Save note", // input_source
+        4000, // timestamp
+        &mut log_bus_explain,
+    ).expect("Record action provenance failed");
+
+    let prov_rec = explain_engine.get_record(rec_id).expect("Provenance record must exist");
+    assert_eq!(prov_rec.action_id, 9901);
+    assert_eq!(prov_rec.rule_fired_id, Some(3001));
+    assert_eq!(prov_rec.consent_card_id, Some(5001));
+    assert_eq!(prov_rec.model_version_hash, 0xABCD_1234);
+    assert_eq!(prov_rec.input_source, "User Voice Command: Save note");
+    log_info!("explain", "Provenance tuple verified: action 9901 fully anchored to rule, consent, model & input (REQ-AI-104, INV-EXPL-001 PASSED)");
+
+    // Stage 179: "Why" Query Verifiable Causal Reconstruction (INV-EXPL-002)
+    stage_marker!("179_EXPLAIN_V1_RECONSTRUCT_CAUSALITY", "Why query causal reconstruction verified");
+    let report = explain_engine.explain(9901).expect("Explanation report must be retrievable");
+    assert_eq!(report.action_id, 9901);
+    assert!(report.verified);
+    assert_eq!(report.causality_path, "InputEvent -> ModelInference -> StandingPolicy -> ConsentCard -> AuditBus");
+    log_info!("explain", "Why query causal path verified: verifiable chain reconstructed without hallucination (INV-EXPL-002 PASSED)");
+
+    // Stage 180: Immutable Log Bus Anchoring (INV-EXPL-002)
+    stage_marker!("180_EXPLAIN_V1_IMMUTABLE_LOG_BINDING", "Provenance records anchored to structured audit log bus");
+    let latest_expl = log_bus_explain.latest_entry().expect("Audit entry for explain must exist");
+    assert_eq!(latest_expl.source_id, 8); // Explanation subsystem
+    assert_eq!(latest_expl.event_id, 9901);
+    assert_eq!(latest_expl.level, crate::userspace::KernelLogLevel::SecurityAudit);
+    log_info!("explain", "Immutable audit anchoring verified: action 9901 provenance logged to security bus (INV-EXPL-002 PASSED)");
+
+    // Stage 181: Sprint SP-46 Milestone Reached
+    stage_marker!("181_SP46_EXPLAIN_READY", "Sprint SP-46 Explanation Engine v1 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-46] Sprint SP-46 Explanation Engine v1 Milestone REACHED.");
+    println!(" [SP-46] - Action Provenance 5-Tuple Recording (REQ-AI-104, INV-EXPL-001),");
+    println!(" [SP-46] - Verifiable 'Why' Query Causal Reconstruction (INV-EXPL-002),");
+    println!(" [SP-46] - Immutable Structured Security Audit Log Anchoring,");
+    println!(" [SP-46] - Full Traceability from User Input to Executed Capability.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
