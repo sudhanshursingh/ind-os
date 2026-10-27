@@ -29,6 +29,7 @@ pub mod sensor_imu_core;
 pub mod sensor_als_prox_core;
 pub mod sensor_mag_core;
 pub mod sensor_hub_core;
+pub mod audio_codec_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -135,6 +136,12 @@ pub use sensor_hub_core::{
     KERNEL_CHANNEL_MASK_ALS, KERNEL_CHANNEL_MASK_GYRO, KERNEL_CHANNEL_MASK_MAG,
     KERNEL_CHANNEL_MASK_PROX, KERNEL_MAX_SENSOR_SUBSCRIBERS,
     KERNEL_SENSOR_EVENT_RING_CAPACITY,
+};
+pub use audio_codec_core::{
+    KernelAudioCodecError, KernelAudioCodecHarness, KernelAudioCodecState,
+    KERNEL_CAP_DEVICE_ADMIN, KERNEL_HANOIP_AUDIO_SLIMBUS_BASE,
+    KERNEL_HANOIP_AUDIO_SLIMBUS_SIZE, KERNEL_WCD9385_MANUFACTURER_ID,
+    KERNEL_WCD9385_PRODUCT_ID,
 };
 
 

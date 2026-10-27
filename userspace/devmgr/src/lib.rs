@@ -34,6 +34,7 @@ pub mod sensor_imu;
 pub mod sensor_als_prox;
 pub mod sensor_mag;
 pub mod sensor_hub;
+pub mod audio_codec;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -136,6 +137,11 @@ pub use sensor_hub::{
     CHANNEL_MASK_ACCEL, CHANNEL_MASK_ALL, CHANNEL_MASK_ALS, CHANNEL_MASK_GYRO,
     CHANNEL_MASK_MAG, CHANNEL_MASK_PROX, MAX_SENSOR_SUBSCRIBERS,
     SENSOR_EVENT_RING_CAPACITY,
+};
+pub use audio_codec::{
+    AudioCodecError, AudioCodecHarness, AudioCodecState,
+    CAP_DEVICE_ADMIN, HANOIP_AUDIO_SLIMBUS_BASE, HANOIP_AUDIO_SLIMBUS_SIZE,
+    WCD9385_MANUFACTURER_ID, WCD9385_PRODUCT_ID,
 };
 
 

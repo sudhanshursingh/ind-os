@@ -123,6 +123,12 @@ pub use platform::sensor_hub_core::{
     KERNEL_CHANNEL_MASK_PROX, KERNEL_MAX_SENSOR_SUBSCRIBERS,
     KERNEL_SENSOR_EVENT_RING_CAPACITY,
 };
+pub use platform::audio_codec_core::{
+    KernelAudioCodecError, KernelAudioCodecHarness, KernelAudioCodecState,
+    KERNEL_CAP_DEVICE_ADMIN, KERNEL_HANOIP_AUDIO_SLIMBUS_BASE,
+    KERNEL_HANOIP_AUDIO_SLIMBUS_SIZE, KERNEL_WCD9385_MANUFACTURER_ID,
+    KERNEL_WCD9385_PRODUCT_ID,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
