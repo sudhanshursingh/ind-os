@@ -1,0 +1,8 @@
+{
+  "docs/architecture/key-ceremony-spec.md": "78e1ca8ba34ef82c542721be2b148e2c3cfcd68c00f6e294644ce57f3ce50aa8",
+  "docs/engineering/key-compromise-playbook.md": "7f0c80302092b56660ff89833d06ff6c9d5cf0c45bb3cba7138a695256859d9a",
+  "docs/evidence/SP-55-validation.md": "f0f979915a820b6543b3398869c182ebe9a02914177ed8424c6a139526d9181c",
+  "docs/evidence/golden-boot-sp55.log": "4b7766d95404fda5d91a23f31b6a208dc34511619bd621c674b48289d355262b",
+  "userspace/net/src/ceremony.rs": "84152e2c8d103a09a6593db3434dd67dbdcdac93c9b08eb3f002379f7cceae5c",
+  "kernel/src/userspace/ceremony_core.rs": "df813ee7369e4b6ee3b9733d4912f385ee7dfc97184a92e4b5ae6ec42f88f87a"
+}

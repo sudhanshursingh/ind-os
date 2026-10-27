@@ -50,6 +50,12 @@ pub use update::{
     SlotId, SlotState, UpdateError, UpdateManager, UpdateManifest, UpdatePolicy,
     AUTHORIZED_UPDATE_SIGNATURE,
 };
+pub mod ceremony;
+pub use ceremony::{
+    CeremonyError, CustodianKey, CustodianStatus, ThresholdSigningEngine,
+    MAX_CUSTODIANS, REQUIRED_THRESHOLD,
+};
+
 
 
 

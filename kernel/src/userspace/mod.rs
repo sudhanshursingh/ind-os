@@ -126,6 +126,12 @@ pub use update_service::{
     KernelSlotId, KernelSlotState, KernelUpdateError, KernelUpdateManager, KernelUpdateManifest,
     KernelUpdatePolicy, KERNEL_AUTHORIZED_UPDATE_SIGNATURE,
 };
+pub mod ceremony_core;
+pub use ceremony_core::{
+    KernelCeremonyError, KernelCustodianKey, KernelCustodianStatus, KernelThresholdSigningEngine,
+    KERNEL_MAX_CUSTODIANS, KERNEL_REQUIRED_THRESHOLD,
+};
+
 
 
 

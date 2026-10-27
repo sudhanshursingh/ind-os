@@ -115,6 +115,11 @@ sp-54:
 	@echo "Running Ind OS Sprint SP-54 Verification Suite..."
 	@python3 ci/verify_sp54.py
 
+sp-55:
+	@echo "Running Ind OS Sprint SP-55 Verification Suite..."
+	@python3 ci/verify_sp55.py
+
+
 test-harness:
 	@echo "Running Ind OS Test Harness Self-Test..."
 	@python3 ci/run_qemu_test.py --self-test
