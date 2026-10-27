@@ -144,6 +144,11 @@ pub use platform::ais_arm64_core::{
     KERNEL_AIS_MAX_RAM_BYTES, KERNEL_CAP_AIS_EXEC,
     KERNEL_TARGET_INFERENCE_LATENCY_MAX_MS,
 };
+pub use platform::ais_thermal_core::{
+    KernelAisThermalGovernorHarness, KernelAisThermalState,
+    KERNEL_AIS_TEMP_EMERGENCY_HALT_MC, KERNEL_AIS_TEMP_NORMAL_MC,
+    KERNEL_AIS_TEMP_RECOVERY_MC, KERNEL_AIS_TEMP_THROTTLE_MC,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

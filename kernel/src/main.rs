@@ -7068,6 +7068,56 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-96] - Strict 64MB Physical RAM Quota Enforced (INV-AIS-HW-003).");
     println!("==================================================");
 
+    // =========================================================================
+    // PHASE 9: SPRINT SP-97 - AIS MEMORY BOUNDS & THERMAL THROTTLING (REQ-AI-102, REQ-THM-102)
+    // =========================================================================
+
+    // Stage 435: AIS Thermal Governor Harness Init
+    stage_marker!("435_SP97_AIS_THERMAL_GOVERNOR_INIT", "AIS thermal governor harness and temperature observer initialized");
+    let mut thermal_gov = crate::hal::KernelAisThermalGovernorHarness::new();
+    assert_eq!(thermal_gov.state(), crate::hal::KernelAisThermalState::Nominal);
+    assert_eq!(thermal_gov.current_duty_cycle_percent(), 100);
+    assert!(thermal_gov.is_background_allowed());
+    log_info!("ais_thermal", "AIS thermal governor online: 100% nominal duty-cycle active (REQ-THM-102 PASSED)");
+
+    // Stage 436: Dynamic Thermal Throttling at 42.0 C (INV-AIS-THM-001)
+    stage_marker!("436_SP97_AIS_THERMAL_THROTTLE_TRIGGER", "Dynamic 50% duty-cycle throttling at 42.0 C threshold verified");
+    let state_throttle = thermal_gov.update_temperature(crate::hal::KERNEL_AIS_TEMP_THROTTLE_MC);
+    assert_eq!(state_throttle, crate::hal::KernelAisThermalState::Throttled);
+    assert_eq!(thermal_gov.current_duty_cycle_percent(), 50);
+    assert!(!thermal_gov.is_background_allowed());
+    log_info!("ais_thermal", "Thermal throttle verified: 42.0C triggers 50% duty-cycle throttling (INV-AIS-THM-001 PASSED)");
+
+    // Stage 437: Emergency Thermal Halting at 46.0 C (INV-AIS-THM-002)
+    stage_marker!("437_SP97_AIS_EMERGENCY_THERMAL_HALT", "Emergency background inference halt at 46.0 C cutoff verified");
+    let state_halt = thermal_gov.update_temperature(crate::hal::KERNEL_AIS_TEMP_EMERGENCY_HALT_MC);
+    assert_eq!(state_halt, crate::hal::KernelAisThermalState::EmergencyHalt);
+    assert_eq!(thermal_gov.current_duty_cycle_percent(), 0);
+    assert!(thermal_gov.is_emergency_halted());
+    log_info!("ais_thermal", "Emergency halt verified: 46.0C shuts down non-essential inference (INV-AIS-THM-002 PASSED)");
+
+    // Stage 438: Hysteresis Cooling Recovery at 39.0 C (INV-AIS-THM-003)
+    stage_marker!("438_SP97_AIS_HYSTERESIS_COOLING_RECOVERY", "Thermal hysteresis recovery below 39.0 C threshold verified");
+    // Between 39C and 42C: remains throttled (hysteresis)
+    thermal_gov.update_temperature(40_500);
+    assert_eq!(thermal_gov.state(), crate::hal::KernelAisThermalState::EmergencyHalt); // holds until recovery
+
+    // Cool down below 39.0 C: returns to nominal
+    let state_norm = thermal_gov.update_temperature(crate::hal::KERNEL_AIS_TEMP_RECOVERY_MC);
+    assert_eq!(state_norm, crate::hal::KernelAisThermalState::Nominal);
+    assert_eq!(thermal_gov.current_duty_cycle_percent(), 100);
+    assert!(thermal_gov.is_background_allowed());
+    log_info!("ais_thermal", "Hysteresis verified: cooling below 39.0C restores 100% nominal throughput (INV-AIS-THM-003 PASSED)");
+
+    // Stage 439: Sprint SP-97 Milestone Reached
+    stage_marker!("439_SP97_AIS_THERMAL_READY", "Sprint SP-97 AIS Memory Bounds & Thermal Throttling Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-97] Sprint SP-97 AIS Memory Bounds & Thermal Throttling Milestone REACHED.");
+    println!(" [SP-97] - Dynamic 50% Duty-Cycle Throttling at 42.0C Verified (INV-AIS-THM-001, REQ-AI-102),");
+    println!(" [SP-97] - Emergency Thermal Halting at 46.0C Confirmed (INV-AIS-THM-002, REQ-THM-102),");
+    println!(" [SP-97] - 3.0C Hysteresis Band Prevents Rapid Thermal Cycling (INV-AIS-THM-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

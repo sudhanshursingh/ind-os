@@ -26,6 +26,7 @@ pub mod quality;
 pub mod redteam;
 pub mod types;
 pub mod arm64_runtime;
+pub mod thermal_governor;
 
 pub use loader::{SignedModelLoader, AUTHORIZED_SIGNING_AUTHORITY};
 pub use profile::IndHardwareProfile;
@@ -43,6 +44,11 @@ pub use redteam::{AttackType, RedTeamAttackScenario, RedTeamHarness};
 pub use arm64_runtime::{
     AisArm64RuntimeHarness, AisRuntimeError, AisRuntimeState,
     AIS_MAX_RAM_BYTES, CAP_AIS_EXEC, TARGET_INFERENCE_LATENCY_MAX_MS,
+};
+pub use thermal_governor::{
+    AisThermalGovernorHarness, AisThermalState,
+    AIS_TEMP_EMERGENCY_HALT_MC, AIS_TEMP_NORMAL_MC,
+    AIS_TEMP_RECOVERY_MC, AIS_TEMP_THROTTLE_MC,
 };
 pub use types::{
     HardwareTier, InferenceConfig, InferenceError, ModelLoadError, ModelManifest,
