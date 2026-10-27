@@ -1,0 +1,24 @@
+{
+  "sprint": "SP-43",
+  "target": "Policy Engine v2 & Standing Policies",
+  "status": "PASSED",
+  "invariants": {
+    "INV-POL-001": "First-Class Verifiable Standing Policies Lifecycle",
+    "INV-POL-002": "Deterministic Conflict Resolution (Explicit Deny Overrides Allow)",
+    "INV-POL-003": "Side-Effect-Free Dry-Run Policy Simulation"
+  },
+  "stages_verified": [
+    "STAGE:162_POLICY_V2_INIT",
+    "STAGE:163_POLICY_V2_FIRST_CLASS_OBJECT",
+    "STAGE:164_POLICY_V2_CONFLICT_RESOLUTION",
+    "STAGE:165_POLICY_V2_DRY_RUN_SIMULATION",
+    "STAGE:166_SP43_POLICY_READY"
+  ],
+  "checksums": {
+    "docs/architecture/policy-engine-v2-spec.md": "c82f388993ed7aba42469714496b9f7cc3f647040ce01d6a8aa595f1182f41c3",
+    "docs/evidence/SP-43-validation.md": "a9fc566611a7d046497b0f6fc15d6422279e7b1bab473ff06d71c03e15264950",
+    "docs/evidence/golden-boot-sp43.log": "7077e6420ca863cbdbc49c41d758672e7baaa482c2f89f1877e8baa3a86f7bd7",
+    "userspace/ais/src/policy.rs": "66693f20ab89ef7c052b9310a5133222003ee1b682f46c3e5f674edf46d8462a",
+    "kernel/src/userspace/policy_v2.rs": "3b8370fc5371b87f0d71eda878504bbd5628683ff5f9c3f90c49beb75f908a12"
+  }
+}

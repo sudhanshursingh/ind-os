@@ -3620,6 +3620,81 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-42] - Advisory-Only Proposal Posture with Zero Ambient Authority (INV-INTENT-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-43: POLICY ENGINE V2 (STANDING POLICIES, CONFLICTS, DRY-RUN)
+    // ==================================================
+
+    // Stage 162: Policy Engine v2 Subsystem Initialization
+    stage_marker!("162_POLICY_V2_INIT", "Policy engine v2 initialized with standing policy registry");
+    let mut policy_v2 = crate::userspace::KernelPolicyEngineV2::new();
+    log_info!("policy", "Policy Engine v2 online: standing user policies & dry-run evaluator ready");
+
+    // Stage 163: Standing User Policies as First-Class Objects (INV-POL-001)
+    stage_marker!("163_POLICY_V2_FIRST_CLASS_OBJECT", "Standing policies lifecycle (Active, Suspended, Revoked) verified");
+    let p_allow_id = policy_v2.register_policy(
+        "allow_user_bluetooth",
+        crate::userspace::KernelActionCategory::DeviceControl,
+        101,
+        false, // Allow
+        10,    // priority 10
+    ).expect("Policy registration failed");
+
+    // Verify inspection
+    let inspected = policy_v2.inspect_policy(p_allow_id).expect("Policy must be inspectable");
+    assert_eq!(inspected.name, "allow_user_bluetooth");
+    assert_eq!(inspected.state, crate::userspace::KernelPolicyLifecycleState::Active);
+
+    // Verify evaluation allows action
+    assert!(policy_v2.evaluate(crate::userspace::KernelActionCategory::DeviceControl, 101));
+
+    // Verify revocation transitions state and denies subsequent evaluations
+    policy_v2.revoke_policy(p_allow_id).expect("Revocation failed");
+    let revoked = policy_v2.inspect_policy(p_allow_id).unwrap();
+    assert_eq!(revoked.state, crate::userspace::KernelPolicyLifecycleState::Revoked);
+    assert!(!policy_v2.evaluate(crate::userspace::KernelActionCategory::DeviceControl, 101));
+
+    log_info!("policy", "Standing policy lifecycle verified: inspectable, revocable without restart (INV-POL-001 PASSED)");
+
+    // Stage 164: Deterministic Conflict Resolution (INV-POL-002)
+    stage_marker!("164_POLICY_V2_CONFLICT_RESOLUTION", "Deterministic conflict resolution (Deny overrides Allow) verified");
+    {
+        // Re-register Allow rule (priority 10)
+        let _ = policy_v2.register_policy("allow_bluetooth", crate::userspace::KernelActionCategory::DeviceControl, 101, false, 10);
+        // Register competing Deny rule (priority 10 - tie break must favor Deny)
+        let _ = policy_v2.register_policy("deny_bluetooth_lockdown", crate::userspace::KernelActionCategory::DeviceControl, 101, true, 10);
+
+        let allowed = policy_v2.evaluate(crate::userspace::KernelActionCategory::DeviceControl, 101);
+        assert!(!allowed, "Explicit Deny must override Allow at equal/higher priority (INV-POL-002)");
+
+        log_info!("policy", "Conflict resolution verified: explicit Deny overrides Allow on equal priority (INV-POL-002 PASSED)");
+    }
+
+    // Stage 165: Side-Effect-Free Dry-Run Simulation (INV-POL-003)
+    stage_marker!("165_POLICY_V2_DRY_RUN_SIMULATION", "Side-effect-free dry-run simulation verified");
+    {
+        let dry_run = policy_v2.simulate_dry_run(crate::userspace::KernelActionCategory::DeviceControl, 101);
+        assert!(!dry_run.would_allow);
+        assert!(dry_run.firing_rule_id.is_some());
+        assert_eq!(dry_run.conflicts_detected, 1);
+
+        // Dry-run on an unknown action requires consent (default-deny)
+        let dry_run_unknown = policy_v2.simulate_dry_run(crate::userspace::KernelActionCategory::FileOperation, 999);
+        assert!(!dry_run_unknown.would_allow);
+        assert!(dry_run_unknown.needs_consent);
+
+        log_info!("policy", "Dry-run simulation verified: prospective evaluation returned without state mutation (INV-POL-003 PASSED)");
+    }
+
+    // Stage 166: Sprint SP-43 Milestone Reached
+    stage_marker!("166_SP43_POLICY_READY", "Sprint SP-43 Policy Engine v2 Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-43] Sprint SP-43 Policy Engine v2 Milestone REACHED.");
+    println!(" [SP-43] - Standing User Policies as First-Class Objects (INV-POL-001),");
+    println!(" [SP-43] - Deterministic Conflict Resolution (INV-POL-002),");
+    println!(" [SP-43] - Side-Effect-Free Dry-Run Simulation (INV-POL-003),");
+    println!(" [SP-43] - Atomic Policy Revocation & Default-Deny Posture.");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();

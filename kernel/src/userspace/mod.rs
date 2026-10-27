@@ -64,3 +64,8 @@ pub use intent_broker::{
     KernelActionCategory, KernelIntentBroker, KernelSchemaDescriptor, KernelSchemaRegistry,
     KernelTypedProposal,
 };
+pub mod policy_v2;
+pub use policy_v2::{
+    KernelDryRunReport, KernelPolicyEngineV2, KernelPolicyLifecycleState, KernelStandingPolicy,
+    MAX_STANDING_POLICIES,
+};
