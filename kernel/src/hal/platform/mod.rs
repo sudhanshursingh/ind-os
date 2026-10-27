@@ -20,6 +20,7 @@ pub mod pmic_spmi_core;
 pub mod battery_gauge_core;
 pub mod thermal_mgmt_core;
 pub mod power_domains_core;
+pub mod usb_dwc3_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -80,6 +81,11 @@ pub use power_domains_core::{
     KernelPowerDomainError, KernelPowerDomainState, KernelPowerDomainsHarness,
     KERNEL_CAP_POWER_DOMAINS, KERNEL_HANOIP_RPMH_RSC_BASE,
     KERNEL_PSCI_FN64_CPU_SUSPEND, KERNEL_PSCI_FN_CPU_OFF, KERNEL_PSCI_FN_SYSTEM_RESET,
+};
+pub use usb_dwc3_core::{
+    KernelUsbDwc3Harness, KernelUsbEndpointState, KernelUsbError, KernelUsbSpeed,
+    KERNEL_CAP_USB_ADMIN, KERNEL_HANOIP_QUSB2_PHY_BASE, KERNEL_HANOIP_USB_DWC3_BASE,
+    KERNEL_USB_DESC_TYPE_DEVICE, KERNEL_USB_REQ_GET_DESCRIPTOR, KERNEL_USB_REQ_SET_ADDRESS,
 };
 
 

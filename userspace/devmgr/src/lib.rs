@@ -25,6 +25,7 @@ pub mod pmic_spmi;
 pub mod battery_gauge;
 pub mod thermal_mgmt;
 pub mod power_domains;
+pub mod usb_dwc3;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -87,6 +88,11 @@ pub use power_domains::{
     PowerDomainError, PowerDomainState, PowerDomainsHarness,
     CAP_POWER_DOMAINS, HANOIP_RPMH_RSC_BASE, PSCI_FN64_CPU_SUSPEND,
     PSCI_FN_CPU_OFF, PSCI_FN_SYSTEM_RESET,
+};
+pub use usb_dwc3::{
+    UsbDwc3Harness, UsbEndpointState, UsbError, UsbSpeed,
+    CAP_USB_ADMIN, HANOIP_QUSB2_PHY_BASE, HANOIP_USB_DWC3_BASE,
+    USB_DESC_TYPE_DEVICE, USB_REQ_GET_DESCRIPTOR, USB_REQ_SET_ADDRESS,
 };
 
 

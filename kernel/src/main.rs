@@ -6393,6 +6393,51 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-83] - Capability-Gated Core Power Transitions Enforced (INV-PWR-003).");
     println!("==================================================");
 
+    // =========================================================================
+    // PHASE 9: SPRINT SP-84 - USB DWC3 CONTROLLER BRING-UP (REQ-HW-108, REQ-USB-101)
+    // =========================================================================
+
+    // Stage 370: USB DWC3 Harness Init
+    stage_marker!("370_SP84_USB_DWC3_INIT", "Qualcomm USB 3.0 DWC3 controller and QUSB2 PHY harness initialized");
+    let mut usb_harness = crate::hal::KernelUsbDwc3Harness::new();
+    log_info!("usb", "USB DWC3 harness online: Synopsys DWC3 core and QUSB2 PHY auditor active (REQ-USB-101 PASSED)");
+
+    // Stage 371: DWC3 Controller Mapping (INV-USB-001)
+    stage_marker!("371_SP84_USB_DWC3_CONTROLLER_MAPPING", "DWC3 hardware register MMIO base mapping verified");
+    let invalid_usb_err = usb_harness.map_mmio(0x0123_4000, crate::hal::KERNEL_HANOIP_QUSB2_PHY_BASE);
+    assert_eq!(invalid_usb_err, Err(crate::hal::KernelUsbError::InvalidMmioBase));
+
+    usb_harness.map_mmio(crate::hal::KERNEL_HANOIP_USB_DWC3_BASE, crate::hal::KERNEL_HANOIP_QUSB2_PHY_BASE).expect("USB DWC3 MMIO map failed");
+    assert!(usb_harness.is_controller_mapped());
+    log_info!("usb", "DWC3 verified: USB 3.0 controller mapped at 0x04e0_0000, QUSB2 PHY at 0x088e_2000 (INV-USB-001 PASSED)");
+
+    // Stage 372: QUSB2 PHY PLL Lock (INV-USB-002)
+    stage_marker!("372_SP84_QUSB2_PHY_PLL_LOCK", "QUSB2 PHY initialization and PLL lock sequencing verified");
+    usb_harness.lock_qusb2_phy().expect("QUSB2 PHY PLL lock failed");
+    assert!(usb_harness.is_phy_locked());
+    assert_eq!(usb_harness.speed(), crate::hal::KernelUsbSpeed::HighSpeed480);
+    assert_eq!(usb_harness.ep0_state(), crate::hal::KernelUsbEndpointState::Ready);
+    log_info!("usb", "PHY verified: QUSB2 PLL locked, HighSpeed 480Mbps link established (INV-USB-002 PASSED)");
+
+    // Stage 373: Control Endpoint EP0 Handshake (INV-USB-003)
+    stage_marker!("373_SP84_CONTROL_ENDPOINT_EP0_HANDSHAKE", "Control Endpoint 0 setup packet handling and device descriptor verified");
+    let desc_len = usb_harness.handle_setup_packet(0x80, crate::hal::KERNEL_USB_REQ_GET_DESCRIPTOR, (crate::hal::KERNEL_USB_DESC_TYPE_DEVICE as u16) << 8, 0, 64).expect("EP0 get descriptor failed");
+    assert_eq!(desc_len, 18);
+
+    let set_addr_res = usb_harness.handle_setup_packet(0x00, crate::hal::KERNEL_USB_REQ_SET_ADDRESS, 20, 0, 0).expect("EP0 set address failed");
+    assert_eq!(set_addr_res, 0);
+    assert_eq!(usb_harness.device_address(), 20);
+    log_info!("usb", "EP0 verified: standard GET_DESCRIPTOR (18B) and SET_ADDRESS (Addr 20) handled deterministically (INV-USB-003 PASSED)");
+
+    // Stage 374: Sprint SP-84 Milestone Reached
+    stage_marker!("374_SP84_USB_DWC3_READY", "Sprint SP-84 USB DWC3 Controller Bring-Up Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-84] Sprint SP-84 USB DWC3 Controller Milestone REACHED.");
+    println!(" [SP-84] - DWC3 Controller Mapped at 0x04e0_0000 (INV-USB-001, REQ-USB-101),");
+    println!(" [SP-84] - QUSB2 High-Speed PHY PLL Locked at 480 Mbps (INV-USB-002),");
+    println!(" [SP-84] - Control Endpoint 0 Setup Packet & Descriptors Verified (INV-USB-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
