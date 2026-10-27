@@ -35,6 +35,7 @@ pub mod concurrency_suite_core;
 pub mod ais_arm64_core;
 pub mod ais_thermal_core;
 pub mod intent_hw_core;
+pub mod ufs_mount_core;
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,
@@ -172,6 +173,11 @@ pub use intent_hw_core::{
     KernelHardwareIntentBrokerHarness, KernelHardwareIntentError,
     KernelHardwareIntentState, KernelHardwareProposalCard,
     KERNEL_CAP_INTENT_DISPATCH,
+};
+pub use ufs_mount_core::{
+    KernelUfsMountError, KernelUfsMountHarness, KernelUfsMountState,
+    KERNEL_CAP_STORAGE_MOUNT, KERNEL_INDFS_BLOCK_SIZE_BYTES,
+    KERNEL_INDFS_SUPERBLOCK_MAGIC,
 };
 
 

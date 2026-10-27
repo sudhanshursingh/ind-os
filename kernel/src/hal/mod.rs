@@ -154,6 +154,11 @@ pub use platform::intent_hw_core::{
     KernelHardwareIntentState, KernelHardwareProposalCard,
     KERNEL_CAP_INTENT_DISPATCH,
 };
+pub use platform::ufs_mount_core::{
+    KernelUfsMountError, KernelUfsMountHarness, KernelUfsMountState,
+    KERNEL_CAP_STORAGE_MOUNT, KERNEL_INDFS_BLOCK_SIZE_BYTES,
+    KERNEL_INDFS_SUPERBLOCK_MAGIC,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,
