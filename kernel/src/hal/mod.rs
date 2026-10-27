@@ -129,6 +129,11 @@ pub use platform::audio_codec_core::{
     KERNEL_HANOIP_AUDIO_SLIMBUS_SIZE, KERNEL_WCD9385_MANUFACTURER_ID,
     KERNEL_WCD9385_PRODUCT_ID,
 };
+pub use platform::audio_pcm_core::{
+    KernelAudioPcmError, KernelAudioPcmHarness, KernelAudioPcmState,
+    KERNEL_CAP_AUDIO_PLAYBACK, KERNEL_PCM_CHANNELS_STEREO,
+    KERNEL_PCM_PERIODS, KERNEL_PCM_PERIOD_FRAMES, KERNEL_PCM_SAMPLE_RATE_48K,
+};
 pub use traits::{
     ClockResetController, DmaAllocator, HalDevice, HalError, IrqController,
     PowerController, PowerState, RegisterAccess,

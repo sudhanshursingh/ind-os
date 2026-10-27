@@ -35,6 +35,7 @@ pub mod sensor_als_prox;
 pub mod sensor_mag;
 pub mod sensor_hub;
 pub mod audio_codec;
+pub mod audio_pcm;
 
 pub use bus::{HotplugEvent, HotplugEventBus, Subscriber};
 pub use handout::{CapabilityHandoutRegistry, DeviceCapToken, DmaCapToken, IrqCapToken, MmioCapToken};
@@ -142,6 +143,11 @@ pub use audio_codec::{
     AudioCodecError, AudioCodecHarness, AudioCodecState,
     CAP_DEVICE_ADMIN, HANOIP_AUDIO_SLIMBUS_BASE, HANOIP_AUDIO_SLIMBUS_SIZE,
     WCD9385_MANUFACTURER_ID, WCD9385_PRODUCT_ID,
+};
+pub use audio_pcm::{
+    AudioPcmError, AudioPcmHarness, AudioPcmState,
+    CAP_AUDIO_PLAYBACK, PCM_CHANNELS_STEREO, PCM_PERIODS,
+    PCM_PERIOD_FRAMES, PCM_SAMPLE_RATE_48K,
 };
 
 
