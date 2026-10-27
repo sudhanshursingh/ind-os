@@ -1,0 +1,7 @@
+{
+  "docs/architecture/leak-sentinel-spec.md": "cb336dee394ad4dcae68b97768cfeb0a75b84f47bf2bcfe32bdbcf1d44de230f",
+  "docs/evidence/SP-56-validation.md": "838ae3e81313fe32648d10b1720f0797d01f0b0b8ffa628c59149f343dcbe9a6",
+  "docs/evidence/golden-boot-sp56.log": "bdf389e10c3e71bd378a717a9ff4683ed38469cf323a8bc976aca26be1b55284",
+  "userspace/net/src/sentinel.rs": "a1863f5833f1fccf35281f134850769dd598879eb0d893ec90aa992fc4199e91",
+  "kernel/src/userspace/leak_sentinel.rs": "b586f70909421843db8d2e4f79678e8697c315034afc2021998da03e2be6466e"
+}

@@ -55,6 +55,12 @@ pub use ceremony::{
     CeremonyError, CustodianKey, CustodianStatus, ThresholdSigningEngine,
     MAX_CUSTODIANS, REQUIRED_THRESHOLD,
 };
+pub mod sentinel;
+pub use sentinel::{
+    FlowClass, LeakAlert, LeakAnomalyType, NetworkFlowDescriptor, NetworkLeakSentinel,
+    SentinelAction, LEAK_BURST_THRESHOLD_FACTOR, MAX_LEAK_ALERTS, MAX_QUARANTINED_IPS,
+};
+
 
 
 

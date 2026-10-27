@@ -4677,11 +4677,102 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-55] - Key Compromise Playbook & Ceremony Specification ratified (DEF-003).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-56: LEAK SENTINEL (REQ-AI-107 NETWORK HALF)
+    // ==================================================
+
+    // Stage 228: Leak Sentinel Initialization (REQ-AI-107)
+    stage_marker!("228_LEAK_SENTINEL_INIT", "Network leak sentinel initialized with egress baseline monitoring");
+    let mut leak_sentinel = crate::userspace::KernelNetworkLeakSentinel::new(1024);
+    assert_eq!(leak_sentinel.alert_count(), 0);
+    assert_eq!(leak_sentinel.baseline_bytes(), 1024);
+    log_info!("sentinel", "Network leak sentinel online: baseline 1024 bytes/flow, out-of-band UI routing armed (REQ-AI-107 PASSED)");
+
+    // Stage 229: Unconsented Outbound Egress Detection (INV-LEAK-001, INV-LEAK-002)
+    stage_marker!("229_LEAK_UNCONSENTED_EGRESS_DETECTION", "Unconsented outbound flow detected, held, and alert routed to trusted UI");
+    let unconsented_flow = crate::userspace::KernelNetworkFlowDescriptor {
+        src_port: 49152,
+        dst_ip: [198, 51, 100, 77], // Rogue external endpoint
+        dst_port: 443,
+        protocol: 6, // TCP
+        bytes_sent: 2048,
+        has_consent_token: false, // NO USER CONSENT
+        is_system_critical: false,
+    };
+    let unconsented_action = leak_sentinel.inspect_outbound_flow(&unconsented_flow);
+    assert_eq!(unconsented_action, crate::userspace::KernelSentinelAction::HoldForConsent);
+    assert_eq!(leak_sentinel.alert_count(), 1);
+    let alert1 = leak_sentinel.alerts()[0].expect("Alert 1 must be recorded");
+    assert_eq!(alert1.anomaly_type, crate::userspace::KernelLeakAnomalyType::UnconsentedEgress);
+    assert_eq!(alert1.dst_ip, [198, 51, 100, 77]);
+    assert!(alert1.routed_to_trusted_ui, "Alert must be routed out-of-band to trusted UI (INV-LEAK-002)");
+    log_info!("sentinel", "Unconsented egress intercepted: flow held for consent, out-of-band UI alert generated (INV-LEAK-001, INV-LEAK-002 PASSED)");
+
+    // Stage 230: Consented Volume Burst Detection (INV-LEAK-004)
+    stage_marker!("230_LEAK_VOLUME_BURST_DETECTION", "Consented flow volume burst (>3x baseline) flagged for user awareness");
+    let burst_flow = crate::userspace::KernelNetworkFlowDescriptor {
+        src_port: 49153,
+        dst_ip: [10, 0, 2, 50],
+        dst_port: 443,
+        protocol: 6,
+        bytes_sent: 4096, // 4096 >= 1024 * 3 (Burst anomaly)
+        has_consent_token: true, // Consented, but volume is anomalous
+        is_system_critical: false,
+    };
+    let burst_action = leak_sentinel.inspect_outbound_flow(&burst_flow);
+    assert_eq!(burst_action, crate::userspace::KernelSentinelAction::AlertOnly);
+    assert_eq!(leak_sentinel.alert_count(), 2);
+    let alert2 = leak_sentinel.alerts()[1].expect("Alert 2 must be recorded");
+    assert_eq!(alert2.anomaly_type, crate::userspace::KernelLeakAnomalyType::VolumeBurst);
+    assert_eq!(alert2.bytes_observed, 4096);
+    assert!(alert2.routed_to_trusted_ui);
+    log_info!("sentinel", "Volume burst detected: 4096 bytes > 3x baseline flagged to trusted UI (INV-LEAK-004 PASSED)");
+
+    // Stage 231: Quarantine Enforcement & Clean Flow Allowance (INV-LEAK-003)
+    stage_marker!("231_LEAK_QUARANTINE_ENFORCEMENT", "Quarantined endpoint traffic blocked and legitimate consented traffic allowed");
+    // 1. Packet to quarantined rogue IP 198.51.100.77 must be quarantined immediately
+    let repeat_rogue_flow = crate::userspace::KernelNetworkFlowDescriptor {
+        src_port: 49154,
+        dst_ip: [198, 51, 100, 77],
+        dst_port: 443,
+        protocol: 6,
+        bytes_sent: 512,
+        has_consent_token: false,
+        is_system_critical: false,
+    };
+    let quarantined_action = leak_sentinel.inspect_outbound_flow(&repeat_rogue_flow);
+    assert_eq!(quarantined_action, crate::userspace::KernelSentinelAction::Quarantine);
+
+    // 2. Legitimate consented normal-volume traffic is allowed through
+    let legit_flow = crate::userspace::KernelNetworkFlowDescriptor {
+        src_port: 49155,
+        dst_ip: [10, 0, 2, 50],
+        dst_port: 443,
+        protocol: 6,
+        bytes_sent: 512,
+        has_consent_token: true,
+        is_system_critical: false,
+    };
+    let legit_action = leak_sentinel.inspect_outbound_flow(&legit_flow);
+    assert_eq!(legit_action, crate::userspace::KernelSentinelAction::Allow);
+    log_info!("sentinel", "Quarantine enforcement verified: rogue destination dropped, legitimate flow allowed (INV-LEAK-003 PASSED)");
+
+    // Stage 232: Sprint SP-56 Milestone Reached
+    stage_marker!("232_SP56_LEAK_SENTINEL_READY", "Sprint SP-56 Leak Sentinel Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-56] Sprint SP-56 Leak Sentinel Milestone REACHED.");
+    println!(" [SP-56] - Unconsented Outbound Egress Detection & Holding (INV-LEAK-001),");
+    println!(" [SP-56] - Out-of-Band Alerts Routed to Trusted UI (INV-LEAK-002, REQ-AI-107),");
+    println!(" [SP-56] - Zero Silent Blocking with Policy-Guided Quarantine (INV-LEAK-003),");
+    println!(" [SP-56] - Volume Burst Anomaly Monitoring (>3x Baseline) (INV-LEAK-004).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
     }
 }
+
 
 
 

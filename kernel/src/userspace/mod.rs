@@ -131,6 +131,13 @@ pub use ceremony_core::{
     KernelCeremonyError, KernelCustodianKey, KernelCustodianStatus, KernelThresholdSigningEngine,
     KERNEL_MAX_CUSTODIANS, KERNEL_REQUIRED_THRESHOLD,
 };
+pub mod leak_sentinel;
+pub use leak_sentinel::{
+    KernelFlowClass, KernelLeakAlert, KernelLeakAnomalyType, KernelNetworkFlowDescriptor,
+    KernelNetworkLeakSentinel, KernelSentinelAction, KERNEL_LEAK_BURST_THRESHOLD_FACTOR,
+    KERNEL_MAX_LEAK_ALERTS, KERNEL_MAX_QUARANTINED_IPS,
+};
+
 
 
 
