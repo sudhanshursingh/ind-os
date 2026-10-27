@@ -1,0 +1,7 @@
+{
+  "docs/architecture/sbom-phase7.md": "8f4d111367e7876075e6e27eff15219243b189fecd86fa265dde2fa9fbabe3d6",
+  "docs/evidence/sbom-phase7.json": "6097856cf5c59c66dde7d8e5136520c0bbbbd691f6bc4269d37775356dec8d49",
+  "docs/evidence/SP-59-validation.md": "1a9ae3ded74373fe22233585304b2d735d90bc99583d2afd866590b812263041",
+  "docs/evidence/golden-boot-sp59.log": "ddd261829492a05410dbc39ea0058f08b5ad73504e6e5474e77c1d9b649261ec",
+  "kernel/src/userspace/net_reliability.rs": "3b4162d80197f119354cc48dce317d93f5a9c67ac5caffa2b0a73d2be8390898"
+}

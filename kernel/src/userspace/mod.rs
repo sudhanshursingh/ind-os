@@ -148,6 +148,11 @@ pub use net_soak::{
     KernelNetFuzzScenario, KernelNetSoakHarness, KernelNetSoakReport,
     KERNEL_DEFAULT_STORM_PACKET_COUNT,
 };
+pub mod net_reliability;
+pub use net_reliability::{
+    KernelNetAttackResult, KernelNetAttackType, KernelNetReliabilityHarness,
+};
+
 
 
 
