@@ -60,6 +60,13 @@ pub use sentinel::{
     FlowClass, LeakAlert, LeakAnomalyType, NetworkFlowDescriptor, NetworkLeakSentinel,
     SentinelAction, LEAK_BURST_THRESHOLD_FACTOR, MAX_LEAK_ALERTS, MAX_QUARANTINED_IPS,
 };
+pub mod interop;
+pub use interop::{
+    FileTransferFrame, FileTransferOp, InteropError, LoopbackBus, NetRemoteShellSession,
+    NetworkFileTransferEngine, NETSHELL_AUTH_SECRET, NFTP_PAYLOAD_SIZE, REQUIRED_FILE_READ_CAP,
+    REQUIRED_FILE_WRITE_CAP,
+};
+
 
 
 

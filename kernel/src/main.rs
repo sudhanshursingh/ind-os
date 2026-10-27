@@ -4767,11 +4767,90 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
     println!(" [SP-56] - Volume Burst Anomaly Monitoring (>3x Baseline) (INV-LEAK-004).");
     println!("==================================================");
 
+    // ==================================================
+    // SPRINT SP-57: INTEROP (FILE SHARING, REMOTE SHELL)
+    // ==================================================
+
+    // Stage 233: Interop Subsystems Initialization
+    stage_marker!("233_NET_INTEROP_INIT", "Network interop engines for file transfer and remote shell initialized");
+    let file_engine = crate::userspace::KernelNetworkFileTransferEngine::new();
+    let mut shell_session = crate::userspace::KernelNetRemoteShellSession::new(7001);
+    assert!(!shell_session.authenticated);
+    log_info!("interop", "Network interop initialized: NFTP engine and NetShell session 7001 online (SP-57 PASSED)");
+
+    // Stage 234: Network File Transfer Capability Gating (INV-NET-INTEROP-001)
+    stage_marker!("234_NET_FILE_TRANSFER_CAPABILITY_GATING", "NFTP file transfer capability tokens enforced and unauthorized reads denied");
+    let mut unauthorized_frame = crate::userspace::KernelFileTransferFrame {
+        op: crate::userspace::KernelFileTransferOp::Read,
+        cap_token: 0xDEAD, // Invalid capability token
+        path_hash: 0xABCD_1234,
+        offset: 0,
+        length: 0,
+        payload: [0u8; crate::userspace::KERNEL_NFTP_PAYLOAD_SIZE],
+    };
+    // 1. Unauthorized read rejected
+    let unauth_res = file_engine.process_frame(&unauthorized_frame);
+    assert_eq!(unauth_res, Err(crate::userspace::KernelInteropError::AccessDenied));
+
+    // 2. Authorized read succeeds with verified synthetic payload
+    unauthorized_frame.cap_token = crate::userspace::KERNEL_REQUIRED_FILE_READ_CAP;
+    let auth_res = file_engine.process_frame(&unauthorized_frame).expect("Authorized NFTP read must succeed");
+    assert_eq!(auth_res.op, crate::userspace::KernelFileTransferOp::Ack);
+    assert_eq!(auth_res.length, 16);
+    assert_eq!(&auth_res.payload[0..16], b"INDOS_FILE_DATA_");
+
+    // 3. Authorized write succeeds
+    let mut write_frame = unauthorized_frame;
+    write_frame.op = crate::userspace::KernelFileTransferOp::Write;
+    write_frame.cap_token = crate::userspace::KERNEL_REQUIRED_FILE_WRITE_CAP;
+    let write_res = file_engine.process_frame(&write_frame).expect("Authorized NFTP write must succeed");
+    assert_eq!(write_res.op, crate::userspace::KernelFileTransferOp::Ack);
+    log_info!("interop", "NFTP capability gating verified: unprivileged access denied, authorized transfers validated (INV-NET-INTEROP-001 PASSED)");
+
+    // Stage 235: Network Remote Shell Authentication & Execution (INV-NET-INTEROP-002)
+    stage_marker!("235_NET_REMOTE_SHELL_AUTHENTICATION", "Remote shell authentication and bounded privilege command execution verified");
+    // 1. Unauthenticated command fails
+    let unauth_cmd_res = shell_session.execute("status");
+    assert_eq!(unauth_cmd_res, Err(crate::userspace::KernelInteropError::UnauthenticatedSession));
+
+    // 2. Invalid auth token fails
+    let bad_auth_res = shell_session.authenticate(0xBAD0_C0DE);
+    assert_eq!(bad_auth_res, Err(crate::userspace::KernelInteropError::InvalidAuthToken));
+
+    // 3. Valid authentication succeeds
+    let auth_ok = shell_session.authenticate(crate::userspace::KERNEL_NETSHELL_AUTH_SECRET);
+    assert!(auth_ok.is_ok());
+    assert!(shell_session.authenticated);
+
+    // 4. Command execution produces expected bounded response
+    let status_out = shell_session.execute("status").expect("Status command must succeed");
+    assert_eq!(&status_out[0..14], b"INDOS_OK_NETSH");
+    let whoami_out = shell_session.execute("whoami").expect("Whoami command must succeed");
+    assert_eq!(&whoami_out[0..12], b"user_sandbox");
+    log_info!("interop", "NetShell verified: authentication enforced, privilege bounded to user sandbox (INV-NET-INTEROP-002 PASSED)");
+
+    // Stage 236: Network Loopback Diagnostic Ping/Pong (INV-NET-INTEROP-003)
+    stage_marker!("236_NET_LOOPBACK_DIAGNOSTIC", "Bidirectional loopback diagnostic ping/pong verified");
+    let ping_val: u32 = 0x1234_5678;
+    let pong_val = crate::userspace::KernelLoopbackBus::ping_pong(ping_val);
+    assert_eq!(pong_val, ping_val ^ 0xA5A5_5A5A);
+    log_info!("interop", "Loopback diagnostic verified: round-trip ping/pong payload integrity verified (INV-NET-INTEROP-003 PASSED)");
+
+    // Stage 237: Sprint SP-57 Milestone Reached
+    stage_marker!("237_SP57_INTEROP_READY", "Sprint SP-57 Interop Milestone REACHED");
+    println!("--------------------------------------------------");
+    println!(" [SP-57] Sprint SP-57 Interop Milestone REACHED.");
+    println!(" [SP-57] - Capability-Gated Network File Transfer (INV-NET-INTEROP-001),");
+    println!(" [SP-57] - Authenticated Remote Shell Session in User Sandbox (INV-NET-INTEROP-002),");
+    println!(" [SP-57] - Deterministic Diagnostic Loopback Ping/Pong (INV-NET-INTEROP-003).");
+    println!("==================================================");
+
     // Park CPU
     loop {
         core::hint::spin_loop();
     }
 }
+
 
 
 

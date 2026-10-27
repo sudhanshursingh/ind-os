@@ -137,6 +137,13 @@ pub use leak_sentinel::{
     KernelNetworkLeakSentinel, KernelSentinelAction, KERNEL_LEAK_BURST_THRESHOLD_FACTOR,
     KERNEL_MAX_LEAK_ALERTS, KERNEL_MAX_QUARANTINED_IPS,
 };
+pub mod net_interop;
+pub use net_interop::{
+    KernelFileTransferFrame, KernelFileTransferOp, KernelInteropError, KernelLoopbackBus,
+    KernelNetRemoteShellSession, KernelNetworkFileTransferEngine, KERNEL_NETSHELL_AUTH_SECRET,
+    KERNEL_NFTP_PAYLOAD_SIZE, KERNEL_REQUIRED_FILE_READ_CAP, KERNEL_REQUIRED_FILE_WRITE_CAP,
+};
+
 
 
 

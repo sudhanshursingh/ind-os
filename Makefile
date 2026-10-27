@@ -123,6 +123,11 @@ sp-56:
 	@echo "Running Ind OS Sprint SP-56 Verification Suite..."
 	@python3 ci/verify_sp56.py
 
+sp-57:
+	@echo "Running Ind OS Sprint SP-57 Verification Suite..."
+	@python3 ci/verify_sp57.py
+
+
 
 
 test-harness:

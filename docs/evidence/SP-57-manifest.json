@@ -1,0 +1,7 @@
+{
+  "docs/architecture/net-interop-spec.md": "dd222eb203ef8a31dd84f17c53509d22858905b19dcceb90634165b07931373e",
+  "docs/evidence/SP-57-validation.md": "49966f1fc3d9617af772a52143eafad344d70cef86a0e2f7d400af715aabf040",
+  "docs/evidence/golden-boot-sp57.log": "dfd0e7da78b09e22b16cfda308ea453dc00d420a0bc56308bf20bcd0e020d632",
+  "userspace/net/src/interop.rs": "8c69571ce576bee8d0d6f13755f5b131773089850ee3bedd9ecf1d7e2d05794b",
+  "kernel/src/userspace/net_interop.rs": "3e092f67a3fab38e1f6267684b137850bdb00fc5fb4d6f59cdf6f1dbefb09df9"
+}
