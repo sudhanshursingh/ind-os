@@ -702,6 +702,47 @@ pub unsafe fn render_interactive_view(card: KernelActiveCard, uptime_sec: u32, b
 
         // Navigation Bar (128px)
         paint_navigation_bar(&mut painter, card);
+
+        // Hardware Diagnostics HUD (above Navigation Bar)
+        paint_diagnostic_hud(&mut painter);
+    }
+}
+
+fn format_hex8(val: u32, out: &mut [u8]) {
+    const HEX: &[u8] = b"0123456789ABCDEF";
+    for i in 0..8 {
+        out[7 - i] = HEX[((val >> (i * 4)) & 0xF) as usize];
+    }
+}
+
+fn format_hex4(val: u32, out: &mut [u8]) {
+    const HEX: &[u8] = b"0123456789ABCDEF";
+    for i in 0..4 {
+        out[3 - i] = HEX[((val >> (i * 4)) & 0xF) as usize];
+    }
+}
+
+pub unsafe fn paint_diagnostic_hud(painter: &mut HardwareScreenPainter) {
+    let (io8, io9, irq9, ev_count) = super::touch_controller_core::get_telemetry();
+
+    let hud_y = 2276;
+    let hud_w = HANOIP_PANEL_WIDTH - 80;
+    painter.fill_rect(40, hud_y, hud_w, 44, TOK_COLOR_BASE_1);
+    painter.fill_rect(40, hud_y, hud_w, 2, TOK_COLOR_GLASS_BORDER);
+
+    let mut buf = [b' '; 50];
+    buf[0..4].copy_from_slice(b"IO8:");
+    format_hex8(io8, &mut buf[4..12]);
+    buf[12..18].copy_from_slice(b"  IO9:");
+    format_hex8(io9, &mut buf[18..26]);
+    buf[26..32].copy_from_slice(b"  IRQ:");
+    format_hex8(irq9, &mut buf[32..40]);
+    buf[40..45].copy_from_slice(b"  EV:");
+    format_hex4(ev_count, &mut buf[45..49]);
+
+    if let Ok(s) = core::str::from_utf8(&buf[..49]) {
+        let col = if ev_count > 0 { TOK_COLOR_OK } else { TOK_COLOR_ACCENT };
+        painter.draw_string(60, hud_y + 12, s, col, 2);
     }
 }
 
@@ -709,5 +750,6 @@ pub unsafe fn update_hardware_heartbeat(uptime_sec: u32, blink: bool) {
     for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
         let mut painter = HardwareScreenPainter::new(fb_addr);
         paint_status_bar(&mut painter, uptime_sec, blink, 0);
+        paint_diagnostic_hud(&mut painter);
     }
 }

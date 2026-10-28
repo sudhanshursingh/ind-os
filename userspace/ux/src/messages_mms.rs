@@ -534,3 +534,4 @@ mod tests {
         assert!(!engine.rcs_state().is_peer_typing);
     }
 }
+

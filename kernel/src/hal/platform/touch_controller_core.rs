@@ -16,9 +16,24 @@ pub const KERNEL_TOUCH_QUEUE_CAPACITY: usize = 32;
 // GPIO 8: Touchscreen Reset Line (ts_reset)
 pub const TLMM_GPIO_CFG_8: usize = 0x0340_8000;
 pub const TLMM_GPIO_IN_OUT_8: usize = 0x0340_8004;
-// GPIO 9: Touchscreen Interrupt Line (ts_int, active-low)
+pub const TLMM_GPIO_INTR_CFG_8: usize = 0x0340_8008;
+pub const TLMM_GPIO_INTR_STATUS_8: usize = 0x0340_800C;
+
+// GPIO 9: Touchscreen Interrupt Line (ts_int, active-low / edge-falling)
 pub const TLMM_GPIO_CFG_9: usize = 0x0340_9000;
 pub const TLMM_GPIO_IN_OUT_9: usize = 0x0340_9004;
+pub const TLMM_GPIO_INTR_CFG_9: usize = 0x0340_9008;
+pub const TLMM_GPIO_INTR_STATUS_9: usize = 0x0340_900C;
+
+// Live hardware register telemetry for on-screen HUD diagnostics
+pub static mut TELEM_GPIO8_VAL: u32 = 0;
+pub static mut TELEM_GPIO9_VAL: u32 = 0;
+pub static mut TELEM_GPIO9_IRQ: u32 = 0;
+pub static mut TELEM_TOUCH_COUNT: u32 = 0;
+
+pub unsafe fn get_telemetry() -> (u32, u32, u32, u32) {
+    (TELEM_GPIO8_VAL, TELEM_GPIO9_VAL, TELEM_GPIO9_IRQ, TELEM_TOUCH_COUNT)
+}
 
 // 19.2 MHz ARM generic physical counter ticks per millisecond on Qualcomm SM7150
 pub const TICKS_PER_MS: u64 = 19_200;
@@ -26,6 +41,8 @@ pub const TICKS_PER_MS: u64 = 19_200;
 pub const DEBOUNCE_TICKS: u64 = 15 * TICKS_PER_MS;
 // Cooldown between tap activations: 200ms
 pub const TAP_COOLDOWN_TICKS: u64 = 200 * TICKS_PER_MS;
+// Maximum touch hold timeout: 350ms (guarantees the state machine can never deadlock)
+pub const MAX_TOUCH_HOLD_TICKS: u64 = 350 * TICKS_PER_MS;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KernelTouchAction {
@@ -74,6 +91,9 @@ pub struct KernelTouchControllerHarness {
     press_start_tick: u64,
     release_start_tick: u64,
     last_tap_tick: u64,
+    touch_down_tick: u64,
+    last_line_state: bool,
+    initial_sample_captured: bool,
     nav_cycle: u32,
     hardware_initialized: bool,
 }
@@ -91,6 +111,9 @@ impl KernelTouchControllerHarness {
             press_start_tick: 0,
             release_start_tick: 0,
             last_tap_tick: 0,
+            touch_down_tick: 0,
+            last_line_state: false,
+            initial_sample_captured: false,
             nav_cycle: 0,
             hardware_initialized: false,
         }
@@ -150,32 +173,36 @@ impl KernelTouchControllerHarness {
     }
 
     /// Hardware pin configuration for Motorola Moto G60:
-    /// - Deasserts GPIO 8 (TS_RESET) so the FocalTech touch controller boots.
-    /// - Configures GPIO 9 (TS_INT) as input with internal Pull-Up.
+    /// - Drive GPIO 8 (TS_RESET) HIGH so the Tianma ILI7807S TDDI touch controller stays active.
+    ///   (Asserting low reset without a complete SPI reload puts TDDI into dead bootloader state).
+    /// - Configure GPIO 9 (TS_INT) as input with internal Pull-Up and Dual-Edge interrupt detection.
     pub fn init_hardware_pins(&mut self) {
         #[cfg(target_arch = "aarch64")]
         unsafe {
             // 1. Configure GPIO 8 (Touch Reset line):
-            // Output mode (OE=1), 8mA drive strength (DRV=3), Pull-Up (pull=3), GPIO function (func=0)
-            let cfg8 = (1u32 << 9) | (3u32 << 6) | 3u32;
+            // Output mode (OE=1), 8mA drive strength (DRV=3), Pull-Up (pull=2), GPIO function (func=0)
+            let cfg8 = (1u32 << 9) | (3u32 << 6) | 2u32;
             core::ptr::write_volatile(TLMM_GPIO_CFG_8 as *mut u32, cfg8);
-
-            // Hardware reset sequence: drive low briefly, then assert HIGH
-            core::ptr::write_volatile(TLMM_GPIO_IN_OUT_8 as *mut u32, 0); // Assert reset (low)
-            for _ in 0..10_000 { core::hint::spin_loop(); }
-            core::ptr::write_volatile(TLMM_GPIO_IN_OUT_8 as *mut u32, 2); // Deassert reset (high, bit 1)
-            for _ in 0..50_000 { core::hint::spin_loop(); }
+            core::ptr::write_volatile(TLMM_GPIO_IN_OUT_8 as *mut u32, 2); // Deassert reset (HIGH, bit 1)
 
             // 2. Configure GPIO 9 (Touch Interrupt line):
-            // Input mode (OE=0), 8mA drive strength (DRV=3), Pull-Up (pull=3), GPIO function (func=0)
-            let cfg9 = (0u32 << 9) | (3u32 << 6) | 3u32;
+            // Input mode (OE=0), 8mA drive strength (DRV=3), Pull-Up (pull=2), GPIO function (func=0)
+            let cfg9 = (0u32 << 9) | (3u32 << 6) | 2u32;
             core::ptr::write_volatile(TLMM_GPIO_CFG_9 as *mut u32, cfg9);
+
+            // 3. Configure GPIO 9 Interrupt for edge detection:
+            // INTR_CFG: Bit 0 = enable (1), Bits 4..5 = detect (4 for dual-edge, 2 for falling-edge)
+            let intr_cfg = (4u32 << 4) | 1u32;
+            core::ptr::write_volatile(TLMM_GPIO_INTR_CFG_9 as *mut u32, intr_cfg);
+
+            // Clear any stale interrupt latch
+            core::ptr::write_volatile(TLMM_GPIO_INTR_STATUS_9 as *mut u32, 0);
         }
         self.hardware_initialized = true;
     }
 
     /// Polls physical touch hardware on Qualcomm SM7150 (Moto G60 / hanoip)
-    /// Reads TLMM GPIO 9 (TS_INT) with 15ms hardware-timer debouncing and 200ms cooldown.
+    /// Reads TLMM GPIO 8 and GPIO 9 with edge detection, debouncing, and dead-lock guard.
     /// Returns true if the screen is currently being touched.
     pub fn poll_hardware(
         &mut self,
@@ -192,27 +219,66 @@ impl KernelTouchControllerHarness {
         }
 
         #[cfg(target_arch = "aarch64")]
-        let line_low = {
-            // Safety: TLMM GPIO register block (0x0340_0000) is permanently powered and mapped
-            // in EL1 flat physical space on Qualcomm SM7150. Read volatile is non-destructive.
-            let val9 = unsafe { core::ptr::read_volatile(TLMM_GPIO_IN_OUT_9 as *const u32) };
-            // Active low interrupt: bit 0 is 0 when the capacitive touchscreen is touched
-            (val9 & 1) == 0
+        let (line_low, _edge_latched) = {
+            let io8 = unsafe { core::ptr::read_volatile(TLMM_GPIO_IN_OUT_8 as *const u32) };
+            let io9 = unsafe { core::ptr::read_volatile(TLMM_GPIO_IN_OUT_9 as *const u32) };
+            let irq9 = unsafe { core::ptr::read_volatile(TLMM_GPIO_INTR_STATUS_9 as *const u32) };
+
+            unsafe {
+                TELEM_GPIO8_VAL = io8;
+                TELEM_GPIO9_VAL = io9;
+                TELEM_GPIO9_IRQ = irq9;
+            }
+
+            let edge = (irq9 & 1) != 0;
+            if edge {
+                // Clear the latched interrupt by writing 0
+                unsafe {
+                    core::ptr::write_volatile(TLMM_GPIO_INTR_STATUS_9 as *mut u32, 0);
+                }
+            }
+
+            // Bit 0 is 0 when line is low (touch active)
+            let low = (io9 & 1) == 0;
+            (low, edge)
         };
         #[cfg(not(target_arch = "aarch64"))]
-        let line_low = false;
+        let (line_low, _edge_latched) = (false, false);
 
         self.process_hardware_state(line_low, current_tick, active_card);
         self.is_touch_down
     }
 
-    /// Internal deterministic state machine with 15ms debouncing and 200ms cooldown.
+    /// Internal deterministic state machine with 15ms debouncing, 200ms cooldown, and 350ms deadlock guard.
     pub fn process_hardware_state(
         &mut self,
         line_low: bool,
         current_tick: u64,
         active_card: KernelActiveCard,
     ) {
+        if !self.initial_sample_captured {
+            self.initial_sample_captured = true;
+            self.last_line_state = line_low;
+        }
+
+        // Auto-release timeout: if touch has been held down for longer than MAX_TOUCH_HOLD_TICKS (350ms),
+        // automatically release to guarantee the state machine CAN NEVER PERMANENTLY DEADLOCK.
+        if self.is_touch_down && current_tick.saturating_sub(self.touch_down_tick) >= MAX_TOUCH_HOLD_TICKS {
+            self.is_touch_down = false;
+            self.press_start_tick = 0;
+            self.release_start_tick = current_tick;
+            let pt = KernelTouchPoint {
+                id: 0,
+                x: 540,
+                y: 1200,
+                pressure: 0,
+                action: KernelTouchAction::Up,
+            };
+            let _ = self.post_event(pt);
+            self.last_line_state = line_low;
+            return;
+        }
+
         if line_low {
             self.release_start_tick = 0;
             if self.press_start_tick == 0 {
@@ -228,7 +294,12 @@ impl KernelTouchControllerHarness {
                 && (self.last_tap_tick == 0 || time_since_last_tap >= TAP_COOLDOWN_TICKS)
             {
                 self.is_touch_down = true;
+                self.touch_down_tick = current_tick;
                 self.last_tap_tick = current_tick;
+
+                unsafe {
+                    TELEM_TOUCH_COUNT = TELEM_TOUCH_COUNT.wrapping_add(1);
+                }
 
                 // Determine coordinates based on active screen surface:
                 let (target_x, target_y) = match active_card {
@@ -278,6 +349,8 @@ impl KernelTouchControllerHarness {
                 let _ = self.post_event(pt);
             }
         }
+
+        self.last_line_state = line_low;
     }
 }
 
