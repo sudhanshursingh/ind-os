@@ -69,27 +69,26 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
 
             // Qualcomm SM7150 counter runs at 19.2 MHz
             let current_second = cntpct / 19_200_000;
-            let blink = ((cntpct / 9_600_000) % 2) == 1;
 
-            // Actively poll physical hardware touch registers with 15ms debouncing and 200ms cooldown
+            // Poll digitizer INT. Do not treat a 0.5s blink bit as a frame trigger.
             let is_touching = touch_harness.poll_hardware(PLATFORM == "hanoip", cntpct, current_card);
             if is_touching != was_touching {
                 was_touching = is_touching;
                 unsafe {
                     hal::platform::hanoip_display::set_hardware_touch_indicator(is_touching);
-                    hal::platform::hanoip_display::update_hardware_heartbeat(current_second as u32, blink);
+                    hal::platform::hanoip_display::update_hardware_heartbeat(current_second as u32, false);
                 }
             }
 
-            // Process normalized touch events
+            // Only Down is a tap. Up must not replay coordinates into the shell.
             if let Some(touch_pt) = touch_harness.pop_event() {
-                if touch_pt.action == hal::KernelTouchAction::Down || touch_pt.action == hal::KernelTouchAction::Up {
+                if touch_pt.action == hal::KernelTouchAction::Down {
                     if let Ok(Some(_action)) = shell_engine.handle_tap(touch_pt.x, touch_pt.y, hal::KERNEL_CAP_INTERACTIVE_SHELL) {
                         let new_card = shell_engine.active_card();
                         if new_card != current_card {
                             current_card = new_card;
                             unsafe {
-                                hal::platform::hanoip_display::render_interactive_view(current_card, current_second as u32, blink);
+                                hal::platform::hanoip_display::render_interactive_view(current_card, current_second as u32, false);
                             }
                         }
                     }
@@ -99,10 +98,8 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
             if current_second != last_second {
                 last_second = current_second;
                 shell_engine.tick_heartbeat(current_second as u32);
-
-                // Live heartbeat update in status bar (zero screen flicker)
                 unsafe {
-                    hal::platform::hanoip_display::update_hardware_heartbeat(current_second as u32, blink);
+                    hal::platform::hanoip_display::update_hardware_heartbeat(current_second as u32, false);
                 }
             }
 

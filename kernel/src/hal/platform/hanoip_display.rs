@@ -323,15 +323,15 @@ pub unsafe fn paint_status_bar(painter: &mut HardwareScreenPainter, uptime_sec: 
     if HARDWARE_TOUCH_ACTIVE {
         painter.draw_string(410, 24, "[TOUCH ACTIVE]", TOK_COLOR_OK, 2);
     } else {
-        painter.draw_string(430, 24, "[ENF SECURE]", TOK_COLOR_ACCENT, 2);
+        painter.draw_string(430, 24, "[TOUCH IDLE]", TOK_COLOR_ACCENT, 2);
     }
 
-    // RSSI & Battery
+    // RSSI & Battery (steady; no blink)
+    let _ = blink;
     painter.draw_string(740, 24, "WIFI 5G", TOK_COLOR_TEXT_1, 2);
     painter.draw_string(880, 24, "88%", TOK_COLOR_OK, 2);
-    let batt_dot = if blink { TOK_COLOR_OK } else { TOK_COLOR_BASE_1 };
     painter.fill_rect(960, 26, 26, 14, TOK_COLOR_GLASS_BORDER);
-    painter.fill_rect(962, 28, 20, 10, batt_dot);
+    painter.fill_rect(962, 28, 20, 10, TOK_COLOR_OK);
     painter.fill_rect(986, 30, 2, 6, TOK_COLOR_GLASS_BORDER);
 }
 
@@ -743,7 +743,7 @@ fn format_hex4(val: u32, out: &mut [u8]) {
 }
 
 pub unsafe fn paint_diagnostic_hud(painter: &mut HardwareScreenPainter) {
-    let (io8, io9, irq9, ev_count) = super::touch_controller_core::get_telemetry();
+    let (cfg9, io9, io58, ev_count) = super::touch_controller_core::get_telemetry();
 
     let hud_y = 2276;
     let hud_w = HANOIP_PANEL_WIDTH - 80;
@@ -751,12 +751,12 @@ pub unsafe fn paint_diagnostic_hud(painter: &mut HardwareScreenPainter) {
     painter.fill_rect(40, hud_y, hud_w, 2, TOK_COLOR_GLASS_BORDER);
 
     let mut buf = [b' '; 50];
-    buf[0..4].copy_from_slice(b"IO8:");
-    format_hex8(io8, &mut buf[4..12]);
+    buf[0..4].copy_from_slice(b"CFG:");
+    format_hex8(cfg9, &mut buf[4..12]);
     buf[12..18].copy_from_slice(b"  IO9:");
     format_hex8(io9, &mut buf[18..26]);
-    buf[26..32].copy_from_slice(b"  IRQ:");
-    format_hex8(irq9, &mut buf[32..40]);
+    buf[26..32].copy_from_slice(b"  K58:");
+    format_hex8(io58, &mut buf[32..40]);
     buf[40..45].copy_from_slice(b"  EV:");
     format_hex4(ev_count, &mut buf[45..49]);
 
