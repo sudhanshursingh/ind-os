@@ -15,6 +15,7 @@
 | **DEC-003** | Multi-year horizon | 2026-10-26 | Quality gates govern progress; no calendar commitments without empirical evidence. |
 | **DEC-004** | Cryptography posture | 2026-10-26 | Vetted, audited external TLS library (`rustls` or equivalent) in non-TCB userspace position. |
 | **ADR-001** | Binary Format Strategy | 2026-10-26 | Native hardened micro-binary format (`INDBIN`) in kernel; ELF64 toolchain conversion (`docs/DECISIONS/ADR-001-binary-format.md`). |
+| **PEN-APP-008** | Browser Engine & Multimedia Architecture | 2026-10-28 | Production 4-part specification: WebKit-class engine, dav1d (AV1)/libvpx (VP9/VP8) ARM64 NEON software decoders, Wayland-to-uxd bridge (`INV-COMP-001`), HLS/DASH over `indus-net` TLS 1.3 (`ADR-004`), ClearKey AES-128 native DRM and sandboxed Widevine in Android container. |
 
 ---
 

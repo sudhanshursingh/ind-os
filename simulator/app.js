@@ -550,10 +550,10 @@
     animFrameId = requestAnimationFrame(renderFrame);
   }
 
-  // --- Indic Language Selector ---
-  document.querySelectorAll('.lang-btn').forEach(btn => {
+  // --- Indic Language Selector (§11) ---
+  document.querySelectorAll('.lang-pill-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.lang-pill-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       const lang = e.target.dataset.lang;
       currentLanguage = lang;
@@ -575,76 +575,426 @@
     });
   });
 
-  // --- Quick Toggles ---
-  document.getElementById('tile-refresh')?.addEventListener('click', function() {
-    is120Hz = !is120Hz;
-    this.classList.toggle('active', is120Hz);
-    const label = is120Hz ? '120Hz' : '60Hz';
-    this.querySelector('.tile-label').textContent = label;
-    if (elTelemRefresh) elTelemRefresh.textContent = `${label}`;
-    appendSerialLog(`[DSI] Dynamic display governor shifted panel to ${label}`, 'info');
+  // --- Central Intent Bar Dispatcher (§6.1) ---
+  function dispatchIntent(query) {
+    if (!query) return;
+    appendSerialLog(`[INTENT] Processing natural language intent: "${query}"`, 'info');
+    const q = query.toLowerCase();
+
+    if (q.includes('60hz') || q.includes('battery') || q.includes('save') || q.includes('power')) {
+      is120Hz = false;
+      const telemRefresh = document.getElementById('telem-refresh');
+      if (telemRefresh) telemRefresh.textContent = '60 Hz';
+      const c1Action = document.getElementById('btn-card-action');
+      if (c1Action) c1Action.textContent = 'Applied (60Hz)';
+      appendSerialLog('[INTENT-ACTION] Executed DSI panel shift to 60Hz Eco Mode', 'milestone');
+    } else if (q.includes('file') || q.includes('doc') || q.includes('indfs')) {
+      openFilesApp();
+    } else if (q.includes('note') || q.includes('write') || q.includes('ime') || q.includes('hindi')) {
+      openNotesApp();
+    } else if (q.includes('why') || q.includes('receipt') || q.includes('audit')) {
+      openWhyExplorerApp();
+    } else if (q.includes('setting') || q.includes('config') || q.includes('rate')) {
+      openSettingsApp();
+    } else if (q.includes('term') || q.includes('shell') || q.includes('cli')) {
+      openTerminalApp();
+    } else if (q.includes('consent') || q.includes('perm') || q.includes('mic')) {
+      openConsentModal();
+    } else {
+      appendSerialLog(`[AIS-PARSER] Intent parsed into task graph: "${query}" -> Capability Check [PASS]`, 'info');
+      openDeviceModal('Intent Proposal', `
+        <div style="line-height: 1.6;">
+          <div style="color: var(--tok-color-accent, #7C6CFF); font-weight: bold; margin-bottom: 8px;">
+            Intent Recognized: "${query}"
+          </div>
+          <div><strong>Synthesized Action:</strong> Ambient Task Pipeline</div>
+          <div><strong>On-Device Model:</strong> AIS 8-bit Quantized LM (ARM NEON)</div>
+          <div><strong>Confidence:</strong> I'm fairly sure (91% match)</div>
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <button class="proposal-btn apply-btn" onclick="alert('Action Dispatched!')">Proceed</button>
+            <button class="proposal-btn dismiss-btn" onclick="document.getElementById('btn-close-device-modal').click()">Cancel</button>
+          </div>
+        </div>
+      `, '⚡');
+    }
+  }
+
+  const intentInput = document.getElementById('intent-input');
+  const btnIntentSend = document.getElementById('btn-intent-send');
+  const btnIntentMic = document.getElementById('btn-intent-mic');
+
+  btnIntentSend?.addEventListener('click', () => {
+    if (intentInput) {
+      dispatchIntent(intentInput.value.trim());
+      intentInput.value = '';
+    }
   });
 
+  intentInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      dispatchIntent(intentInput.value.trim());
+      intentInput.value = '';
+    }
+  });
+
+  btnIntentMic?.addEventListener('click', () => {
+    appendSerialLog('[INTENT-MIC] Push-To-Talk Mic PTT activated. Audio capture sampling...', 'info');
+    openConsentModal();
+  });
+
+  // --- Proactive Proposal Card Actions ---
   document.getElementById('btn-card-action')?.addEventListener('click', () => {
-    const tile = document.getElementById('tile-refresh');
-    if (tile) tile.click();
+    is120Hz = !is120Hz;
+    const label = is120Hz ? '120Hz' : '60Hz';
+    if (elTelemRefresh) elTelemRefresh.textContent = label;
+    const btn = document.getElementById('btn-card-action');
+    if (btn) btn.textContent = is120Hz ? 'Apply 60Hz' : 'Revert to 120Hz';
+    appendSerialLog(`[DSI] Dynamic display governor shifted panel to ${label}`, 'milestone');
   });
 
   document.getElementById('btn-card-dismiss')?.addEventListener('click', () => {
-    const card = document.querySelector('.proposal-card');
+    const card = document.getElementById('proposal-card-container');
     if (card) {
       card.style.opacity = '0';
       card.style.transform = 'translateY(-10px)';
       setTimeout(() => card.style.display = 'none', 300);
+      appendSerialLog('[PROPOSAL] Proactive proposal dismissed by user', 'info');
     }
   });
 
   document.getElementById('btn-card-why')?.addEventListener('click', () => {
-    openDeviceModal('Why-Receipt Verification', `
-      <div style="font-family: var(--font-mono); line-height: 1.6;">
-        <div style="color: var(--accent-cyan); font-weight: bold; margin-bottom: 8px;">
-          ✓ Cryptographic Why-Receipt #574800001075
-        </div>
-        <div><strong>Proposal:</strong> Switch 120Hz -> 60Hz Eco Rate</div>
-        <div><strong>Causal Trigger:</strong> Inactive reading session > 45s</div>
-        <div><strong>Battery Delta:</strong> -250mA -> -140mA (+3.2h)</div>
-        <div><strong>Capability Token:</strong> CAP_SETTINGS_POWER (0x0000_1010)</div>
-        <div><strong>Authority:</strong> Pure User-Consent (Ambient Escalation Blocked)</div>
-        <div style="margin-top: 10px; color: var(--accent-emerald);">
-          Signature: ed25519:7a89f92cb14... [MATCHED]
-        </div>
-      </div>
-    `);
+    openWhyExplorerApp();
   });
 
   // --- In-Device Modal Helpers ---
-  function openDeviceModal(title, htmlContent) {
-    if (!elDeviceModal) return;
-    elModalTitle.textContent = title;
-    elModalBody.innerHTML = htmlContent;
-    elDeviceModal.classList.remove('hidden');
+  // =========================================================================
+  // SP-127 App Framework Extensions: Lifecycle & Back-Stack Engine
+  // Invariants: INV-APP-LIFE-001, INV-APP-STACK-001, INV-APP-CHROME-001
+  // =========================================================================
+  const AppLifecycleState = {
+    UNLOADED: 'Unloaded',
+    CREATED: 'Created',
+    FOREGROUND: 'Foreground',
+    BACKGROUND: 'Background',
+    SUSPENDED: 'Suspended',
+    TERMINATED: 'Terminated',
+  };
+
+  class SimulatorBackStackManager {
+    constructor() {
+      this.stack = [];
+      this.maxDepth = 16;
+    }
+
+    push(appId, title, icon, htmlContent, badge = 'Phase 11') {
+      if (this.stack.length >= this.maxDepth) {
+        appendSerialLog('[ERR] AppBackStack overflow: depth limit 16 reached (INV-APP-STACK-001)', 'err');
+        return false;
+      }
+
+      // Background existing active window if any (INV-APP-LIFE-001)
+      if (this.stack.length > 0) {
+        const prev = this.stack[this.stack.length - 1];
+        prev.state = AppLifecycleState.BACKGROUND;
+        appendSerialLog(`[LIFECYCLE] ${prev.appId} (win #${prev.windowId}): on_background() -> Pausing render`, 'info');
+      }
+
+      const windowId = Math.floor(100 + Math.random() * 900);
+      const entry = {
+        appId,
+        title,
+        icon,
+        htmlContent,
+        badge,
+        windowId,
+        state: AppLifecycleState.CREATED,
+      };
+
+      this.stack.push(entry);
+      appendSerialLog(`[LIFECYCLE] ${appId} (win #${windowId}): on_launch() -> Created (PID: ${100 + this.stack.length})`, 'sys');
+      
+      entry.state = AppLifecycleState.FOREGROUND;
+      appendSerialLog(`[LIFECYCLE] ${appId} (win #${windowId}): on_foreground() -> Active focus (depth: ${this.stack.length})`, 'sys');
+
+      this.renderTop();
+      return true;
+    }
+
+    pop() {
+      if (this.stack.length === 0) {
+        return null;
+      }
+
+      const closing = this.stack.pop();
+      closing.state = AppLifecycleState.TERMINATED;
+      appendSerialLog(`[LIFECYCLE] ${closing.appId} (win #${closing.windowId}): on_terminate() -> Resources freed`, 'warn');
+
+      if (this.stack.length > 0) {
+        const top = this.stack[this.stack.length - 1];
+        top.state = AppLifecycleState.FOREGROUND;
+        appendSerialLog(`[LIFECYCLE] ${top.appId} (win #${top.windowId}): on_foreground() -> Resumed from back-stack (depth: ${this.stack.length})`, 'sys');
+        this.renderTop();
+        return top;
+      } else {
+        // Stack is empty -> Transition focus back to Bento Grid root (INV-APP-STACK-001)
+        appendSerialLog(`[NAV] Back-stack empty -> Focus returned to Ind Surface v2 Bento Grid (INV-APP-STACK-001)`, 'sys');
+        if (elDeviceModal) elDeviceModal.classList.add('hidden');
+        return null;
+      }
+    }
+
+    clearToHome() {
+      while (this.stack.length > 0) {
+        const closing = this.stack.pop();
+        closing.state = AppLifecycleState.TERMINATED;
+        appendSerialLog(`[LIFECYCLE] ${closing.appId} (win #${closing.windowId}): on_terminate() -> Cleared for Home`, 'info');
+      }
+      appendSerialLog(`[NAV] Home gesture triggered -> Back-stack reset to root (Bento Grid active)`, 'sys');
+      if (elDeviceModal) elDeviceModal.classList.add('hidden');
+    }
+
+    renderTop() {
+      if (!elDeviceModal || this.stack.length === 0) return;
+      const top = this.stack[this.stack.length - 1];
+
+      elModalTitle.textContent = top.title;
+      const modalIcon = document.getElementById('device-modal-icon');
+      if (modalIcon) modalIcon.textContent = top.icon;
+
+      const modalBadge = document.getElementById('device-modal-badge');
+      if (modalBadge) {
+        modalBadge.textContent = top.badge || `Stack [${this.stack.length}]`;
+        modalBadge.classList.remove('hidden');
+      }
+
+      const backBtn = document.getElementById('btn-chrome-back');
+      if (backBtn) {
+        // Back affordance visible if stack depth > 1 or child app view
+        if (this.stack.length > 1) {
+          backBtn.classList.remove('hidden');
+          backBtn.title = `Go Back to ${this.stack[this.stack.length - 2].title}`;
+        } else {
+          backBtn.classList.add('hidden');
+        }
+      }
+
+      elModalBody.innerHTML = top.htmlContent;
+      elDeviceModal.classList.remove('hidden');
+    }
+
+    current() {
+      return this.stack.length > 0 ? this.stack[this.stack.length - 1] : null;
+    }
+  }
+
+  const appBackStack = new SimulatorBackStackManager();
+
+  // Backward-compatible bridge to open modal as a managed window
+  function openDeviceModal(title, htmlContent, icon = '📱', appId = 'ind.sys.app', badge = 'Phase 11') {
+    appBackStack.push(appId, title, icon, htmlContent, badge);
   }
 
   function closeDeviceModal() {
-    if (elDeviceModal) elDeviceModal.classList.add('hidden');
+    appBackStack.pop();
   }
 
-  document.getElementById('btn-close-device-modal')?.addEventListener('click', closeDeviceModal);
-  document.getElementById('nav-home-handle')?.addEventListener('click', closeDeviceModal);
+  // Wire AppChrome and Navigation Bar listeners (INV-APP-STACK-001)
+  document.getElementById('btn-chrome-back')?.addEventListener('click', () => {
+    appBackStack.pop();
+  });
+  document.getElementById('btn-close-device-modal')?.addEventListener('click', () => {
+    appBackStack.pop();
+  });
+  document.getElementById('btn-nav-back')?.addEventListener('click', () => {
+    appBackStack.pop();
+  });
+  document.getElementById('nav-home-wrap')?.addEventListener('click', () => {
+    appBackStack.clearToHome();
+  });
 
-  // --- Interactive Terminal App View ---
+  document.getElementById('btn-chrome-action')?.addEventListener('click', () => {
+    const cur = appBackStack.current();
+    if (cur) {
+      appendSerialLog(`[WINDOW] Info: App="${cur.appId}", WinID=#${cur.windowId}, State=${cur.state}, StackDepth=${appBackStack.stack.length}`, 'sys');
+    }
+  });
+
+  // --- Bento Grid Tile Handlers ---
+  document.getElementById('tile-battery')?.addEventListener('click', () => {
+    openSettingsApp('battery');
+  });
+
+  document.getElementById('tile-security')?.addEventListener('click', () => {
+    openWhyExplorerApp('sovereignty');
+  });
+
+  // --- CORE APP 1: FilesApp (§10) ---
+  function openFilesApp() {
+    openDeviceModal('FilesApp (IndFS Explorer)', `
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 10.5px;">
+          <div style="color: #4CD9A6; font-weight: 700;">✓ IndFS Mounted: /dev/ufs0p6 (Crash-Resilient)</div>
+          <div style="color: #9BA0AE; font-size: 9.5px; margin-top: 2px;">FUA Commit Verified • Provenance Tracking Active</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between; padding: 6px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+            <span>📁 /system/kernel.elf</span>
+            <span style="color: #9BA0AE; font-family: var(--font-mono);">128 KB [r-x]</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+            <span>📁 /system/dtb/sm7150.dtb</span>
+            <span style="color: #9BA0AE; font-family: var(--font-mono);">335 KB [r--]</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+            <span>📁 /data/notes/namaste.txt</span>
+            <span style="color: #9BA0AE; font-family: var(--font-mono);">4 KB [rw-]</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+            <span>📁 /certs/sovereignty.ed25519</span>
+            <span style="color: #4CD9A6; font-family: var(--font-mono);">64 B [r--]</span>
+          </div>
+        </div>
+        <div style="margin-top: 6px; font-size: 9.5px; color: #9BA0AE;">
+          Dogfood Rule INV-APP-001: Zero unearned capabilities. FS write grants strictly user-mediated.
+        </div>
+      </div>
+    `, '📁');
+  }
+
+  // --- CORE APP 2: SettingsApp (§10) ---
+  function openSettingsApp(defaultTab = 'all') {
+    openDeviceModal('SettingsApp (Hardware & Consent)', `
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
+          <div style="font-weight: 700; margin-bottom: 6px;">Display Refresh Governor</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 10.5px; color: #9BA0AE;">120Hz Fluid / 60Hz Eco Rate</span>
+            <button id="modal-toggle-hz" class="proposal-btn apply-btn" style="padding: 4px 10px;">${is120Hz ? 'Shift to 60Hz' : 'Shift to 120Hz'}</button>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
+          <div style="font-weight: 700; margin-bottom: 6px;">Proactive AIS Dial (REQ-AI-004)</div>
+          <div style="font-size: 10px; color: #9BA0AE; margin-bottom: 6px;">Controls autonomy level of on-device proposals:</div>
+          <div style="display: flex; gap: 6px;">
+            <button class="proposal-btn dismiss-btn" style="flex: 1; font-size: 9.5px;">Conservative</button>
+            <button class="proposal-btn apply-btn" style="flex: 1; font-size: 9.5px;">Moderate</button>
+            <button class="proposal-btn dismiss-btn" style="flex: 1; font-size: 9.5px;">Aggressive</button>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
+          <div style="font-weight: 700; margin-bottom: 4px;">PMIC Fuel Gauge Telemetry</div>
+          <div style="font-family: var(--font-mono); font-size: 10px; color: #4CD9A6;">
+            4050 mV • 88% State-of-Charge • -250 mA
+          </div>
+          <div style="font-size: 9.5px; color: #9BA0AE; margin-top: 4px;">
+            TSENS Thermal Governor: 36.8°C (Mild threshold: 38°C)
+          </div>
+        </div>
+      </div>
+    `, '⚙️');
+
+    document.getElementById('modal-toggle-hz')?.addEventListener('click', () => {
+      document.getElementById('btn-card-action')?.click();
+      openSettingsApp();
+    });
+  }
+
+  // --- CORE APP 3: WhyExplorerApp (§10 & §9.2) ---
+  function openWhyExplorerApp(filter = 'all') {
+    openDeviceModal('WhyExplorerApp (Causal Timeline)', `
+      <div style="display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 10.5px;">
+        <div style="background: rgba(124, 108, 255, 0.12); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(124, 108, 255, 0.3);">
+          <div style="color: #7C6CFF; font-weight: 700;">✓ Audit-Log Read-Only Verification (§9.2)</div>
+          <div style="color: #9BA0AE; font-size: 9.5px; margin-top: 2px;">Causal Trace & Cryptographic ed25519 Signatures</div>
+        </div>
+
+        <div style="border-left: 2px solid #7C6CFF; padding-left: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <div>
+            <div style="color: #4CD9A6; font-weight: 700;">Event #8491: AIS_DISP_60HZ_PROPOSAL</div>
+            <div style="color: #9BA0AE; font-size: 9.5px;">Trigger: TSENS inactive session > 45s</div>
+            <div style="color: #CBD5E1; font-size: 9px;">Receipt Hash: 0x7a89_f92c_b14e_338a [VALID]</div>
+          </div>
+
+          <div>
+            <div style="color: #7C6CFF; font-weight: 700;">Event #8490: GATE_G10_RATIFICATION</div>
+            <div style="color: #9BA0AE; font-size: 9.5px;">Trigger: 8/8 Acceptance Criteria Certified</div>
+            <div style="color: #CBD5E1; font-size: 9px;">Receipt Hash: 0x5e8c_31a9_ff04_1120 [VALID]</div>
+          </div>
+
+          <div>
+            <div style="color: #C084FC; font-weight: 700;">Event #8489: INDFS_JOURNAL_COMMIT</div>
+            <div style="color: #9BA0AE; font-size: 9.5px;">Trigger: FUA flush to UFS 2.1 flash</div>
+            <div style="color: #CBD5E1; font-size: 9px;">Receipt Hash: 0x992b_1402_cc77_4119 [VALID]</div>
+          </div>
+        </div>
+      </div>
+    `, '🔍');
+  }
+
+  // --- CORE APP 4: NotesApp with Indic IME Dogfood (§10 & §11) ---
+  function openNotesApp() {
+    openDeviceModal('NotesApp (Indic IME Dogfood)', `
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 10px; color: #9BA0AE;">
+          Live Transliteration-first IME (Hindi & Tamil). Zero-heap input path.
+        </div>
+        <div style="display: flex; gap: 6px; background: rgba(255,255,255,0.06); padding: 6px 10px; border-radius: 8px;">
+          <span style="font-size: 9.5px; color: #7C6CFF; font-weight: 700;">SUGGESTIONS:</span>
+          <span id="ime-suggestion-1" style="font-size: 11px; color: #4CD9A6; cursor: pointer; font-weight: 600;">नमस्ते</span>
+          <span id="ime-suggestion-2" style="font-size: 11px; color: #FFFFFF; cursor: pointer;">வணக்கம்</span>
+          <span id="ime-suggestion-3" style="font-size: 11px; color: #CBD5E1; cursor: pointer;">dhanyavad</span>
+        </div>
+        <textarea id="notes-textarea" placeholder="Type in English (e.g., 'namaste', 'shukriya', 'vanakkam') to transliterate..." style="width: 100%; height: 140px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #FFF; padding: 10px; font-family: var(--font-sans); font-size: 12px; resize: none; outline: none;"></textarea>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 9.5px; color: #4CD9A6;">✓ IndFS Auto-Saved</span>
+          <button class="proposal-btn apply-btn" id="btn-save-note" style="padding: 4px 12px;">Save Note</button>
+        </div>
+      </div>
+    `, '📝');
+
+    setTimeout(() => {
+      const textarea = document.getElementById('notes-textarea');
+      const sug1 = document.getElementById('ime-suggestion-1');
+      const sug2 = document.getElementById('ime-suggestion-2');
+      const sug3 = document.getElementById('ime-suggestion-3');
+
+      if (textarea) {
+        textarea.focus();
+        textarea.addEventListener('input', (e) => {
+          const val = textarea.value.toLowerCase();
+          if (val.includes('namaste')) {
+            textarea.value = textarea.value.replace(/namaste/gi, 'नमस्ते ');
+          } else if (val.includes('shukriya')) {
+            textarea.value = textarea.value.replace(/shukriya/gi, 'शुक्रिया ');
+          } else if (val.includes('vanakkam')) {
+            textarea.value = textarea.value.replace(/vanakkam/gi, 'வணக்கம் ');
+          } else if (val.includes('dhanyavad')) {
+            textarea.value = textarea.value.replace(/dhanyavad/gi, 'धन्यवाद ');
+          }
+        });
+      }
+
+      sug1?.addEventListener('click', () => { if (textarea) textarea.value += 'नमस्ते '; });
+      sug2?.addEventListener('click', () => { if (textarea) textarea.value += 'வணக்கம் '; });
+      sug3?.addEventListener('click', () => { if (textarea) textarea.value += 'धन्यवाद '; });
+    }, 100);
+  }
+
+  // --- CORE APP 5: TerminalApp (§10) ---
   function openTerminalApp() {
     openDeviceModal('Ind OS Microkernel Shell', `
       <div class="in-modal-terminal" style="font-family: var(--font-mono); font-size: 11px;">
-        <div style="color: var(--accent-cyan); margin-bottom: 6px;">Ind OS Sovereign Shell v2 (PID 4)</div>
-        <div style="color: var(--text-dim); margin-bottom: 10px;">Type 'help', 'ps', 'ls', 'version', 'caps', 'soak', or 'reboot'</div>
-        <div id="modal-term-output" style="max-height: 220px; overflow-y: auto; white-space: pre-wrap; line-height: 1.4; color: #cbd5e1;"></div>
+        <div style="color: var(--tok-color-accent, #7C6CFF); margin-bottom: 6px;">Ind OS Sovereign Shell v2 (PID 4)</div>
+        <div style="color: var(--text-dim, #64748B); margin-bottom: 10px;">Type 'help', 'ps', 'ls', 'version', 'caps', 'soak', or 'reboot'</div>
+        <div id="modal-term-output" style="max-height: 200px; overflow-y: auto; white-space: pre-wrap; line-height: 1.4; color: #cbd5e1;"></div>
         <div style="display: flex; gap: 6px; margin-top: 10px; align-items: center;">
-          <span style="color: var(--accent-emerald); font-weight: bold;">indos#</span>
+          <span style="color: #4CD9A6; font-weight: bold;">indos#</span>
           <input type="text" id="modal-term-input" style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #fff; padding: 4px 8px; font-family: inherit; font-size: 11px;" autofocus autocomplete="off">
         </div>
       </div>
-    `);
+    `, '💻');
 
     setTimeout(() => {
       const termInput = document.getElementById('modal-term-input');
@@ -669,7 +1019,7 @@
         outputEl.textContent += "Builtins:\n  help      - Print available commands\n  version   - Show Ind OS and kernel build version\n  ps        - List running capability-isolated processes\n  ls        - Inspect mounted UFS IndFS namespaces\n  caps      - List active capability tokens\n  soak      - Run 100-cycle subsystem stress audit\n  reboot    - Cold reboot Moto G60 hardware\n  clear     - Clear terminal buffer\n\n";
         break;
       case 'version':
-        outputEl.textContent += "Ind OS v0.1.0-hardware-v0.1 (aarch64-unknown-none)\nMilestone: MOTO G60 BRING-UP (Gate G9 Ratified)\nRule N-01: Zero external crates in TCB\nRule N-04: 100% Safe Rust in userspace\n\n";
+        outputEl.textContent += "Ind OS v0.1.0-hardware-v0.1 (aarch64-unknown-none)\nMilestone: MOTO G60 BRING-UP (Gate G10 Ratified)\nRule N-01: Zero external crates in TCB\nRule N-04: 100% Safe Rust in userspace\n\n";
         break;
       case 'ps':
         outputEl.textContent += "PID  COMM          STATUS   CAPS\n  1  indus-init    RUNNING  [SYS_ADMIN, STORAGE_MOUNT]\n  2  indus-logd    RUNNING  [LOG_RECORD]\n  3  indus-store   RUNNING  [SETTINGS_POWER, TAMPER_PROOF]\n  4  indus-shell   RUNNING  [DISPLAY_RENDER, TOUCH_INPUT]\n  5  indus-edit    RUNNING  [IPC_SYNC]\n\n";
@@ -678,7 +1028,7 @@
         outputEl.textContent += "/sys    (Read-Only Kernel Interface)\n/dev    (Hardware Device Nodes: ufs0, dsi0, i2c1, spmi0)\n/cfg    (Integrity-Protected Settings)\n/data   (Persistent User Storage on UFS 2.1)\n\n";
         break;
       case 'caps':
-        outputEl.textContent += "ACTIVE CAPABILITY TOKENS:\n  0x0000_1000 - CAP_DISPLAY_RENDER\n  0x0000_1001 - CAP_TOUCH_INPUT\n  0x0000_1010 - CAP_SETTINGS_POWER\n  0x0000_1080 - CAP_G9_PACK_ADMIN\n  0x0000_1090 - CAP_GATE_G9_RATIFY\n\n";
+        outputEl.textContent += "ACTIVE CAPABILITY TOKENS:\n  0x0000_1000 - CAP_DISPLAY_RENDER\n  0x0000_1001 - CAP_TOUCH_INPUT\n  0x0000_1010 - CAP_SETTINGS_POWER\n  0x0000_1080 - CAP_G9_PACK_ADMIN\n  0x0000_1090 - CAP_GATE_G10_RATIFY\n\n";
         break;
       case 'soak':
         outputEl.textContent += "Running 100-cycle concurrency soak...\n  [UFS, Display, Sensors, Audio, AIS]\n  100/100 cycles passed. Zero bus stalls, 0B heap leaks.\n\n";
@@ -696,8 +1046,116 @@
     outputEl.scrollTop = outputEl.scrollHeight;
   }
 
-  // --- App Dock Launchers ---
+  // --- TRUSTED CONSENT SURFACE (§8, PlaneId::HardwareIsolated) ---
+  function openConsentModal() {
+    openDeviceModal('Hardware-Isolated Consent Surface', `
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="background: rgba(76, 217, 166, 0.12); border: 1px solid rgba(76, 217, 166, 0.35); padding: 10px; border-radius: 10px;">
+          <div style="display: flex; align-items: center; gap: 6px; color: #4CD9A6; font-weight: 700; font-size: 11px;">
+            <span>🛡️</span>
+            <span>PlaneId::HardwareIsolated (REQ-SEC-201)</span>
+          </div>
+          <div style="font-size: 9.5px; color: #9BA0AE; margin-top: 4px;">
+            Unspoofable hardware overlay. No userspace app can paint or intercept this dialogue.
+          </div>
+        </div>
+
+        <div>
+          <div style="font-weight: 700; font-size: 12px; margin-bottom: 4px;">
+            Audio Capture Permission Requested
+          </div>
+          <div style="color: #9BA0AE; font-size: 10.5px; line-height: 1.45;">
+            The Indic Voice IME is requesting temporary access to the WCD9385 microphone for push-to-talk speech transcription.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 6px;">
+          <button class="proposal-btn apply-btn" id="btn-grant-consent" style="flex: 1; background: #4CD9A6; color: #0E0F14; font-weight: 700;">Grant Access</button>
+          <button class="proposal-btn dismiss-btn" id="btn-deny-consent" style="flex: 1; background: rgba(255, 107, 107, 0.15); color: #FF6B6B; border-color: rgba(255, 107, 107, 0.3);">Deny</button>
+          <button class="proposal-btn why-btn" id="btn-why-consent">Why?</button>
+        </div>
+      </div>
+    `, '🛡️');
+
+    document.getElementById('btn-grant-consent')?.addEventListener('click', () => {
+      appendSerialLog('[CONSENT] User GRANTED capability CAP_AUDIO_CAPTURE to Voice IME', 'milestone');
+      closeDeviceModal();
+    });
+
+    document.getElementById('btn-deny-consent')?.addEventListener('click', () => {
+      appendSerialLog('[CONSENT] User DENIED capability CAP_AUDIO_CAPTURE', 'info');
+      closeDeviceModal();
+    });
+
+    document.getElementById('btn-why-consent')?.addEventListener('click', () => {
+      openWhyExplorerApp();
+    });
+  }
+
+  // --- TIER 1 APP: Phone & Emergency (§9.9.2, REQ-APP-PHONE-001..004) ---
+  function openPhoneApp() {
+    openDeviceModal('Phone & Dialer', `
+      <div style="display: flex; flex-direction: column; gap: 10px; text-align: center;">
+        <div style="background: rgba(76, 217, 166, 0.08); padding: 8px; border-radius: 8px; border: 1px solid rgba(76, 217, 166, 0.2);">
+          <div style="color: #4CD9A6; font-size: 11px; font-weight: 700;">✓ Cellular Radio Active (SIM 1: Airtel 4G)</div>
+          <div style="color: #9BA0AE; font-size: 9.5px; margin-top: 2px;">Hardware Plane Protection: Active • Anti-Tapjacking</div>
+        </div>
+        <div style="font-size: 18px; font-weight: 700; color: #FFF; font-family: var(--font-mono); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1);" id="phone-number-display">+91 98765 43210</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 2px 8px;">
+          ${['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(k => `
+            <button class="proposal-btn dismiss-btn" style="padding: 8px; font-size: 13px; font-weight: 700;" onclick="document.getElementById('phone-number-display').textContent += '${k}'">${k}</button>
+          `).join('')}
+        </div>
+        <div style="display: flex; gap: 6px; margin-top: 2px;">
+          <button class="proposal-btn apply-btn" style="flex: 2; background: #4CD9A6; color: #0E0F14; font-weight: 700; padding: 6px;" onclick="alert('Placing Cellular Call via SM7150 Modem HAL...')">📞 Voice Call</button>
+          <button class="proposal-btn dismiss-btn" style="flex: 1; background: rgba(255,107,107,0.15); color: #FF6B6B; border-color: rgba(255,107,107,0.3); font-weight: 700;" onclick="alert('Calling 112 National Emergency Hotline (Unrestricted Lock-Bypass)')">🚨 112 SOS</button>
+        </div>
+      </div>
+    `, '📞', 'ind.app.phone', 'Tier 1');
+  }
+
+  // --- TIER 1 APP: Messages (§9.9.2, REQ-APP-MSG-001..006) ---
+  function openMessagesApp() {
+    openDeviceModal('Messages & SMS', `
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="background: rgba(124, 108, 255, 0.1); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(124, 108, 255, 0.25); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="color: #7C6CFF; font-size: 11px; font-weight: 700;">Suraksha Scam & OTP Shield Active</div>
+            <div style="color: #9BA0AE; font-size: 9px;">Zero Screen-Share Leakage • Encrypted Local Vault</div>
+          </div>
+          <span style="font-size: 14px;">🛡️</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-size: 11px; font-weight: 700; color: #FFF;">AX-HDFCBK</span>
+              <span style="font-size: 9px; color: #9BA0AE;">10:42 AM</span>
+            </div>
+            <div style="font-size: 10px; color: #CBD5E1; margin-top: 3px;">Your OTP is [••••••]. Valid for 10 mins. (Auto-redacted from screen share).</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-size: 11px; font-weight: 700; color: #FFF;">Aadhaar Portal</span>
+              <span style="font-size: 9px; color: #9BA0AE;">Yesterday</span>
+            </div>
+            <div style="font-size: 10px; color: #CBD5E1; margin-top: 3px;">Authentication successful at 14:22 hrs via Ind OS Sovereign Vault.</div>
+          </div>
+        </div>
+        <button class="proposal-btn apply-btn" style="padding: 7px 12px; margin-top: 4px;" onclick="alert('Composing SMS...')">✉️ New Message</button>
+      </div>
+    `, '💬', 'ind.app.messages', 'Tier 1');
+  }
+
+  // --- Attach App Dock and Control Listeners ---
+  document.getElementById('app-phone')?.addEventListener('click', openPhoneApp);
+  document.getElementById('app-messages')?.addEventListener('click', openMessagesApp);
+  document.getElementById('app-files')?.addEventListener('click', openFilesApp);
+  document.getElementById('app-settings')?.addEventListener('click', () => openSettingsApp());
+  document.getElementById('app-why')?.addEventListener('click', () => openWhyExplorerApp());
+  document.getElementById('app-notes')?.addEventListener('click', openNotesApp);
   document.getElementById('app-terminal')?.addEventListener('click', openTerminalApp);
+  document.getElementById('btn-nav-consent')?.addEventListener('click', openConsentModal);
+
   document.getElementById('btn-open-terminal-app')?.addEventListener('click', () => {
     if (layerShell.classList.contains('hidden')) {
       layerBootloader.classList.add('hidden');
@@ -705,51 +1163,6 @@
       layerShell.classList.remove('hidden');
     }
     openTerminalApp();
-  });
-
-  document.getElementById('app-settings')?.addEventListener('click', () => {
-    openDeviceModal('Hardware Settings', `
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
-          <strong>Qualcomm PM7150 / PM7150L SPMI</strong>
-          <div style="color: var(--text-muted); font-size: 10px; margin-top: 4px;">18 Regulators Active • VDD_IO 1.8V • VDD_CORE 0.9V</div>
-        </div>
-        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
-          <strong>6000mAh Battery Fuel Gauge</strong>
-          <div style="color: var(--accent-emerald); font-size: 10px; margin-top: 4px;">4050mV • 88% State-of-Charge • -250mA Discharging</div>
-        </div>
-        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
-          <strong>Thermal Governors (TSENS)</strong>
-          <div style="color: var(--text-muted); font-size: 10px; margin-top: 4px;">Current 36.8°C • Mild: 38°C • Throttle: 42°C • Cutoff: 46°C</div>
-        </div>
-      </div>
-    `);
-  });
-
-  document.getElementById('app-sensors')?.addEventListener('click', () => {
-    openDeviceModal('Unified Sensor Hub', `
-      <div style="display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono);">
-        <div><strong>Bosch BMI260 (6-Axis IMU):</strong></div>
-        <div style="color: var(--accent-cyan); font-size: 10px;">Accel: [X: 0.02g, Y: -0.01g, Z: 0.99g]</div>
-        <div style="color: var(--accent-cyan); font-size: 10px;">Gyro:  [X: 0.1°/s, Y: 0.0°/s, Z: -0.1°/s]</div>
-        <div style="margin-top: 6px;"><strong>Optical ALS & Proximity:</strong></div>
-        <div style="color: var(--accent-emerald); font-size: 10px;">Ambient Lux: 150 Lux • Distance: Far (>5cm)</div>
-        <div style="margin-top: 6px;"><strong>AK09918 3-Axis Magnetometer:</strong></div>
-        <div style="color: var(--accent-violet); font-size: 10px;">Compass Azimuth: 45° North-East</div>
-      </div>
-    `);
-  });
-
-  document.getElementById('app-why')?.addEventListener('click', () => {
-    openDeviceModal('Why-Engine Causal Log', `
-      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 10px; font-family: var(--font-mono);">
-        <div style="color: var(--accent-cyan);">[Event 5001] Display Compositor Flipped Frame Buffer (120Hz)</div>
-        <div style="color: #94a3b8;">[Event 5002] Touch Event Dispatched: Tap at (540, 1230)</div>
-        <div style="color: var(--accent-emerald);">[Event 5003] UFS Journal FUA Commit Synced to Disk</div>
-        <div style="color: #94a3b8;">[Event 5004] Battery Fuel Gauge Polled: 4050mV, 88% SoC</div>
-        <div style="color: var(--accent-violet);">[Event 5005] Intent Proposal Generated with Verified Why-Receipt</div>
-      </div>
-    `);
   });
 
   // --- Serial Filter Controls ---

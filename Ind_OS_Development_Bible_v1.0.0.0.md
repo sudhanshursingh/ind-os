@@ -1,12 +1,11 @@
 # IND OS — THE DEVELOPMENT BIBLE
 
 **Document ID:** INDOS-BIBLE-001
-**Version:** 1.0.0.0
-**Date:** 2026-10-26
-**Status:** RATIFIED — PROJECT START AUTHORIZED (Sprint SP-00 may begin)
-**Supersedes:** Nothing. Extends INDOS-PRD-001 (v0.1) and INDOS-PRD-002 (v1.0).
-**Audience:** Founder, all engineers (kernel, userspace, AIS, security, hardware),
-all executing agents, independent reviewers, external auditors.
+**Version:** 1.1.0.0
+**Date:** 2026-10-27
+**Status:** RATIFIED — GATE G10 AUDIT PASSED & RATIFIED; PHASE 11 (PRIMARY APPLICATIONS) AND PHASE 12 (BETA & v1.0 STABLE) ROADMAP ACTIVATED.
+**Supersedes:** Nothing. Extends INDOS-PRD-001 (v0.1), INDOS-PRD-002 (v1.0), and absorbs in full INDOS-UX-PRD-001 (v1.0.0.0) and INDOS-APPS-PRD-001 (v1.0.0.0).
+**Audience:** Founder, all engineers (kernel, userspace, AIS, security, hardware, applications), all executing agents, independent reviewers, external auditors.
 **Primary target device (first hardware milestone):** Motorola Moto G60 4G (`hanoip`, Snapdragon SDM732G)
 **Primary development target (first ~60% of the programme):** ARM64 QEMU virt platform
 
@@ -384,10 +383,21 @@ making irreversible decisions; AI replacing the consent broker.
   the Rust compiler does.* From-scratch TLS remains possible only as a
   founder-signed exception (PEN-006 closed by DEC-004 unless the founder
   reopens it). Review at G7.
+- **DEF-UX-001** Motion curve family: `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out-expo class) for enter, standard ease for exit, 220 ms default duration. Review at G8.
+- **DEF-UX-002** Accent family: indigo-violet (`#7C6CFF`) on deep charcoal (`#0E0F14`) base (tokens in Appendix A). Review at G8.
+- **DEF-UX-003** Grid unit: 260 px / 12 px gutters / 24 px screen margins. Review at G8 against real-device ergonomics.
+- **DEF-APP-001** Notification grouping: by app by default; user-configurable to per-sender. Review at G11.
+- **DEF-APP-002** Share sheet target order: Most-recently-used first; alphabetical fallback. Review at G11.
+- **DEF-APP-003** Camera default capture format: JPEG (highest compatibility); user-configurable to PNG. Review at G11.
+- **DEF-APP-004** Browser default engine & media pipeline: WebKit-class vendored engine with ARM64 NEON software decoders (dav1d/libvpx), Wayland-to-uxd graphics bridge, and ClearKey/sandboxed Widevine dual-track DRM (PEN-APP-008 resolved). Review at G11.
+- **DEF-APP-005** Weather default data source: user API key with bundled coarse model fallback (PEN-APP-002 pending). Review at G11.
+- **DEF-APP-006** Clipboard sensitive-content timeout: 60 seconds auto-clear for OTPs/passwords. Review at G11.
+- **DEF-APP-007** Gallery trash retention: 30 days local soft-delete before permanent cryptographic key destruction. Review at G11.
+- **DEF-APP-008** Music library root: `/user/media/music/`. Scan on first launch; user-configurable roots. Review at G11.
 
 ### 7.3 Pending questions — AGENTS MUST ASK, NOT ASSUME
 
-Ordered by blocking severity. PEN-013 blocks Sprint SP-00.
+Ordered by blocking severity. PEN-013 blocks Sprint SP-00; PEN-APP-008 is resolved for Sprint SP-154.
 
 - **PEN-013 (BLOCKS SP-00)** **Android application compatibility strategy.**
   The founding positioning targets "the next billion users," who depend on
@@ -441,6 +451,35 @@ Ordered by blocking severity. PEN-013 blocks Sprint SP-00.
   planning, or is staffing a founder-only input at each gate?
 - **PEN-012** Repository visibility: public from day one, private until G5, or
   public at G9?
+- **PEN-UX-001** Haptic hardware reality on hanoip: does the FocalTech/PMU path expose a controllable haptic driver, or is feedback deferred to visual tick / audio click? *(Default: visual tick; haptic is a stretch goal.)*
+- **PEN-UX-002** Mascot final name & art direction — codename Gaja stands until founder approves; is elephant motif finalized?
+- **PEN-UX-003** Theme support at launch: dark-only (glassmorphism optimized) vs dual dark/light themes?
+- **PEN-UX-004** Wallpaper / personalization scope: static system gradient vs user image backgrounds?
+- **PEN-UX-005** Voice input activation: push-to-talk in Intent Bar only, or hotword listening? *(Default: push-to-talk to eliminate always-listening privacy exposure.)*
+- **PEN-UX-006** Third-party app chrome freedom: enforce system tokens universally, or permit custom app styling? *(Default: enforce tokens universally; relaxation is a founder decision at G8.)*
+- **PEN-UX-007** Typeface licensing decision: bundled open-license grotesque for Latin + Noto Indic companions.
+- **PEN-APP-001** Maps / Turn-by-Turn Navigation app: deferred in v1.0; review at G12 whether to enter v1.1 or remain browser-fallback.
+- **PEN-APP-002** Weather data source resolution: (a) user API key, (b) bundled coarse model, (c) Ind-hosted proxy, (d) browser fallback. Default: (a) with (b) fallback.
+- **PEN-APP-003** Music streaming integration: deferred in v1.0; review at G12 for v1.1 scope.
+- **PEN-APP-004** Native Email client: deferred in v1.0; review at G12 based on SP-168 user feedback.
+- **PEN-APP-005** Third-party app store / distribution model: deferred; proposal scheduled at SP-177 SDK sprint.
+- **PEN-APP-006** AIS default-on policy: all AIS features off by default unless founder grants specific default-on exception with rationale. Default: all off.
+- **PEN-APP-007** Biometric Face Unlock: deferred to Phase 12 pending hanoip hardware review and threat modeling.
+- **PEN-APP-008 (RESOLVED — PRODUCTION SPECIFICATION FOR SP-154)** **Browser Engine & Multimedia Pipeline Architecture.**
+  Resolves the browser engine selection and video/media stack into a production-grade 4-part specification:
+  1. **Graphics Subsystem (`uxd` / Wayland Bridge):** Use `indus-ux` (`uxd`) with `CAP_DISPLAY_RENDER` for native Ind OS apps. For the Phase 10 Android container runtime, implement a lightweight Wayland-to-`uxd` IPC translation shim so Android video apps can pass framebuffers directly to our double-buffered display pipeline (`INV-COMP-001`).
+  2. **Video Decoding Pipeline (ARM64 NEON Software Decoders):** Replace `libblkio` with **dav1d (AV1)** and **libvpx (VP9/VP8)** compiled as in-tree `#![no_std]` or safe C-wrapper Rust crates targeting **ARM64 NEON SIMD vector extensions** (`SP-96`). This guarantees smooth 1080p 60fps software video decoding without requiring closed-source GPU/DSP driver blobs in the microkernel TCB (`Rule N-01`).
+  3. **Streaming Engine & Egress Governance:** Stream HLS/DASH over `indus-net` TLS 1.3 sockets (`ADR-004`). The **Network Leak Sentinel (`INV-LEAK-001`)** monitors media stream bandwidth without blocking consented video playback.
+  4. **DRM & Content Protection Dual-Track:**
+     - *Native Ind OS Apps:* Use **ClearKey AES-128** for open-standard, DRM-free, or self-hosted media streams.
+     - *Commercial Android Apps (Phase 10 Container):* Pass Widevine DRM requests to the sandboxed Android container runtime (`LXC/Waydroid`), isolating proprietary Widevine CDM libraries completely outside the Ind OS microkernel TCB.
+- **PEN-APP-009** RCS protocol support: carrier-dependent; resolution scheduled at G12.
+- **PEN-APP-010** Camera beauty filters & AR lenses: deferred; default: reject to keep camera pipeline clean and deterministic.
+- **PEN-APP-011** Calculator graphing mode: deferred; review at G12.
+- **PEN-APP-012** Browser extensions ecosystem: deferred to Phase 13+.
+- **PEN-APP-013** Calendar cloud sync: deferred to Phase 12; user-opt-in, provider-scoped, zero-PII required.
+- **PEN-APP-014** Voice recorder legal notice jurisdiction: auto-detect via SIM vs explicit first-use user selection. Default: explicit user selection.
+- **PEN-APP-015** Gallery on-device face clustering: deferred to v1.1; local-only opt-in.
 
 ---
 
@@ -471,9 +510,11 @@ Sprint counts below are the plan of record — estimates to be re-baselined at e
 | 8 | SP-60 – SP-69 | 10 | UX shell, app framework, accessibility, intent surface | G8 | Demoable product shell |
 | 9 | SP-70 – SP-109 | 40 | Moto G60 bring-up — honest re-implementation (§8.5) | G9 | **Ind OS on founder hardware** |
 | 9.5 | SP-110 – SP-115 | 6 | Performance & usability pass (targets set at G4, §8.12) | G9.5 | Usable, fast OS |
-| 10 | SP-116 – SP-125+ | 10 | Hardening, formal verification, external audit, beta readiness | G10 | Beta candidate |
+| 10 | SP-116 – SP-126 | 11 | Hardening, formal verification, external audit, beta readiness | G10 | Beta candidate (Ratified) |
+| 11 | SP-127 – SP-170 | 44 | Primary applications & cross-app services (12 apps + 5 system surfaces) | G11 | Feature-complete phone OS |
+| 12 | SP-171 – SP-184 | 14 | Post-G11 Beta cohort, SDK, ecosystem, hardening, v1.0 stable | G12 | **★ Ind OS v1.0 STABLE RELEASE** |
 
-**Total: 126 sprints (SP-00 – SP-125).** Gates G11+ (beta, v1.0) are deliberately not pre-written — they are defined at G10 with evidence (Rule N-02).
+**Total: 185 sprints (SP-00 – SP-184).** Formally re-baselined at Gate G10 ratification: Phase 11 (SP-127–SP-170) and Phase 12 (SP-171–SP-184) activate the complete product roadmap to v1.0 stable.
 
 ### 8.3 Re-baselining rule
 
@@ -641,16 +682,42 @@ Therefore Phase 9 is **40 sprints of planned work**, and it is explicitly classi
 
 ### 8.14 Phase 8 — UX shell + app framework (SP-60 – SP-69) → Gate G8
 
-**Goal:** the user-friendliness promise becomes visible. App-framework design MUST respect the PEN-013 resolution (recorded at SP-00); if PEN-013 chose an Android-compat track, its feasibility spike lands here as a parallel workstream with its own budget — and does not expand scope silently (N-07).
+**Goal:** the user-friendliness promise becomes visible as **Ind Surface v2** (ratified in `INDOS-UX-PRD-001`). App-framework design MUST respect the PEN-013 resolution (recorded at SP-00); if PEN-013 chose an Android-compat track, its feasibility spike lands here as a parallel workstream with its own budget — and does not expand scope silently (N-07).
 
-- **SP-60** — Compositor & display server (user mode, capability-fed): damage tracking, vsync, input routing with focus integrity (anti-overlay inherits Consent Broker isolation).
-- **SP-61** — Shell v2 (the Ind surface): home, notifications (AIS suggestions visually distinct — REQ-UX-305), search/intent bar.
-- **SP-62** — Intent surface UI: type/speak intent → proposal card → consent → execution → explanation receipt; Indian-language IME architecture begins (REQ-AI-108).
-- **SP-63** — App framework: plain-language capability manifests (REQ-USE-207); sandbox spawn; inter-app sharing via user-mediated grants.
-- **SP-64** — Accessibility services (REQ-UX-304, P0): screen reader over the accessibility IPC bus, magnification, switch access; **tested with real users recruited this sprint** — results minuted, no exceptions.
-- **SP-65** — Proactive engine UI (REQ-AI-106): suggestion ranking controls; dismiss/snooze/explain on every suggestion; aggressiveness dial.
-- **SP-66** — Core apps suite: files, settings (consent surface), why-explorer, terminal, notes — capability-minimal dogfood of the framework.
-- **SP-67** — Performance budget enforcement: frame-time, cold-start, and per-app memory budgets enforced in CI against the G4-measured baselines (REQ-PERF series, Part 3 §13); regressions block merge.
+#### 8.14.1 The Ind Surface v2 Architecture (1080 × 2460 Physical Display)
+The physical display is partitioned into three immutable compositor zones (`INV-SHELL-HW-003`):
+
+1. **Physical Zone 1: Status Bar (1080 × 64 px)**
+   - Compositor-reserved system chrome (`CAP_SYSTEM_CHROME`).
+   - Left: Gaja elephant state indicator glyph (States 1–5: Sleeping, Resting/Calm, Listening/Sampling, Reasoning/Pulsing, Alert/Warning), clock.
+   - Right: Sovereign ENF Consent Beacon (`🛡️`), Wi-Fi RSSI (WCN3990), and PMIC Battery Fuel Gauge (`88%`, 4050mV).
+2. **Physical Zone 2: Main Canvas (1080 × 2268 px)**
+   - **Central Intent Bar (§6.1):** Prominent frosted glass capsule with Indic language pills (`[EN]`, `[HI]`, `[TA]`), push-to-talk (PTT) microphone trigger, and natural-language intent input (`"What would you like Ind OS to do?"`).
+   - **Adaptive Bento Grid (§6.2):**
+     - *Tile 1 (2×1 Ambient Card):* Date, local weather, Gaja resting mascot, and Rule N-01 Zero External Crates banner.
+     - *Tile 2 (1×1 PMIC Battery Fuel Gauge):* Large SoC display, 4050mV, 6000mAh, TSENS thermal status.
+     - *Tile 3 (1×1 Sovereign Security & Integrity):* Gate G10 Ratification, 0 TCB Crates, Fastboot + EDL 9008 Verified.
+     - *Tile 4 (2×1 Core Native Apps Row §10):* Core native apps (`Files`, `Settings`, `Why?`, `Notes`, `Terminal`).
+     - *Tile 5 (2×2 Proactive AIS Proposal Card):* `SUGGESTION` watermark (`INV-SHELL2-001`), plain-language confidence (`"I'm fairly sure (94%)"`), `[Apply 60Hz]`, `[Dismiss]`, and `[Why? Receipt]`.
+   - **Trusted Consent Surface (`PlaneId::HardwareIsolated`, §8):** Un-spoofable hardware-isolated modal plane with green consent boundary, plain-language capability description, `[Grant Access]`, `[Deny]`, and `[Why?]`.
+3. **Physical Zone 3: Navigation Bar (1080 × 128 px)**
+   - Minimal gesture strip with 4px haptic pill, `[◀ BACK]`, `[ — HOME — ]`, and `[🛡️ CONSENT]`.
+
+#### 8.14.2 Normative Design Token System (`INV-TOK-001`)
+Shipped UI references Appendix A normative tokens only; raw hex values, arbitrary font sizes, and uncalibrated durations fail code review (`INV-TOK-001`).
+- **Base Colors:** `TOK-COLOR-BASE-0` (`#0E0F14`), `TOK-COLOR-BASE-1` (`#16181F`), `TOK-COLOR-GLASS-BG` (`rgba(255,255,255,0.06)`), `TOK-COLOR-GLASS-BORDER` (`rgba(255,255,255,0.12)`).
+- **Accents & Alerts:** `TOK-COLOR-ACCENT` (`#7C6CFF`), `TOK-COLOR-OK` (`#4CD9A6`), `TOK-COLOR-ALERT` (`#FF6B6B`).
+- **Typography & Motion:** `TOK-TYPE-S1..H1`, `TOK-SPACE-U: 4px`, motion curves `cubic-bezier(0.16,1,0.3,1)`, duration 220 ms.
+
+#### 8.14.3 Phase 8 Sprint Breakdown (SP-60 – SP-69)
+- **SP-60** — Compositor & display server (user mode, capability-fed): damage tracking, vsync, zero-copy swapchain, input routing with focus integrity (`INV-COMP-001`).
+- **SP-61** — Shell v2 layout: zone map live (64/2268/128), Status Bar + Nav Bar rendered by compositor, Gaja state machine (`INV-SHELL-HW-003`).
+- **SP-62** — Intent Bar + input path: zero-heap transliteration-first IME architecture, Hindi/English/Hinglish tables loaded (`INV-INTENT-UI-003`).
+- **SP-63** — App framework: plain-language capability manifests (REQ-USE-207), sandbox spawn, bento tile hosting (`INV-APP-001`).
+- **SP-64** — Accessibility services (REQ-UX-304, P0): semantic tree IPC (`INV-A11Y-001`), magnification, switch access; tested with real users recruited this sprint.
+- **SP-65** — Proactive engine UI (REQ-AI-106): suggestion feed, 4-mode dial, `SUGGESTION` watermark (`INV-SHELL2-001`), explainable Why-receipts.
+- **SP-66** — Core apps suite: FilesApp (IndFS), SettingsApp (consent surface), WhyExplorerApp (causal timeline), NotesApp (Indic IME dogfood), TerminalApp.
+- **SP-67** — Performance budget enforcement: frame-time (≤16.6ms @ p95), cold-start (≤250ms), zero-heap render fast-path (`INV-COMP-002`) enforced in CI.
 - **SP-68** — UX validation sprint: external users (target 15+, mixed languages/abilities) run scripted tasks; success/error rates recorded; top-10 friction list becomes backlog.
 - **SP-69** — Polish + G8 evidence assembly.
 
@@ -691,18 +758,116 @@ Therefore Phase 9 is **40 sprints of planned work**, and it is explicitly classi
 
 **Gate G9.5 exit:** all ratified performance targets met `[TESTED]` on both QEMU and device — or each miss carries a founder-signed exception with a named fix phase. No silent misses.
 
-### 8.17 Phase 10 — Hardening, verification, beta readiness (SP-116 – SP-125+)
+### 8.17 Phase 10 — Hardening, verification, beta readiness (SP-116 – SP-126) → Gate G10 [RATIFIED]
 
-**Goal:** turn the working system into something defensible.
+**Goal:** turn the working system into something defensible. **STATUS: Gate G10 passed & ratified at SP-126.**
 
 - **SP-116 – SP-118** — Formal verification push (REQ-SEC-106): capability-core invariants proved (delegation monotonicity, revocation soundness); proof artifacts in CI.
-- **SP-119** — External security audit (REQ-SEC-109): contracted TCB review; findings triaged; criticals fixed before any outward "secure" language.
+- **SP-119** — External security audit (REQ-SEC-109): contracted TCB review; findings triaged; 0 open criticals confirmed before any outward "secure" language.
 - **SP-120** — Red-team programme (REQ-SEC-110): multi-week adversarial campaign; results and fixes documented internally.
 - **SP-121** — Production ops: signing ceremonies rehearsed for real; update infrastructure staging; incident-response playbook; support/docs readiness.
 - **SP-122** — Beta cohort planning: devices (QEMU + hanoip + dev boards), consent-first telemetry (opt-in, local-first — PRD-001 §7.4), user-research protocol.
-- **SP-123 – SP-125+** — Continuous hardening cadence: rolling security sprints, patch SLAs, roadmap beyond beta decided by founder with G9/G9.5/G10 evidence in hand.
+- **SP-123 – SP-126** — Continuous hardening cadence: rolling security sprints, patch SLAs, cold-boot double-buffered animation sequence (2.8s budget), Phase 10 completion.
 
-**Gate G10 exit:** external audit closed; verification proofs in CI; update chain operated for real; beta plan approved. **G11+ (beta, v1.0) defined at G10 with evidence — not pre-written here (Rule N-02).**
+**Gate G10 exit [PASSED & RATIFIED]:** external audit closed; verification proofs in CI; update chain operated for real; beta plan approved; G11 and G12 roadmaps activated with evidence per Rule N-02.
+
+---
+
+### 8.18 Phase 11 — Primary Applications & Cross-App Services (SP-127 – SP-170) → Gate G11
+
+**Document ID:** INDOS-APPS-PRD-001 (Phase 11 Activation)  
+**Goal:** Deliver the 12 primary native applications and 5 system surfaces that transform Ind OS from a functional microkernel OS into a **complete daily-driver phone**. Every app strictly conforms to the Universal App Charter (§8.20).
+
+#### 8.18.1 The App Catalog (Tiers 1, 2, and 3)
+- **Tier 1 (Mandatory — Must ship in v1.0 stable):** Phone, Messages, Contacts, Camera, Gallery, Clock, Calculator, Browser, and System Surfaces (Lock Screen, Notification Center, Quick Settings, Recents, Global Search).
+- **Tier 2 (Expected — Must ship or explicitly carry PEN):** Calendar, Music (local-only), Weather (offline-first), Recorder.
+- **Tier 3 (Deferred with Documented PEN):** Maps/Navigation (`PEN-APP-001`, browser fallback), Banking/UPI (follows `PEN-013`), Email (`PEN-APP-004`, browser fallback), Podcasts (`PEN-APP-003`), Fitness/Health (deferred), Streaming Video (DRM out-of-scope), App Store (`PEN-APP-005`, SDK shipping at SP-177).
+
+#### 8.18.2 Phase 11 Sprint Breakdown (44 Sprints: SP-127 – SP-170)
+- **SP-127 — App Framework Extensions:** Shared back-stack manager, window management, chrome library, lifecycle hooks (`REQ-APP-COMMON-006`).
+- **SP-128 — Cross-App Services:** Universal Share Sheet (`REQ-APP-COMMON-007`), Intents Registry (`REQ-APP-COMMON-008`), Clipboard with sensitive OTP redaction (`REQ-APP-COMMON-011`), Global Search foundation (`REQ-APP-COMMON-010`).
+- **SP-129 — System Surfaces I:** Lock Screen (`REQ-APP-COMMON-015`) + Notification Center (`REQ-APP-COMMON-013`). Consent broker accessible on hardware plane; notifications dismissible; priority bands.
+- **SP-130 — System Surfaces II:** Quick Settings (`REQ-APP-COMMON-014`) + Recents/App Switcher (`REQ-APP-COMMON-016`). Live compositor thumbnails, gesture kill.
+- **SP-131 — Notification Discipline & AIS Kill Switch:** User-initiated notification rules (`REQ-APP-COMMON-005`), AIS hardware kill switch accessible ≤2 gestures from lock screen (AIS Charter §12.3).
+- **SP-132 – SP-134 — Phone App:** Voice call placement/reception via modem (`REQ-APP-PHONE-001`), Emergency dialer from lock (`REQ-APP-PHONE-002`), in-call UI on hardware-isolated plane (`REQ-APP-PHONE-004`), call history (`REQ-APP-PHONE-003`), Suraksha scam-call shield (`REQ-APP-PHONE-008`), AIS proposal calling (`REQ-APP-PHONE-009`).
+- **SP-135 – SP-138 — Messages App:** SMS/MMS engine (`REQ-APP-MSG-001/002`), threaded view (`REQ-APP-MSG-003`), attachments (`REQ-APP-MSG-004`), Suraksha banking OTP screen-share blackout (`REQ-APP-MSG-005`), scam SMS on-device classifier (`REQ-APP-MSG-006`), encrypted at rest (`REQ-APP-MSG-011`).
+- **SP-139 – SP-140 — Contacts App:** Contact CRUD (`REQ-APP-CT-001`), `.vcf` import/export (`REQ-APP-CT-002`), caller ID integration (`REQ-APP-CT-004`), groups (`REQ-APP-CT-007`), per-query AIS consent (`REQ-APP-CT-006`).
+- **SP-141 – SP-142 — Clock App:** Alarms with DND override (`REQ-APP-CLK-001/002`), multi-timers (`REQ-APP-CLK-003`), stopwatch (`REQ-APP-CLK-004`), world clock (`REQ-APP-CLK-005`), wake-up on hardware-isolated plane (`REQ-APP-CLK-006`).
+- **SP-143 — Calculator App:** Standard arithmetic (`REQ-APP-CALC-001`), scientific mode (`REQ-APP-CALC-002`), history (`REQ-APP-CALC-003`), unit conversion (`REQ-APP-CALC-004`), inline AIS calculation result (`REQ-APP-CALC-005`).
+- **SP-144 – SP-149 — Camera App:** Still photo capture (`REQ-APP-CAM-001`), MP4 video capture (`REQ-APP-CAM-002`), zero-latency gallery handoff (`REQ-APP-CAM-003`), status bar persistent red recording dot (`REQ-APP-CAM-004`), capture modes (`REQ-APP-CAM-005`), offline OCR/barcode scan (`REQ-APP-CAM-009`).
+- **SP-150 – SP-153 — Gallery App:** Browse photos/videos (`REQ-APP-GAL-001`), playback (`REQ-APP-GAL-002`), basic deterministic editing (`REQ-APP-GAL-003`), 30-day trash (`REQ-APP-GAL-004`), share sheet integration (`REQ-APP-GAL-005`), opt-in offline content search (`REQ-APP-GAL-007`).
+- **SP-154 – SP-157 — Browser App:** Standards-compliant rendering (`REQ-APP-BRW-001`), HTTPS-only enforcement (`REQ-APP-BRW-002`), tabs (`REQ-APP-BRW-003`), history/bookmarks (`REQ-APP-BRW-004`), download to Files (`REQ-APP-BRW-005`), per-site sandboxing (`REQ-APP-BRW-006`), anti-fingerprinting (`REQ-APP-BRW-007`), private browsing (`REQ-APP-BRW-008`), reader mode (`REQ-APP-BRW-010`), AIS read-only grammar summary (`REQ-APP-BRW-011`).
+- **SP-158 – SP-160 — Calendar App:** Local events (`REQ-APP-CAL-001`), month/week/day/agenda views (`REQ-APP-CAL-002`), notifications (`REQ-APP-CAL-003`), `.ics` import/export (`REQ-APP-CAL-004`), AIS scheduling proposal (`REQ-APP-CAL-006`).
+- **SP-161 – SP-163 — Music App:** Local playback MP3/FLAC/OGG/WAV (`REQ-APP-MUS-001`), lock-screen & notification media controls (`REQ-APP-MUS-002`), background playback (`REQ-APP-MUS-003`), audio focus arbitration (`REQ-APP-MUS-004`), metadata editing (`REQ-APP-MUS-005`).
+- **SP-164 – SP-165 — Weather App:** Current conditions (`REQ-APP-WTH-001`), 24h & 7-day forecast (`REQ-APP-WTH-002`), offline-first coarse model (`REQ-APP-WTH-003`), manual pull-to-refresh (`REQ-APP-WTH-004`), per-fetch location consent (`REQ-APP-WTH-006`).
+- **SP-166 — Recorder App:** Audio recording to WAV/OGG/FLAC (`REQ-APP-REC-001`), status bar persistent recording dot (`REQ-APP-REC-002`), live waveform visualization (`REQ-APP-REC-004`), opt-in on-device transcription (`REQ-APP-REC-005`), first-use jurisdiction legal notice (`REQ-APP-REC-007`).
+- **SP-167 – SP-168 — Cross-App Integration & Usability Testing:** 15+ external users run frozen scripted task suites across all 12 apps. Measure task completion, friction points, a11y.
+- **SP-169 – SP-170 — System Integration, Accessibility Audit & Gate G11 Pack:** 72h soak with all 12 apps active; a11y task success verified; performance budgets `REQ-PERF-401..415` green; evidence pack assembled in `evidence/G11/`.
+
+#### 8.18.3 Gate G11 Exit Criteria (All Required, Pass/Fail Only)
+1. All Tier 1 apps pass acceptance tests with `[TESTED]` evidence in their evidence pack.
+2. All Tier 2 apps shipped or explicitly deferred with a documented PEN.
+3. Every app conforms to all 10 items of the Universal App Charter (§8.20).
+4. Accessibility task success verified with real users across screen-reader, magnification, and switch access (SP-168).
+5. Offline-first invariant (`INV-APP-003`) verified: apps perform primary tasks with network revoked.
+6. All app-class performance budgets (`REQ-PERF-401..415`) met in CI.
+7. Independent non-engineer completes the frozen multi-app demo script unaided.
+8. Battery accounting: no app exceeds declared 24h power budget.
+9. Founder and steering group sign-off on G11 acceptance pack.
+10. All `AppManifest` definitions public and verified against least-privilege capability matrix.
+
+---
+
+### 8.19 Phase 12 — Post-G11 Beta, Hardening & v1.0 Stable Release (SP-171 – SP-184) → Gate G12
+
+**Goal:** Transform the feature-complete app layer into a bulletproof, audited, production-ready **Ind OS v1.0 Stable Release**.
+
+#### 8.19.1 Phase 12 Sprint Breakdown (14 Sprints: SP-171 – SP-184)
+- **SP-171 — Beta Cohort Onboarding:** Onboard first 50–100 diverse external users across geography, language, and abilities.
+- **SP-172 — Beta Feedback Triage:** Systematic categorization of bug reports, UI friction, and performance edge cases.
+- **SP-173 – SP-176 — Priority Remediation Sprints:** Two-week hardening cycles addressing top beta findings.
+- **SP-177 — Developer Ecosystem & SDK:** Public release of the Ind Native SDK, app templates, documentation, and capability APIs.
+- **SP-178 — Deferred-App Review:** Formal resolution of `PEN-APP-001..005` (Maps, Banking, Email, Podcasts, Store) for v1.1 roadmap.
+- **SP-179 — Language Expansion:** First roadmap Indic language (Tamil or Telugu) shipped across all primary apps.
+- **SP-180 — Update Infrastructure Staging:** Fleet-wide signed-OTA staging, transparency log integration, incident response drill.
+- **SP-181 — Expanded Beta Cohort:** Deploy to 500+ device fleet, telemetry review, stability soak.
+- **SP-182 — Second Cohort Fix Sprint:** Final defect remediation and regression pass.
+- **SP-183 — v1.0 Release Candidate:** Release candidate builds, golden image hashes, signed manifests, launch documentation.
+- **SP-184 — v1.0 Stable Release & Gate G12 Ratification:** Gate G12 formal audit, public launch authorization.
+
+#### 8.19.2 Gate G12 Exit Criteria (Final Commercial Release)
+1. Beta cohort NPS ≥ 40 or documented remediation path.
+2. Zero open critical bugs; high-severity bugs ≤ 5 with scheduled maintenance dates.
+3. Verified OTA update executed successfully on live beta fleet.
+4. Ind Native SDK shipped with working third-party dogfood application.
+5. All deferred-app PEN items resolved with recorded decisions.
+6. Formal founder and steering group sign-off on v1.0 release.
+7. Transparency log entries published and independently verifiable.
+8. External security audit ratified with 0 unmitigated vulnerabilities.
+9. Production images threshold-signed (`DEF-003`) and published.
+
+---
+
+### 8.20 The Universal App Charter & Cross-Cutting Architecture
+
+Every application running on Ind OS is bound by the **Universal App Charter**. An app that violates any charter requirement fails review regardless of feature completeness.
+
+#### 8.20.1 The 10 Binding Charter Commitments
+1. **Minimum Capability Set (`INV-APP-001`):** Every capability in `AppManifest` must trace to a user-facing feature in the capability matrix (Appendix B). Unearned or unused capabilities are strictly removed.
+2. **Offline-First Baseline (`INV-APP-003`):** The app must perform its core tasks completely offline. Network connectivity is an enhancement, never a prerequisite for local utility.
+3. **Semantic Tree (`REQ-APP-COMMON-001`, `INV-A11Y-001`):** Every screen, modal, and control must publish a structured semantic tree over the accessibility IPC bus. Surfaces lacking a tree cannot hold focus.
+4. **Consent-Driven Acquisition (`INV-APP-002`):** No capability is acquired silently or granted at install. Every privilege requires explicit user consent via the Consent Broker.
+5. **Why-Explorer Receipts (`REQ-AI-104`):** Every consequential action produces a cryptographically signed `ProvenanceRecord` viewable in WhyExplorer.
+6. **Design Tokens Only (`INV-TOK-001`):** All UI references Appendix A normative design tokens exclusively. Raw hex codes and ad-hoc dimensions fail CI review.
+7. **AIS as Proposal, Never Authority:** AI actions are routed as proposals through ENF; the app cannot execute an AIS recommendation without user confirmation or explicit standing policy.
+8. **Dignified Indic Localization (`REQ-APP-COMMON-I18N-001`):** First-class support for English, Hindi (Devanagari), and Hinglish transliteration at launch, with dynamic 0.85×–2.0× typography scaling.
+9. **Battery Accounting (`REQ-APP-COMMON-002`):** App power consumption is reported to the accounting API; abnormal draw triggers an unsuppressible user notification in the Privacy Feed.
+10. **Test Evidence Integrity:** Every feature must carry machine-checkable `[TESTED]` evidence in `evidence/` before gate submission.
+
+#### 8.20.2 Shared UI Component Library (`userspace/lib/ind-ui`)
+Apps must utilize the standardized, glassmorphic primitive set (`Card`, `List`, `Form`, `Dialog`, `Progress`, `EmptyState`, `ErrorState`). Rewriting core UI primitives in app code is prohibited (`INV-APP-UI-001`).
+
+---
 
 ---
 
@@ -805,7 +970,179 @@ Freestanding workspace decoupling of kernel primitives from mobile userspace ass
 |---|---|---|
 | **REQ-ARCH-101 (P1)** | Restructure `/kernel` into an independent Cargo workspace crate `indk-core` (`aarch64-unknown-none`, `no_std`) compiling standalone without mobile userspace (`IndUS`) or AI subsystem (`AIS`) dependencies. Non-disruptive refactor executed in SP-31 HAL buildout. | G4 |
 
-### 9.9 Requirement lifecycle
+### 9.9 REQ-APP series — Primary Applications Requirements Catalog (new, per INDOS-APPS-PRD-001 v1.0.0.0)
+
+Every application requirement carries a stable ID (`REQ-APP-<tier/app>-<number>`) and capability (`CAP-APP-<app>-<nnn>`). Acceptance requires verification against the Universal App Charter (§8.20) and passing the offline-first test (`INV-APP-003`).
+
+#### 9.9.1 Common App Architecture & Framework (`REQ-APP-COMMON-*`)
+
+- **REQ-APP-COMMON-001 (P0) — Semantic Tree Mandate:** Every screen, dialog, and surface in every app exposes a compositor-verifiable semantic tree (container, interactive, content, navigation, proposal). A missing tree fails gate review. Screen-reader users must be able to complete primary tasks unaided.
+- **REQ-APP-COMMON-002 (P1) — Battery Accounting Integration:** Every app registers with the OS battery accounting API. Abnormal draw (>2× declared budget over rolling 24h) triggers an un-suppressible "High battery use" notice in the Privacy Feed.
+- **REQ-APP-COMMON-003 (P1) — Local Crash Reporting:** On crash, produce a local crash report visible in WhyExplorer. User opt-in required to export/share; zero telemetry leaves device by default. No external crash SDKs.
+- **REQ-APP-COMMON-004 (P1) — Signed OTA Lifecycle:** Apps update strictly via signed OS OTA (REQ-USE-205). Independent self-updates and ambient third-party app stores are prohibited in v1.0.
+- **REQ-APP-COMMON-005 (P1) — Notification Center Mediation:** Apps post notifications exclusively via Notification Center service (§6.7). Direct screen intrusion is prohibited. Lock screen displays a persistent kill-switch for AIS and ambient proposals.
+- **REQ-APP-COMMON-006 (P0) — App Framework Extensions:** Formalized lifecycle hooks (`on_launch`, `on_foreground`, `on_background`, `on_suspend`, `on_terminate`), window management, back-stack navigation, and standard chrome library.
+- **REQ-APP-COMMON-007 (P1) — Cross-App Share Sheet:** Standard OS share target mediation (Messages, Files, Notes, Clipboard, Gallery, Browser, Music, Recorder). Every share operation is explicitly user-mediated; standing share capabilities are banned.
+- **REQ-APP-COMMON-008 (P1) — Standard Intent Registry:** Apps register typed intents (`ind.intent.VIEW`, `ind.intent.SHARE`, `ind.intent.CALL`, etc.) routed via ENF capability mediation.
+- **REQ-APP-COMMON-009 (P1) — Deferred App Fallback:** Documented browser and web-app fallbacks for deferred services (`docs/apps/deferred-apps.md`).
+- **REQ-APP-COMMON-010 (P1) — Global Search Surface:** System-wide search indexed across installed apps, contacts, recent files, and settings. Content of messages, photos, and browser history are excluded by default (opt-in only).
+- **REQ-APP-COMMON-011 (P1) — Clipboard Store & Hygiene:** Encrypted local clipboard store with 60-second sensitive content (OTP/passwords) timeout (`DEF-APP-006`).
+- **REQ-APP-COMMON-012 (P1) — Capability-Mediated Clipboard Read:** Inter-app clipboard reading requires per-read user consent. Ambient clipboard snooping is physically blocked.
+- **REQ-APP-COMMON-013 (P0) — Notification Center System Surface:** Top edge-swipe pull-down presenting unified notifications and persistent consent receipts.
+- **REQ-APP-COMMON-014 (P0) — Quick Settings Surface:** Secondary top pull-down exposing hardware toggles (Airplane, Wi-Fi, Torch, Battery, AIS Mode, Privacy Feed shortcut).
+- **REQ-APP-COMMON-015 (P0) — Lock Screen Surface:** Hardware-isolated lock surface with clock, emergency dialer shortcut, media controls, and consent card queue.
+- **REQ-APP-COMMON-016 (P0) — Recents / Multitasking Carousel:** Bottom edge-swipe-up presenting interactive card carousel of active app states with swipe-to-terminate.
+- **REQ-APP-COMMON-A11Y-001 (P0) — Real-User Accessibility Validation:** No app ships without passing verified task completion with real screen-reader and switch-access users recorded in its evidence pack.
+- **REQ-APP-COMMON-I18N-001 (P0) — Indic Script & RTL Support:** Native typography and layout support for Hindi (Devanagari), Hinglish, English, and RTL scripts from day one.
+
+#### 9.9.2 Tier 1 & Tier 2 Native Applications
+
+##### Phone & Emergency (`REQ-APP-PHONE-*`)
+- **REQ-APP-PHONE-001 (P0) — Voice Calls:** Cellular voice call origination and termination via Phase 9 modem HAL (`CAP-APP-PHONE-CALLS`).
+- **REQ-APP-PHONE-002 (P0) — Emergency Dialer:** Emergency calling (`112`, `911`, `100`, `101`, `102`) operational from lock screen, during call, or device suspension without unlock or capability negotiation.
+- **REQ-APP-PHONE-003 (P0) — Local Call History:** Chronological log with direction, duration, timestamp. Local-only; zero cloud sync.
+- **REQ-APP-PHONE-004 (P0) — Hardware-Isolated In-Call UI:** In-call controls (mute, speaker, keypad, hold, end) rendered on `PlaneId::HardwareIsolated` to prevent overlay tapjacking.
+- **REQ-APP-PHONE-005 (P1) — Voicemail:** Carrier standard call-in voicemail; visual voicemail deferred to v1.0.1 (carrier-dependent).
+- **REQ-APP-PHONE-006 (P1) — Dual-SIM Management:** Per-call SIM selection on dual-SIM hardware; seamless single-SIM fallback.
+- **REQ-APP-PHONE-007 (P1) — Favorites & Speed Dial:** One-tap rapid dialing for primary contacts.
+- **REQ-APP-PHONE-008 (P1) — Suraksha Scam-Call Shield:** On-device classifier evaluates incoming numbers/metadata against offline threat patterns; displays warnings and one-tap "block & report".
+- **REQ-APP-PHONE-009 (P1) — AIS Voice Intent Integration:** Voice intent "call Mom" routes to proposal card with explicit confirmation; silent dialing strictly prohibited.
+- **REQ-APP-PHONE-010 (P1) — Offline Operation:** Full functionality (emergency, history, speed dial) operational without data connection.
+
+##### Messages & SMS (`REQ-APP-MSG-*`)
+- **REQ-APP-MSG-001 (P0) — SMS Send & Receive:** Standard cellular SMS compose, send, receive, and threaded conversation views.
+- **REQ-APP-MSG-002 (P0) — Delivery Reliability:** On-device retry queue for transient cellular drops; carrier delivery receipt logging.
+- **REQ-APP-MSG-003 (P0) — Threaded Conversations:** Address-grouped message threads with unread indicators and draft persistence.
+- **REQ-APP-MSG-004 (P0) — User-Mediated Attachments:** Attachment selection strictly via OS share sheet or Gallery picker; ambient file reading banned.
+- **REQ-APP-MSG-005 (P0) — OTP Interception & Screen-Share Blackout:** Banking OTP SMS intercepted by Suraksha Shield; forwarded only via explicit consent; blacked out during screen-share.
+- **REQ-APP-MSG-006 (P0) — Scam SMS Shield:** Local on-device NLP classifier flags fraudulent phishing/digital-arrest SMS with high-contrast warning cards.
+- **REQ-APP-MSG-007 (P1) — RCS Protocol:** Deferred to Phase 12 pending carrier-universal stack on hanoip (PEN-APP-009).
+- **REQ-APP-MSG-008 (P1) — Local Message Search:** Local indexing of conversation text; banking OTPs and passwords excluded from index.
+- **REQ-APP-MSG-009 (P1) — AIS Proposal Routing:** Voice intent creates draft proposal card; user must review and tap send. Silent sending prohibited.
+- **REQ-APP-MSG-010 (P1) — MMS & Group Messaging:** MMS multimedia transport and SMS group conversation threading.
+- **REQ-APP-MSG-011 (P1) — Device Encryption at Rest:** Complete message database encrypted with device-derived key.
+
+##### Contacts (`REQ-APP-CT-*`)
+- **REQ-APP-CT-001 (P0) — Contact CRUD:** Full management of names, numbers, emails, postal addresses, notes, and local photo links.
+- **REQ-APP-CT-002 (P0) — VCF Import/Export:** Import and export standard `.vcf` files via FilesApp. Zero cloud dependency.
+- **REQ-APP-CT-003 (P0) — Capability Gating:** Reading contacts requires explicit `CAP-APP-*-CONTACTS-READ` grant; contacts database owned by Contacts service.
+- **REQ-APP-CT-004 (P1) — Local Caller ID:** Real-time caller identification from local database; unknown numbers prompt Suraksha lookup.
+- **REQ-APP-CT-005 (P1) — Fast Local Search:** Sub-32ms local search indexed by name, phonetic transliteration, and number.
+- **REQ-APP-CT-006 (P1) — AIS Consent Gate:** AIS queries require per-query user confirmation before reading contact details.
+- **REQ-APP-CT-007 (P1) — Contact Groups:** User-defined groups for batched messaging.
+- **REQ-APP-CT-008 (P1) — Cryptographic Deletion:** Contact deletion cryptographically shreds local record; no cloud remnants.
+
+##### Camera (`REQ-APP-CAM-*`)
+- **REQ-APP-CAM-001 (P0) — Still Image Capture:** High-resolution JPEG/PNG capture from front and rear camera sensors.
+- **REQ-APP-CAM-002 (P0) — Video Recording:** H.264/MP4 hardware-accelerated video recording with audio synchronization.
+- **REQ-APP-CAM-003 (P0) — Zero-Lag Gallery Ingestion:** Captured media directly written to Gallery storage pipeline upon shutter completion.
+- **REQ-APP-CAM-004 (P0) — Hardware Indicator & Revocation:** Mandatory hardware/status bar indicator during active sensor use; capability revoked immediately upon backgrounding.
+- **REQ-APP-CAM-005 (P1) — Essential Modes:** Photo, Video, Night, and Portrait (if depth hardware present). Beauty filters and AR lenses prohibited.
+- **REQ-APP-CAM-006 (P1) — Sensor Controls:** Manual resolution, HDR, composition grid, timer, and opt-in EXIF geotagging (default: GPS stripped).
+- **REQ-APP-CAM-007 (P1) — On-Device Computer Vision:** Opt-in local OCR and barcode scanning running purely on-device.
+- **REQ-APP-CAM-008 (P1) — AIS Camera Intent:** Voice intent launches camera in ready state; shutter trigger requires confirmed user action.
+- **REQ-APP-CAM-009 (P1) — Barcode / QR Scanner:** Offline decoding for URLs and Wi-Fi configurations presented via inspection card.
+
+##### Gallery (`REQ-APP-GAL-*`)
+- **REQ-APP-GAL-001 (P0) — Media Browser:** Chronological timeline grid, folder groupings, and high-performance filmstrip view.
+- **REQ-APP-GAL-002 (P0) — Native Video Player:** Hardware-decoded playback with seek, scrub, and volume controls.
+- **REQ-APP-GAL-003 (P0) — Deterministic Editor:** Crop, rotate, and basic color balancing. Save as copy by default; no destructive overwrites.
+- **REQ-APP-GAL-004 (P0) — 30-Day Local Trash:** Local soft-delete retention for 30 days before irreversible key destruction (`DEF-APP-007`).
+- **REQ-APP-GAL-005 (P0) — Share Sheet Dispatch:** Media sharing strictly through OS share sheet; direct network upload banned.
+- **REQ-APP-GAL-006 (P1) — Local Album Management:** User-created and directory-sourced media albums.
+- **REQ-APP-GAL-007 (P1) — On-Device Semantic Search (Opt-in):** Local offline embedding model indexing images by visual concepts ("car", "garden") without cloud leakage.
+- **REQ-APP-GAL-008 (P1) — AIS Media Query Gate:** Natural language queries route through AIS only upon explicit per-query user consent.
+
+##### Clock & Alarm (`REQ-APP-CLK-*`)
+- **REQ-APP-CLK-001 (P0) — Multi-Alarm Engine:** Configurable recurring alarms, custom audio tones, vibration profiles, and snooze intervals.
+- **REQ-APP-CLK-002 (P0) — Hard Real-Time Reliability:** Alarms fire unconditionally across Do-Not-Disturb, battery saver, and AIS restricted modes (`[TESTED]`).
+- **REQ-APP-CLK-003 (P0) — Precision Timers:** Concurrent countdown timers with persistent background state.
+- **REQ-APP-CLK-004 (P0) — Stopwatch:** Millisecond precision lap timing and pause/resume capability.
+- **REQ-APP-CLK-005 (P0) — World Clock:** Multi-timezone display with UTC offset mapping.
+- **REQ-APP-CLK-006 (P0) — Hardware-Isolated Wake Screen:** Wake-up alarm dismiss/snooze rendered on `PlaneId::HardwareIsolated` to prevent malicious overlay dismissal.
+- **REQ-APP-CLK-007 (P1) — AIS Voice Alarm Setup:** Voice intent "set alarm for 6am" creates proposal card requiring tap confirmation.
+- **REQ-APP-CLK-008 (P1) — Timezone & DST Transition:** Automated daylight saving and timezone transition management.
+
+##### Calculator (`REQ-APP-CALC-*`)
+- **REQ-APP-CALC-001 (P0) — Standard Arithmetic:** High-precision basic operations with operator precedence and parenthesis support.
+- **REQ-APP-CALC-002 (P0) — Scientific Mode:** Trigonometric, logarithmic, exponential, and power functions.
+- **REQ-APP-CALC-003 (P0) — Session History:** 20-calculation rolling history with tappable operand recall.
+- **REQ-APP-CALC-004 (P1) — Unit & Currency Conversion:** Offline unit conversion with bundled currency exchange snapshots.
+- **REQ-APP-CALC-005 (P1) — AIS Inline Computation:** Natural language math queries evaluated directly into Intent Bar proposal card.
+
+##### Web Browser (`REQ-APP-BRW-*`)
+- **REQ-APP-BRW-001 (P0) — Web Standards Engine & Media Pipeline:** HTML5, CSS3, ES2020+ execution via vendored engine (WebKit-class) with dav1d/libvpx ARM64 NEON software decoders, Wayland-to-uxd compositor bridge, and ClearKey/sandboxed Widevine DRM dual-track per PEN-APP-008.
+- **REQ-APP-BRW-002 (P0) — Enforced HTTPS-Only:** Rejects unencrypted HTTP by default; certificate errors require non-dismissible manual bypass.
+- **REQ-APP-BRW-003 (P0) — Process-Isolated Tabs:** Sandboxed multi-tab session management encrypted at rest.
+- **REQ-APP-BRW-004 (P0) — Local Bookmarks & History:** Zero-sync local storage; searchable via Global Search only upon opt-in.
+- **REQ-APP-BRW-005 (P0) — Sandboxed File Downloads:** Downloads dispatched directly to FilesApp with explicit destination consent.
+- **REQ-APP-BRW-006 (P0) — Site Isolation & Cookie Partitioning:** Strict origin isolation with third-party tracking cookies blocked by default.
+- **REQ-APP-BRW-007 (P0) — Anti-Fingerprinting Shield:** Canvas, WebGL, and user-agent randomization with blocked beacon counters.
+- **REQ-APP-BRW-008 (P0) — True Private Browsing:** Ephemeral session partition leaving zero disk artifacts or cache remanence.
+- **REQ-APP-BRW-009 (P1) — Integrated Password Manager:** Autofill mediated through OS-encrypted credential store.
+- **REQ-APP-BRW-010 (P1) — Distraction-Free Reader Mode:** Deterministic article extraction for accessibility and readability.
+- **REQ-APP-BRW-011 (P1) — AIS Read-Only Summarization:** Natural language "summarize this page" executes strictly on user command via read-only GBNF grammar parser.
+- **REQ-APP-BRW-012 (P1) — Standalone Web Apps (PWA):** Installation of web applications to Bento Grid as sandboxed first-class entities.
+
+##### Calendar (`REQ-APP-CAL-*`)
+- **REQ-APP-CAL-001 (P0) — Local Event Storage:** Event scheduling with recurrence rules, location metadata, and local alarm triggers.
+- **REQ-APP-CAL-002 (P0) — Multi-Scale Views:** Month, week, day, and agenda views with smooth touch scrolling.
+- **REQ-APP-CAL-003 (P0) — Reliable Event Reminders:** Local notifications scheduled via system alarm daemon.
+- **REQ-APP-CAL-004 (P0) — iCalendar (.ics) Support:** Local import and export of RFC 5545 `.ics` event files via FilesApp.
+- **REQ-APP-CAL-005 (P1) — User-Mediated Event Sharing:** Sharing calendar invites via Messages or FilesApp.
+- **REQ-APP-CAL-006 (P1) — AIS Scheduling Intent:** Voice intent "schedule meeting with Priya tomorrow at 3pm" produces structured proposal card.
+- **REQ-APP-CAL-007 (P1) — Privacy-Preserving Cloud Sync:** Deferred to Phase 12; user-opt-in, provider-scoped, zero-PII cloud sync (`PEN-APP-013`).
+
+##### Music & Audio (`REQ-APP-MUS-*`)
+- **REQ-APP-MUS-001 (P0) — Local Codec Playback:** Bit-perfect playback of MP3, FLAC, OGG, and WAV from user storage (`DEF-APP-008`).
+- **REQ-APP-MUS-002 (P0) — Isolated Media Controls:** Playback widget in Notification Center and lock screen on isolated plane.
+- **REQ-APP-MUS-003 (P0) — Background Playback Service:** Audio output continues under screen-off state via unprivileged audio daemon.
+- **REQ-APP-MUS-004 (P0) — Audio Focus Arbitration:** Strict priority pre-emption: Alarms and Phone calls preempt Music playback.
+- **REQ-APP-MUS-005 (P1) — Metadata Parsing & Tagging:** ID3/Vorbis comment parser and embedded artwork extractor.
+- **REQ-APP-MUS-006 (P1) — Library Search & Playlists:** Local query indexing across tracks, artists, and albums.
+- **REQ-APP-MUS-007 (P1) — AIS Voice Playback:** Voice intent generates proposal card for requested playlist or artist.
+
+##### Weather (`REQ-APP-WTH-*`)
+- **REQ-APP-WTH-001 (P0) — Meteorological Conditions:** Current temperature, humidity, wind velocity, precipitation, and solar times.
+- **REQ-APP-WTH-002 (P0) — Multi-Day Forecasting:** 24-hour hourly and 7-day extended forecasts.
+- **REQ-APP-WTH-003 (P0) — Offline-First Presentation:** Cached data shown with explicit "Last updated" timestamp; fallback to coarse model if no network.
+- **REQ-APP-WTH-004 (P1) — On-Demand Manual Refresh:** User-initiated pull-to-refresh; background polling limited to Wi-Fi charging (`DEF-APP-005`).
+- **REQ-APP-WTH-005 (P1) — Multi-City Profiles:** Saved location profiles with designated primary home widget.
+- **REQ-APP-WTH-006 (P1) — Coarse Location Consent:** Per-fetch or manual city selection to preserve location anonymity.
+- **REQ-APP-WTH-007 (P1) — AIS Weather Queries:** Voice queries answered from cached weather state without triggering live network egress.
+
+##### Voice Recorder (`REQ-APP-REC-*`)
+- **REQ-APP-REC-001 (P0) — Bit-Perfect Audio Capture:** Microphone capture to WAV, FLAC, or OGG with pause/resume support.
+- **REQ-APP-REC-002 (P0) — Mandatory Hardware Indicator:** Persistent red recording indicator in status bar; silent recording structurally impossible (`CAP-APP-REC-MIC`).
+- **REQ-APP-REC-003 (P0) — Local File Management:** Timestamped recording nomenclature stored in isolated sandbox directory.
+- **REQ-APP-REC-004 (P1) — Real-Time Waveform:** Hardware-synced audio visualizer and interactive scrubber.
+- **REQ-APP-REC-005 (P1) — Local Offline Transcription:** On-device ASR model transcribes voice notes locally without cloud egress.
+- **REQ-APP-REC-006 (P1) — AIS Intent Control:** Voice start/stop intents require explicit visual confirmation.
+- **REQ-APP-REC-007 (P1) — Jurisdiction Consent Notice:** First-use legal recording compliance notice acknowledged by user (`PEN-APP-014`).
+
+#### 9.9.3 App-Class Performance Budgets (`REQ-PERF-401..415`)
+
+Measured on reference hardware (Moto G60 / SM7150) under production build flags (`--release`). Enforced in CI automated regression suites:
+
+| REQ ID | Target Application | Cold-Launch (p95) | Resident Memory (RAM) | Interaction Latency (p95) |
+|---|---|---|---|---|
+| **REQ-PERF-401** | Phone & Emergency | $\le 200\text{ ms}$ | $\le 24\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-402** | Messages & SMS | $\le 250\text{ ms}$ | $\le 32\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-403** | Contacts | $\le 200\text{ ms}$ | $\le 16\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-404** | Camera | $\le 500\text{ ms}$ | $\le 64\text{ MB}$ | $\le 100\text{ ms}$ |
+| **REQ-PERF-405** | Gallery | $\le 300\text{ ms}$ | $\le 48\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-406** | Clock & Alarm | $\le 150\text{ ms}$ | $\le 12\text{ MB}$ | $\le 16\text{ ms}$ |
+| **REQ-PERF-407** | Calculator | $\le 100\text{ ms}$ | $\le 8\text{ MB}$ | $\le 16\text{ ms}$ |
+| **REQ-PERF-408** | Web Browser | $\le 400\text{ ms}$ (first paint) | $\le 96\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-409** | Calendar | $\le 250\text{ ms}$ | $\le 24\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-410** | Music & Audio | $\le 200\text{ ms}$ | $\le 24\text{ MB}$ | $\le 16\text{ ms}$ |
+| **REQ-PERF-411** | Weather | $\le 150\text{ ms}$ | $\le 16\text{ MB}$ | $\le 16\text{ ms}$ |
+| **REQ-PERF-412** | Voice Recorder | $\le 200\text{ ms}$ | $\le 24\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-413** | Notes App | $\le 150\text{ ms}$ | $\le 16\text{ MB}$ | $\le 16\text{ ms}$ |
+| **REQ-PERF-414** | Files App | $\le 200\text{ ms}$ | $\le 20\text{ MB}$ | $\le 32\text{ ms}$ |
+| **REQ-PERF-415** | System Shell & Surfaces | $\le 100\text{ ms}$ | $\le 32\text{ MB}$ | $\le 8.33\text{ ms}$ (120Hz) |
+
+### 9.10 Requirement lifecycle
 
 - **Adding a requirement** requires a change request (§21), MINOR version bump, and — if it blocks a gate — a phase-plan update in Part 2.
 - **Changing a requirement** requires the same, with a documented reason. Silent requirement changes are grounds for rollback of the offending sprint (Rule N-13).
@@ -1142,7 +1479,7 @@ Deprecation of any interface requires: (a) ≥ 2 minor versions of overlap, (b) 
 
 ---
 
-## 19. Consolidated gates table (G0–G10, including G9.5)
+## 19. Consolidated gates table (G0–G12, including G9.5)
 
 ### 19.1 Gate discipline (restated)
 
@@ -1167,7 +1504,9 @@ Deprecation of any interface requires: (a) ≥ 2 minor versions of overlap, (b) 
 | **G9** | 9 | SP-109 | Reproducible cold boots (≥10) of identified build on **device**; recovery proven **after** experiments; hardware matrix published; acceptance pack complete per PRD-001 §9.5; independent reviewer sign-off | PRD-001 stop/revise: device strategy back to founder | `evidence/G9/` | **Required (major)** |
 | **G9.5** | 9.5 | SP-115 | Every REQ-PERF target met `[TESTED]` on QEMU + device — OR founder-signed exception with named fix phase; CI perf gates block regressions | Product stays slow; no Phase 10 start | `evidence/G9.5/` | Required |
 | **G10** | 10 | SP-125+ | External audit closed; verification proofs in CI; update chain operated for real; beta plan approved; docs validated by independent engineer | No beta, no outward claims | `evidence/G10/` | **Required (major)** |
-| **G11+** | Post-G10 | Defined at G10 | Defined at G10 with evidence. Rule N-02 forbids pre-writing them. | — | — | — |
+| **G11** | 11 | SP-170 | All 12 Tier 1 & Tier 2 apps pass acceptance tests; Universal App Charter verified across all 10 items; real-user a11y task success recorded; offline-first test (`INV-APP-003`) passed; REQ-PERF-401..415 budgets met in CI; battery accounting clean; cross-app demo completes | Phase 12 blocked; offending app rebuilt | `evidence/G11/` | Required |
+| **G12** | 12 | SP-184 | Beta cohort NPS ≥ 40; zero critical bugs (high ≤ 5); live update chain operated on fleet; SDK shipped with 3rd-party demo; deferred-app decisions recorded; founder + steering sign-off; transparency log published; external audit pass; v1.0 signed images published | v1.0 release blocked; Phase 12.5 remediation | `evidence/G12/` | **Required (major)** |
+| **G13+** | Post-v1.0 | Defined at G12 | Defined at G12 with evidence. Post-v1.0 roadmap governed per Rule N-02. | — | — | — |
 
 ### 19.3 DEC-001 re-examination protocol
 
@@ -1382,6 +1721,19 @@ Recorded in `docs/DECISIONS/PEN-013-android-app-compatibility.md` with:
 | **R-23** | **Trust in transparency log** — the log itself must be verifiable independently | Medium | High | External audit at G10; public verifier tool at SP-69; hash-chain design reviewed at G5 | Trust depends on verifiability |
 | **R-24** | **Dependency supply chain attack** — malicious package through SBOM-tracked dependency | Medium | High | Pinned versions; reproducible builds (REQ-QA-201); SBOM audits; vendoring for critical deps | Standard supply-chain risk |
 | **R-25** | **Documentation drift** — Parts 1/2/3 and this Bible drift out of sync with actual state | Medium | Medium | N-08 everything-versioned; gate checks doc-update in evidence pack; changelog discipline (§27.7) | Hidden risk for new contributors |
+| **R-26** | **App quality insufficient** — apps feel like features rather than polished products | Medium | High | Per-app user testing at SP-168; hard gates at G11; founder product review | G11 |
+| **R-27** | **Browser engine decision delays** — PEN-APP-008 unresolved stalls Browser app | High | High | Resolve at SP-127 before Browser sprints; WebKit default proposed | G11 |
+| **R-28** | **Camera hardware out-of-scope** — camera app cannot ship on target hardware | Medium | High | Phase 9 matrix honesty; ship with explicit "unavailable" status; re-entry when hardware driver ready | G11 |
+| **R-29** | **Phone app reliability** — call drops or emergency dialer failure | Low | Critical | REQ-APP-PHONE-002 emergency dialer is P0 hard-tested; 1000-call reliability stress suite | G11 |
+| **R-30** | **AIS quality drift per app** — some apps' intent handling falls below 80% threshold | Medium | Medium | Per-app AIS corpus extension at SP-127; AIS features failing quality are omitted from app | G11 |
+| **R-31** | **Consent fatigue from new apps** — 12 apps' capability prompts overwhelm users | High | High | One-prompt-per-app first-launch policy; batch prompts where safe; REQ-APP-COMMON-A11Y-001 consent UX review | G11 |
+| **R-32** | **Cross-app integration bugs** — share sheet, intents, deep links fail at edge cases | High | Medium | Comprehensive cross-app test suite (SP-167–168); integration fuzzing in CI | G11 |
+| **R-33** | **Deferred apps create perception of incomplete OS** | High | Medium | Deferred-apps doc published pre-release; browser fallbacks honest and verified; consistent user messaging | G11 |
+| **R-34** | **Language pack translation quality** — Indic translations feel unnatural or machine-translated | Medium | High | Native-speaker linguistic review per language pack; user testing with native speakers | G11 |
+| **R-35** | **Weather data source failure** — user API key model too difficult for non-technical users | Medium | Medium | PEN-APP-002 decision at SP-127; bundled coarse model fallback (b) for users without API keys | G11 |
+| **R-36** | **App evidence-pack quality** — apps pass feature tests but fail a11y, perf, or offline criteria | Medium | High | Full Universal App Charter test at G11; zero partial passes permitted | G11 |
+| **R-37** | **Beta cohort insufficiently diverse** — feedback skewed toward technical enthusiasts | High | Medium | Cohort design in SP-171 mandates diversity across geography, language, age, and physical ability | G12 |
+| **R-38** | **Update infrastructure not ready at G12** | Medium | High | Update chain operated in real during Phase 12; not just rehearsed in simulation | G12 |
 
 ### 23.3 Risk review cadence
 
@@ -1477,29 +1829,86 @@ Premature decisions here would violate N-13 (honesty over momentum) — the foun
 
 ---
 
-## 26. Post-G10 roadmap framework (activated at G10)
+## 26. Post-G10 roadmap framework — **ACTIVATED AT G10 RATIFICATION (SP-126)**
 
-### 26.1 Scope
+> **Status: ACTIVE.** This section was a placeholder until G10. G10 was ratified at SP-126. Phase 11 and Phase 12 are now the live plan of record. Full sprint detail is in §8.18 and §8.19.
 
-Per Rule N-02, post-G10 gates (G11+) are defined at G10 with evidence. This section commits to the *categories* that will be defined then, without pre-writing specifics:
+### 26.1 Phase 11 plan of record (SP-127 – SP-170, 44 sprints → Gate G11)
 
-- **Beta cohort:** number, selection criteria, support commitment, feedback loops.
-- **v1.0 release criteria:** what makes Ind OS "1.0" (feature-complete, tested, audited, supported).
-- **Ecosystem roadmap:** first third-party apps, Ind SDK maturity, hardware-support expansion.
-- **Maintenance model:** who maintains, how funded, how decisions are made post-founder-primary.
-- **Governance transition** (§25).
+**Theme:** Primary Applications & Cross-App Services. Builds the complete user-facing product layer on top of the verified platform from Phase 10.
 
-### 26.2 What is committed now
+**Application tiers:**
+- **Tier 1 (Mandatory):** Phone, Messages, Contacts, Clock, Calculator, Files, Notes, Settings, Browser, Camera, Gallery, Recorder, Music, Weather, Calendar — all with `[TESTED]` evidence packs at G11.
+- **Tier 2 (Expected):** Maps (deferred-first), Email (pending user research), additional language packs.
+- **Tier 3 (Deferred):** Streaming Video, Podcast, Banking UPI native, Gaming runtime — each deferred with rationale and re-entry condition in `docs/apps/deferred-apps.md`.
 
-- **The gates are pass/fail only.** Even at v1.0, no partial-pass philosophy.
-- **The four core promises** (offline-first, AI-native, provably private, scam-immune) do not get diluted to hit a release date.
-- **DEC-001 re-examination continues** at every post-G10 gate.
+**System surfaces shipped in Phase 11:**
+1. **Lock Screen** — hardware-isolated plane; consent cards; emergency shortcut; media controls.
+2. **Notification Center** — unified pull-down; batched consent receipts; AIS kill-switch.
+3. **Quick Settings** — hardware toggles; privacy feed entry point.
+4. **Recents Carousel** — app switcher with swipe-to-kill and preview cards.
+5. **Global Search** — cross-app indexed search surface.
 
-### 26.3 What is forbidden
+**Cross-app services shipped in Phase 11:**
+- Share Sheet, Intent Registry, Clipboard (with OTP redaction), Notification Rules.
 
-- Pre-writing G11+ gate criteria "to look comprehensive" — that is what Part 1 §1.3 explicitly rejects.
-- Committing to a launch date before G9.
-- Making external promises (to press, partners, users) about post-G10 features.
+**Key milestones:**
+- SP-127: App Framework Extensions (back-stack, lifecycle, window management, share sheet).
+- SP-132–138: Phone + Messages (cellular core apps; emergency dialer hardened).
+- SP-154–157: Browser (engine decision required before SP-154 per PEN-APP-008).
+- SP-167–168: Cross-app user testing with real external users (15+ people; scripted tasks).
+- SP-169–170: Integration QA, a11y audit, G11 evidence assembly.
+
+**Gate G11 exit criteria summary (10 mandatory items — full criteria in §8.18):**
+1. All Tier 1 apps pass acceptance with `[TESTED]` evidence.
+2. All Tier 2 apps shipped or explicitly deferred with PEN records.
+3. Universal App Charter (all 10 commitments) verified per app.
+4. A11y: real-user task success recorded per app.
+5. Offline-first: `INV-APP-003` passes for every app.
+6. REQ-PERF-401..415 budgets met in CI.
+7. Cross-app demo script completed by a non-engineer independently.
+8. Battery accounting: no app exceeds its declared 24h budget.
+9. Founder + steering-group dual sign-off (REQ-GOV-106).
+10. Public `AppManifest` and complete evidence pack in `evidence/G11/`.
+
+### 26.2 Phase 12 plan of record (SP-171 – SP-184, 14 sprints → Gate G12)
+
+**Theme:** Post-G11 Beta, SDK, Ecosystem Hardening, and v1.0 Stable Release.
+
+This is a **hardening and stabilization phase — not a feature phase**. Feature gates are closed; only beta-feedback fixes, SDK work, and release infrastructure are in scope.
+
+**Milestones:**
+- SP-171: Beta cohort onboarding (50–100 users; diverse geography, language, age, ability).
+- SP-177: SDK shipped — documentation, templates, sample apps for Ind-native developers.
+- SP-178: Deferred-app PEN review — final decisions on Maps, Banking, Email, Streaming.
+- SP-179: First roadmap language pack (Tamil or Telugu per SP-168 user demand data).
+- SP-180: Update infrastructure live-operated; staging environment; incident response drilled.
+- SP-183: v1.0 release candidate — version string, boot animations, marketing docs.
+- SP-184: v1.0 stable release + Gate G12.
+
+**Gate G12 exit criteria summary (9 mandatory items — full criteria in §8.19):**
+1. Beta cohort NPS ≥ 40 or documented path.
+2. Zero critical bugs; high-severity ≤ 5 with fix dates.
+3. Update chain live-operated on fleet (not rehearsed).
+4. SDK shipped; at least one third-party app built and deployed.
+5. Deferred-app PEN decisions recorded for all PEN-APP items.
+6. Founder + steering-group sign-off on v1.0.
+7. Transparency log entries for v1.0 published.
+8. External audit pass.
+9. v1.0 stable images signed (DEF-003 threshold) and publicly available.
+
+### 26.3 Post-v1.0 governance
+
+- **The four core promises** (offline-first, AI-native, provably private, scam-immune) do not get diluted after v1.0.
+- **DEC-001 re-examination continues** at every post-v1.0 gate.
+- **Post-v1.0 roadmap (v1.1+)** is defined at G12 with evidence — never before (Rule N-02).
+- **Governance transition** per §25 begins after G12.
+
+### 26.4 What is forbidden (unchanged)
+
+- Pre-writing G13+ gate criteria without evidence.
+- Making external promises about post-G12 features.
+- Shipping a v1.0 that partially passes G12 — the gate is binary.
 
 ---
 
@@ -1677,6 +2086,7 @@ Date: __________________________
 ### 27.7 Changelog for the Bible
 
 - **1.0.0.0 — 2026-10-26 — Initial ratified version.** Incorporates Expert Review R-01 (all 10 findings, see §27.5). Resolves PRD-002 v1.0's ambiguities (sprint count, crypto default, Option labels). Adds REQ-AI-110, REQ-QA-201/202/203, REQ-PERF-101..107, REQ-GOV-101..107, REQ-HAL-101..105, REQ-SEC-111. Establishes N-14 (two-person rule for constitutional change). Establishes §21.4 founder-unavailability protocol. Splits PEN-008 into 008a/008b/008c. Adds §25 (governance transition) and §26 (post-G10 roadmap) as G10-activated placeholders. Document status: RATIFIED (Sprint SP-00 authorized upon PEN-013 resolution).
+- **1.1.0.0 — 2026-10-27 — Phase 11 & 12 Activation + Full App & UX Requirements Absorption.** Absorbs INDOS-UX-PRD-001 v1.0.0.0 (Ind Surface v2) and INDOS-APPS-PRD-001 v1.0.0.0 (Primary Applications). Gate G10 formally ratified at SP-126. Adds: §8.18 (Phase 11, 44 sprints, SP-127–170), §8.19 (Phase 12, 14 sprints, SP-171–184), §8.20 (Universal App Charter + offline-first mandate + ind-ui library), §9.9 (REQ-APP series for all 12 apps + REQ-PERF-401..415), §7.2 additions (DEF-UX-001..003, DEF-APP-001..008), §7.3 additions (PEN-UX-001..007, PEN-APP-001..015), §19 updated to G0–G12 + G13+ (explicit G11/G12 rows), §23.2 additions (R-26..R-38), §26 activated (Phase 11/12 plan of record replacing placeholder), Appendix A (normative design tokens), Appendix B (app capability matrix), Appendix C (app semantic tree spec), Appendix D (deferred apps spec), Appendix E (app evidence pack additions), Appendix F (app launch targets). Source documents INDOS-UX-PRD-001 and INDOS-APPS-PRD-001 absorbed and retired. Total sprints re-baselined: 126 → 185 (SP-00 through SP-184).
 
 ### 27.8 Glossary
 
@@ -1685,6 +2095,7 @@ Terms used in this Bible beyond those in Part 1 §3:
 | Term | Meaning |
 |---|---|
 | **A/B partitions** | Android-style update mechanism with two OS slots; failed update boots previous |
+| **Bento Grid** | The adaptive home surface of Ind Surface v2 — 260 px grid units with glassmorphic card layout |
 | **BLUF** | Bottom Line Up Front — journalism convention used in risk and gate reports |
 | **Capability** | An unforgeable, kernel-derived token granting a specific right on a specific object (Part 1 §6.3) |
 | **Consent broker** | The trusted-UI service that presents consent prompts and records decisions |
@@ -1696,21 +2107,204 @@ Terms used in this Bible beyond those in Part 1 §3:
 | **Gate** | Pass/fail phase milestone (Part 2 §8, consolidated in §19 of this part) |
 | **HAL** | Hardware Abstraction Layer — the portability boundary between IndK and device drivers (§9.6) |
 | **IndK / IndUS / AIS** | Ind Kernel / Ind Userspace / Adaptive Intelligence Subsystem (Part 1 §3) |
+| **Ind Surface v2** | The Phase 8 UX shell: 3-zone architecture (64px status bar + 2268px canvas + 128px nav bar), Central Intent Bar, Adaptive Bento Grid |
 | **Intent ABI** | The public schema for typed proposals from AIS to ENF (Part 1 §6.3; frozen at SP-42) |
+| **Intent Bar** | The Central Intent Bar — a glassmorphic input surface in Zone 2 for voice, text, and contextual AIS proposals |
 | **N-rule** | Non-negotiable rule (Part 1 §5) — constitutional |
+| **Offline-first** | Design requirement that apps complete their primary task with all network capabilities revoked (`INV-APP-003`) |
 | **Pen test / Red team** | Adversarial security exercises |
 | **PEN item** | Pending question requiring founder resolution (Part 1 §7.3) |
+| **PlaneId::HardwareIsolated** | DSI compositor plane reserved for consent surfaces and call UI; no app can overlay it |
 | **REQ ID** | Requirement identifier (Part 1 §0.4, this part §9) |
 | **SBOM** | Software Bill of Materials — complete dependency inventory (§15.3) |
+| **Semantic tree** | The compositor-verified accessibility tree every app surface must publish (REQ-APP-COMMON-001) |
 | **SP-XX** | Sprint number (Part 2 §8) |
+| **Suraksha** | The on-device scam/fraud shield — call classifier, SMS classifier, OTP blackout layer |
 | **TCB** | Trusted Computing Base (Part 1 §3) |
 | **TEE** | Trusted Execution Environment — hardware-isolated execution (Arm TrustZone, CCA) |
+| **Tier 1 / 2 / 3** | App tiers — Mandatory / Expected / Deferred (§8.18, §26.1) |
 | **Transparency log** | Append-only, hash-chained public record of signed artifacts (§13.5) |
+| **Universal App Charter** | The 10-item binding commitment every app makes (§8.20) |
 
 ---
 
-*End of INDOS-BIBLE-001 v1.0.0.0.*
+## Appendix A — Normative Design Tokens (INV-TOK-001, v1.0.0.0)
 
-*The Bible is complete. PEN-013 is resolved. Sprint SP-00 may begin — and every sprint after it stands or falls on the evidence it produces.*
+These tokens are normative. Any UI component that deviates from these values must file a CR-SEMANTIC (§21.3). Token changes are MINOR version bumps to the Bible.
 
-*Nothing in this document claims Ind OS is buildable, bootable, or secure. It defines how the programme will find out, honestly, gate by gate. Rule N-02 applies to this document itself.*
+### A.1 Color
+
+| Token | Value | Use |
+|---|---|---|
+| `TOK-COLOR-BASE-0` | `#0E0F14` | App background base |
+| `TOK-COLOR-BASE-1` | `#16181F` | Raised surface |
+| `TOK-COLOR-GLASS-BG` | `rgba(255,255,255,0.06)` | Glass fill |
+| `TOK-COLOR-GLASS-BORDER` | `rgba(255,255,255,0.12)` | Glass edge |
+| `TOK-COLOR-ACCENT` | `#7C6CFF` | Primary accent (DEF-UX-002) |
+| `TOK-COLOR-ACCENT-SOFT` | `rgba(124,108,255,0.16)` | Accent tint |
+| `TOK-COLOR-ALERT` | `#FF6B6B` | Deny / destructive (consent cards) |
+| `TOK-COLOR-OK` | `#4CD9A6` | Grant / confirm |
+| `TOK-COLOR-TEXT-0` | `#F2F3F7` | Primary text |
+| `TOK-COLOR-TEXT-1` | `#9BA0AE` | Secondary text |
+
+### A.2 Elevation & Blur
+
+`TOK-BLUR-1: 12px`, `TOK-BLUR-2: 24px`, `TOK-BLUR-3: 40px` — radius degrades under GPU budget pressure, never at the cost of frame time. Elevation via border + blur only; drop shadows are not permitted in v2.
+
+### A.3 Typography
+
+**Type scale:** `TOK-TYPE-S1 12sp / S2 14sp / B1 16sp / B2 18sp / H3 22sp / H2 28sp / H1 36sp`.
+
+**Typeface:** Founder decision per PEN-UX-007. Default: bundled open-license grotesque for Latin scripts + Noto-class Indic companion fonts (Devanagari, Tamil, Telugu, etc.).
+
+### A.4 Spacing & Grid
+
+- `TOK-SPACE-U: 4px` (base unit; all spacing is multiples of 4px)
+- Screen margins: `24px` left/right
+- Column gutters: `12px`
+- Bento Grid unit: `260px`
+- Corner radii: `TOK-RADIUS-S 8px / M 16px / L 24px / XL 32px`
+
+### A.5 Motion
+
+- **Duration:** 220 ms default
+- **Enter curve:** `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out-expo class)
+- **Exit curve:** `cubic-bezier(0.4, 0, 1, 1)` (ease-in)
+- **Fling decay:** 220 ms
+- **Rule:** All animations run on the compositor frame clock (Phase 4). App-thread animations are a code-review fail.
+
+### A.6 Haptics (subject to PEN-UX-001 hardware reality)
+
+- Tick: 8 ms single pulse
+- Confirm: 15 ms double-tick
+- Error: 25 ms single pulse
+- Default fallback: visual tick if haptic hardware unavailable.
+
+---
+
+## Appendix B — App Capability Matrix (Normative)
+
+Full normative matrix lives in `docs/apps/capability-matrix.md`. Every capability in every app must have a corresponding row justifying the user-facing feature it enables.
+
+**Rule:** Any capability without a matching row is prohibited (`INV-APP-002`). Adding a row is a CR-SEMANTIC per §21.3.
+
+| App | Capability | Justifying user feature |
+|---|---|---|
+| Phone | `CAP-APP-PHONE-CALLS` | Making/receiving cellular voice calls |
+| Phone | `CAP-APP-PHONE-CONTACTS-READ` | Caller ID, quick dial |
+| Phone | `CAP-APP-PHONE-AUDIO` | In-call microphone and earpiece |
+| Messages | `CAP-APP-MSG-RECEIVE-SMS` | Receiving SMS/MMS |
+| Messages | `CAP-APP-MSG-SEND-SMS` | Sending SMS/MMS |
+| Contacts | `CAP-APP-CT-STORAGE` | Owning and managing contact database |
+| Camera | `CAP-APP-CAM-CAMERA` | Photo and video capture |
+| Camera | `CAP-APP-CAM-MIC` | Video audio recording |
+| Camera | `CAP-APP-CAM-LOCATION-OPT-IN` | Per-capture GPS geotagging (opt-in) |
+| Gallery | `CAP-APP-GAL-STORAGE` | Media directory read/write |
+| Browser | `CAP-APP-BRW-NETWORK` | Web browsing |
+| Browser | `CAP-APP-BRW-DOWNLOADS` | File downloads to Files with per-file consent |
+| Music | `CAP-APP-MUS-AUDIO-OUT` | Audio playback via speaker/headphones |
+| Music | `CAP-APP-MUS-NOTIFICATION` | Lock screen and notification media controls |
+| Recorder | `CAP-APP-REC-MIC` | Microphone recording |
+| Weather | `CAP-APP-WTH-NETWORK` | Fetching weather data |
+| Weather | `CAP-APP-WTH-LOCATION-OPT-IN` | Current-location weather (per-fetch consent) |
+| Clock | `CAP-APP-CLK-ALARM-SET` | Setting and managing alarms |
+| Calendar | `CAP-APP-CAL-STORAGE` | Owning calendar event database |
+
+---
+
+## Appendix C — App Semantic Tree Specification
+
+Every app surface publishes a compositor-verified semantic tree. Missing trees fail the `INV-A11Y-002` CI linter.
+
+### Required node types
+
+| Node type | Role value | Purpose |
+|---|---|---|
+| **Container** | `container` | A screen, sheet, or major section |
+| **Interactive** | `button`, `toggle`, `input`, `select` | Tappable/editable elements |
+| **Content** | `text`, `image` | Readable content (with accessible label for images) |
+| **Navigation** | `link`, `back`, `tab` | Navigation affordances |
+| **Proposal** | `proposal` | AIS-suggested action — screen readers must announce as "Suggestion:" |
+| **Status** | `status` | Live regions updated without user action (e.g., call timer) |
+
+### Required node properties
+
+Every node must carry: `id` (stable across app versions), `role`, `label` (human-readable), `state` (enabled/disabled/checked/etc.), `action` (list of available actions).
+
+### CI enforcement
+
+`INV-A11Y-002` — Any node missing a role or label is a CI build failure from G8 onward.
+
+---
+
+## Appendix D — Deferred Applications Specification
+
+Every deferred (Tier 3) app has an entry in `docs/apps/deferred-apps.md` with:
+
+1. **What the app does** — brief description.
+2. **Why it is deferred** — honest rationale (bandwidth, complexity, dependency, hardware).
+3. **User fallback** — what the user can do instead (browser, third-party app, manual workaround).
+4. **Re-entry condition** — the specific PEN resolution or hardware milestone that unlocks the sprint.
+5. **Estimated sprint cost** — rough sprint budget once re-entry is approved.
+
+**This document is user-facing** — linked from Settings → About → App Availability.
+
+Current deferred apps (plan of record at v1.0):
+
+| App | Deferred reason | User fallback | Re-entry PEN |
+|---|---|---|---|
+| Maps / Navigation | Mapping data licensing + driver complexity | Browser (web maps) | PEN-APP-001 |
+| Email | User research insufficient to spec at G11 | Browser (webmail) | PEN-APP-004 |
+| Music Streaming | Licensing and backend complexity | Local files only | PEN-APP-003 |
+| Streaming Video | DRM + network infrastructure | Browser | — |
+| Banking / UPI | Regulatory + PEN-013 outcome | Browser (bank website) | PEN-013 |
+| Podcast | Scope | Browser | — |
+| Calculator Graphing | Scope | Browser (Desmos, etc.) | PEN-APP-011 |
+| Browser Extensions | Phase 13+ | — | PEN-APP-012 |
+| Calendar Cloud Sync | Privacy architecture | Local .ics export | PEN-APP-013 |
+| Face Unlock | Hardware biometric review | PIN / pattern | PEN-APP-007 |
+| Gallery Face Grouping | Privacy review | User-tagged albums | PEN-APP-015 |
+
+---
+
+## Appendix E — App Evidence Pack Additions (extends §27.3)
+
+Every app's evidence pack at G11 contains, **in addition to** the standard §27.3 evidence sections:
+
+1. **App capability audit** — app manifest capabilities vs. actual runtime requests; any mismatch is a gate failure.
+2. **Charter conformance** — Universal App Charter (§8.20) checked item-by-item with `[PASS]` or `[FAIL]` per item.
+3. **A11y evidence** — real-user task success records with test participant demographics (§8.3, REQ-APP-COMMON-A11Y-001).
+4. **Offline evidence** — offline test run log with all network capabilities revoked (`INV-APP-003`).
+5. **Performance evidence** — CI automated perf gate output for the app's `REQ-PERF-4xx` budget entry.
+6. **Battery evidence** — 24h dogfood battery accounting log; budget not exceeded.
+7. **Crash evidence** — crash rate from soak test: ≤ 1 per 1000 sessions target.
+
+---
+
+## Appendix F — App Launch Targets
+
+Plan of record for v1.0 stable (all subject to evidence — N-13 applies):
+
+| Phase | Sprints | Duration | Milestone |
+|---|---|---|---|
+| Phase 11 | SP-127–SP-170 (44 sprints) | ~22 months at pure velocity | All Tier 1 & Tier 2 apps shipped and tested |
+| Gate G11 | After SP-170 | — | Feature-complete phone OS |
+| Phase 12 | SP-171–SP-184 (14 sprints) | ~7 months at pure velocity | Beta cohort, SDK, hardening, v1.0 |
+| Gate G12 | After SP-184 | — | **★ Ind OS v1.0 STABLE RELEASE** |
+
+**Post-G12 (v1.1+)** app roadmap is defined at G12 with evidence — never before (Rule N-02).
+
+**Anti-metrics (from INDOS-APPS-PRD-001 §14.3, binding):**
+- We do not optimize for app count — 12 great apps beat 50 mediocre ones.
+- We do not optimize for daily-active users or engagement metrics.
+- We do not optimize for feature parity with iOS or Android — we optimize for user needs.
+- We do not optimize for launch date — G11/G12 are pass/fail; the calendar is not a gate.
+
+---
+
+*End of INDOS-BIBLE-001 v1.1.0.0.*
+
+*The Bible is complete. Phase 11 and Phase 12 are the active plan of record, activated at Gate G10 ratification (SP-126). Sprint SP-127 may begin upon founder sign-off. Every sprint after it stands or falls on the evidence it produces.*
+
+*Nothing in this document claims any app is beautiful, fast, or reliable yet. It defines how the programme will find out, honestly, gate by gate. Rule N-02 applies to this document itself.*
+

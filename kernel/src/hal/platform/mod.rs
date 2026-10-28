@@ -62,6 +62,12 @@ pub mod production_ops_core;
 pub mod beta_telemetry_core;
 pub mod g10_audit_core;
 pub mod boot_animation_core;
+pub mod app_framework_core;
+
+pub use app_framework_core::{
+    KernelAppFrameworkBridge, KernelAppFrameworkError, KernelWindowSurfaceDescriptor,
+    KERNEL_SYSTEM_RESERVED_Z_BASE, MAX_KERNEL_MANAGED_WINDOWS,
+};
 
 pub use lab_prep_core::{
     KernelHardwareLabHarness, KernelLabPrepError, KERNEL_EXPECTED_UART_BAUD,

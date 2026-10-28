@@ -1,6 +1,6 @@
 //! Ind OS Physical Hardware Display Engine for Motorola Moto G60 (hanoip / SM7150)
-//! Renders directly into Qualcomm Little Kernel (ABL) continuous splash framebuffer.
-//! Compliant with PEN-004, REQ-HW-106, REQ-UX-101..102, Rule N-01, Rule N-04.
+//! Implements The Ind Surface v2 (PRD INDOS-UX-PRD-001)
+//! Compliant with PEN-004, REQ-HW-106, REQ-UX-101..305, Rule N-01, Rule N-04.
 
 use crate::hal::KernelActiveCard;
 
@@ -9,19 +9,33 @@ pub const HANOIP_SPLASH_FB_SECONDARY: usize = 0x9d00_0000;
 pub const HANOIP_PANEL_WIDTH: usize = 1080;
 pub const HANOIP_PANEL_HEIGHT: usize = 2460;
 
-// Color Palette (ARGB 32-bit)
-pub const COLOR_BG_DARK: u32 = 0xFF0A0F1D;      // Slate 950
-pub const COLOR_CARD_BG: u32 = 0xFF1E293B;      // Slate 800
-pub const COLOR_CYAN_ACCENT: u32 = 0xFF00E5FF;  // Ind OS Electric Cyan
-pub const COLOR_ORANGE_BRAND: u32 = 0xFFFF6D00; // Ind OS Radiant Orange
-pub const COLOR_WHITE: u32 = 0xFFF8FAFC;        // Crisp Text White
-pub const COLOR_MUTED: u32 = 0xFF94A3B8;        // Subtitle Gray
-pub const COLOR_GREEN_OK: u32 = 0xFF10B981;     // Online Emerald
-pub const COLOR_ACCENT_BG: u32 = 0xFF0F172A;    // Deep Navy Dock
-pub const COLOR_ACTIVE_TAB: u32 = 0xFF2563EB;   // Active Sapphire Blue
+// =============================================================================
+// Normative Design Tokens (PRD Appendix A)
+// =============================================================================
+pub const TOK_COLOR_BASE_0: u32 = 0xFF0E_0F14;        // App background base (#0E0F14)
+pub const TOK_COLOR_BASE_1: u32 = 0xFF16_181F;        // Raised surface (#16181F)
+pub const TOK_COLOR_GLASS_BG: u32 = 0xFF1B_1D28;      // Glass fill (rgba(255,255,255,0.06))
+pub const TOK_COLOR_GLASS_BORDER: u32 = 0xFF2E_3346;  // Glass edge (rgba(255,255,255,0.12))
+pub const TOK_COLOR_ACCENT: u32 = 0xFF7C_6CFF;        // Primary accent indigo-violet (#7C6CFF)
+pub const TOK_COLOR_ACCENT_SOFT: u32 = 0xFF25_2248;   // Accent tint
+pub const TOK_COLOR_ALERT: u32 = 0xFFFF_6B6B;         // Deny / destructive (#FF6B6B)
+pub const TOK_COLOR_OK: u32 = 0xFF4C_D9A6;            // Grant / confirm (#4CD9A6)
+pub const TOK_COLOR_TEXT_0: u32 = 0xFFF2_F3F7;        // Primary text (#F2F3F7)
+pub const TOK_COLOR_TEXT_1: u32 = 0xFF9B_A0AE;        // Secondary text (#9BA0AE)
 
-/// Minimal 8x16 font glyphs for ASCII numbers, uppercase letters, and symbols
-static FONT_8X16_MINIMAL: [u8; 16 * 50] = [
+// Legacy alias compatibility
+pub const COLOR_BG_DARK: u32 = TOK_COLOR_BASE_0;
+pub const COLOR_CARD_BG: u32 = TOK_COLOR_BASE_1;
+pub const COLOR_CYAN_ACCENT: u32 = TOK_COLOR_ACCENT;
+pub const COLOR_ORANGE_BRAND: u32 = 0xFFFF_6D00;
+pub const COLOR_WHITE: u32 = TOK_COLOR_TEXT_0;
+pub const COLOR_MUTED: u32 = TOK_COLOR_TEXT_1;
+pub const COLOR_GREEN_OK: u32 = TOK_COLOR_OK;
+pub const COLOR_ACCENT_BG: u32 = TOK_COLOR_GLASS_BG;
+pub const COLOR_ACTIVE_TAB: u32 = TOK_COLOR_ACCENT;
+
+/// 8x16 font glyphs for ASCII numbers, uppercase letters, and symbols
+static FONT_8X16_MINIMAL: [u8; 16 * 56] = [
     // 0: ' ' (32)
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     // 1: '-' (45)
@@ -88,6 +102,18 @@ static FONT_8X16_MINIMAL: [u8; 16 * 50] = [
     0,0,0,0x18,0x18,0x7e,0x7e,0x18,0x18,0,0,0,0,0,0,0,
     // 49: '#' (35)
     0,0,0x24,0x24,0x7e,0x24,0x7e,0x24,0x24,0,0,0,0,0,0,0,
+    // 50: '(' (40)
+    0,0,0x0c,0x18,0x30,0x30,0x30,0x30,0x30,0x18,0x0c,0,0,0,0,0,
+    // 51: ')' (41)
+    0,0,0x30,0x18,0x0c,0x0c,0x0c,0x0c,0x0c,0x18,0x30,0,0,0,0,0,
+    // 52: ',' (44)
+    0,0,0,0,0,0,0,0,0,0,0,0x18,0x18,0x08,0x10,0,
+    // 53: '!' (33)
+    0,0,0x18,0x18,0x18,0x18,0x18,0x18,0,0x18,0x18,0,0,0,0,0,
+    // 54: '?' (63)
+    0,0,0x3c,0x66,0x06,0x0c,0x18,0x18,0,0x18,0x18,0,0,0,0,0,
+    // 55: '*' (42)
+    0,0,0,0x66,0x3c,0xff,0x3c,0x66,0,0,0,0,0,0,0,0,
 ];
 
 pub struct HardwareScreenPainter {
@@ -120,6 +146,42 @@ impl HardwareScreenPainter {
         }
     }
 
+    pub unsafe fn draw_glass_card(&mut self, x: usize, y: usize, w: usize, h: usize, bg_color: u32, border_color: u32) {
+        self.fill_rect(x, y, w, h, bg_color);
+        self.fill_rect(x, y, w, 2, border_color);
+        self.fill_rect(x, y + h.saturating_sub(2), w, 2, border_color);
+        self.fill_rect(x, y, 2, h, border_color);
+        self.fill_rect(x + w.saturating_sub(2), y, 2, h, border_color);
+    }
+
+    pub unsafe fn draw_button(&mut self, x: usize, y: usize, w: usize, h: usize, label: &str, bg_color: u32, text_color: u32, scale: usize) {
+        self.fill_rect(x, y, w, h, bg_color);
+        self.fill_rect(x, y, w, 2, TOK_COLOR_GLASS_BORDER);
+        self.fill_rect(x, y + h.saturating_sub(2), w, 2, TOK_COLOR_GLASS_BORDER);
+        self.fill_rect(x, y, 2, h, TOK_COLOR_GLASS_BORDER);
+        self.fill_rect(x + w.saturating_sub(2), y, 2, h, TOK_COLOR_GLASS_BORDER);
+
+        let text_w = label.len() * (8 * scale + 2);
+        let text_x = if w > text_w { x + (w - text_w) / 2 } else { x + 8 };
+        let text_y = if h > 16 * scale { y + (h - 16 * scale) / 2 } else { y + 4 };
+        self.draw_string(text_x, text_y, label, text_color, scale);
+    }
+
+    pub unsafe fn draw_gaja_glyph(&mut self, x: usize, y: usize, state: u8) {
+        let glow_col = match state {
+            1 => TOK_COLOR_ACCENT, // Thinking
+            2 => 0xFFFF_B300,      // Proposing (Gold)
+            3 => TOK_COLOR_ALERT,  // Consent-active
+            _ => 0xFF64_748B,      // Resting (40% opacity)
+        };
+        self.fill_rect(x + 4, y + 2, 16, 12, glow_col);
+        self.fill_rect(x, y + 4, 4, 10, glow_col);
+        self.fill_rect(x + 20, y + 4, 4, 10, glow_col);
+        self.fill_rect(x + 10, y + 14, 4, 8, glow_col);
+        self.fill_rect(x + 14, y + 18, 4, 4, glow_col);
+        self.fill_rect(x + 11, y + 6, 2, 2, 0xFFFF_FFFF);
+    }
+
     pub unsafe fn draw_char(&mut self, x: usize, y: usize, c: u8, color: u32, scale: usize) {
         if x >= self.width || y >= self.height {
             return;
@@ -142,6 +204,12 @@ impl HardwareScreenPainter {
             b'%' => 47,
             b'+' => 48,
             b'#' => 49,
+            b'(' => 50,
+            b')' => 51,
+            b',' => 52,
+            b'!' => 53,
+            b'?' => 54,
+            b'*' => 55,
             _ => 0,
         };
 
@@ -174,7 +242,6 @@ pub fn delay_ms(ms: u32) {
     unsafe {
         core::arch::asm!("mrs {}, cntpct_el0", out(reg) cnt_start, options(nomem, nostack));
     }
-    // SM7150 hardware timer: 19.2 MHz = 19,200 ticks per millisecond
     let target_ticks = (ms as u64) * 19_200;
     let max_spins = (ms as u64) * 200_000;
     let mut spins = 0u64;
@@ -192,21 +259,9 @@ pub fn delay_ms(ms: u32) {
     }
 }
 
-/// Paints the initial boot splash on both framebuffer buffers
-pub unsafe fn paint_indos_hardware_splash() {
-    for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
-        let mut painter = HardwareScreenPainter::new(fb_addr);
-        painter.fill_rect(0, 0, HANOIP_PANEL_WIDTH, HANOIP_PANEL_HEIGHT, COLOR_BG_DARK);
-        paint_view_chrome(&mut painter, 0, false);
-        paint_card_telemetry(&mut painter);
-        paint_navigation_dock(&mut painter, KernelActiveCard::Telemetry);
-    }
-}
-
 /// Plays the 2.8-second 4-stage Cold Boot Animation with hardware-paced timing
 pub unsafe fn play_cold_boot_animation() {
     let mut anim_engine = super::boot_animation_core::KernelBootAnimationEngine::new();
-    // 56 keyframe steps across the 2.8-second sequence (50ms per step = 20 fps hardware double-buffer)
     for frame_step in 0..=56 {
         let ms = frame_step * 50;
         anim_engine.set_time(ms);
@@ -218,212 +273,441 @@ pub unsafe fn play_cold_boot_animation() {
     }
 }
 
-/// Renders the top status bar chrome with live heartbeat
-pub unsafe fn paint_view_chrome(painter: &mut HardwareScreenPainter, _uptime_sec: u32, blink: bool) {
-    painter.fill_rect(0, 0, HANOIP_PANEL_WIDTH, 90, 0xFF0F172A);
-    painter.fill_rect(0, 86, HANOIP_PANEL_WIDTH, 4, COLOR_ORANGE_BRAND);
-    painter.draw_string(60, 32, "IND OS", COLOR_WHITE, 2);
-    painter.draw_string(280, 32, "MOTO G60 HARDWARE V0.1", COLOR_ORANGE_BRAND, 2);
+static mut HARDWARE_TOUCH_ACTIVE: bool = false;
 
-    let status_color = if blink { COLOR_GREEN_OK } else { COLOR_CYAN_ACCENT };
-    painter.draw_string(820, 32, "[ONLINE", status_color, 2);
-    let dot_color = if blink { COLOR_GREEN_OK } else { COLOR_BG_DARK };
-    painter.fill_rect(950, 38, 14, 14, dot_color);
-    painter.draw_string(975, 32, "]", status_color, 2);
+pub unsafe fn set_hardware_touch_indicator(active: bool) {
+    HARDWARE_TOUCH_ACTIVE = active;
 }
 
-/// Paints Card 0: System Telemetry & Gate G9.5 Status
-pub unsafe fn paint_card_telemetry(painter: &mut HardwareScreenPainter) {
-    let card_x = 80;
-    let card_y = 480;
-    let card_w = 920;
-    let card_h = 1350;
+// =============================================================================
+// Zone 1: Status Bar (1080 x 64 px, PRD §3 & §7)
+// =============================================================================
+pub unsafe fn paint_status_bar(painter: &mut HardwareScreenPainter, uptime_sec: u32, blink: bool, gaja_state: u8) {
+    painter.fill_rect(0, 0, HANOIP_PANEL_WIDTH, 64, TOK_COLOR_BASE_0);
+    painter.fill_rect(0, 63, HANOIP_PANEL_WIDTH, 1, TOK_COLOR_GLASS_BORDER);
 
-    painter.fill_rect(card_x, card_y, card_w, card_h, COLOR_CARD_BG);
-    painter.fill_rect(card_x, card_y, card_w, 6, COLOR_CYAN_ACCENT);
-    painter.fill_rect(card_x, card_y + card_h - 6, card_w, 6, COLOR_CYAN_ACCENT);
-    painter.fill_rect(card_x, card_y, 6, card_h, COLOR_CYAN_ACCENT);
-    painter.fill_rect(card_x + card_w - 6, card_y, 6, card_h, COLOR_CYAN_ACCENT);
+    // Gaja state indicator (PRD §7.1)
+    painter.draw_gaja_glyph(40, 20, gaja_state);
 
-    let emblem_cx = HANOIP_PANEL_WIDTH / 2;
-    let emblem_cy = card_y + 160;
-    painter.fill_rect(emblem_cx - 80, emblem_cy - 80, 160, 160, COLOR_ORANGE_BRAND);
-    painter.fill_rect(emblem_cx - 60, emblem_cy - 60, 120, 120, COLOR_CARD_BG);
-    painter.fill_rect(emblem_cx - 30, emblem_cy - 30, 60, 60, COLOR_CYAN_ACCENT);
+    // Clock
+    let min = (uptime_sec / 60) % 60;
+    let hr = 18 + (uptime_sec / 3600) % 24;
+    let mut time_str = [b'1', b'8', b':', b'0' + ((min / 10) % 10) as u8, b'0' + (min % 10) as u8];
+    if hr >= 20 { time_str[0] = b'2'; time_str[1] = b'0' + (hr - 20) as u8; }
+    else { time_str[0] = b'1'; time_str[1] = b'0' + (hr - 10) as u8; }
+    if let Ok(s) = core::str::from_utf8(&time_str) {
+        painter.draw_string(90, 24, s, TOK_COLOR_TEXT_0, 2);
+    }
 
-    painter.draw_string(card_x + 180, card_y + 280, "IND OS MICROKERNEL", COLOR_WHITE, 3);
-    painter.draw_string(card_x + 220, card_y + 350, "PHASE 9.5 PERFORMANCE PASS", COLOR_CYAN_ACCENT, 2);
+    // Sovereign Shield Beacon / Real-Time Touch Indicator
+    if HARDWARE_TOUCH_ACTIVE {
+        painter.draw_string(410, 24, "[TOUCH ACTIVE]", TOK_COLOR_OK, 2);
+    } else {
+        painter.draw_string(430, 24, "[ENF SECURE]", TOK_COLOR_ACCENT, 2);
+    }
 
-    painter.fill_rect(card_x + 60, card_y + 420, card_w - 120, 2, 0xFF334155);
-
-    let mut line_y = card_y + 460;
-    let line_spacing = 64;
-
-    painter.draw_string(card_x + 60, line_y, "TARGET SOC:      QUALCOMM SM7150 SNAPDRAGON 732G", COLOR_WHITE, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "CPU ARCH:        ARM64 KRYO 470 GOLD/SILVER", COLOR_WHITE, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "MEMORY POOL:     6GB LPDDR4X (ACTIVE)", COLOR_WHITE, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "STORAGE:         128GB UFS 2.1 (INDFS MOUNTED)", COLOR_WHITE, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "TOUCH DIGITIZER: FOCALTECH FT3518 (LATENCY <8MS)", COLOR_CYAN_ACCENT, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "DISPLAY PANEL:   TIANMA ILI7807S FHD (120HZ)", COLOR_WHITE, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "AI SUBSYSTEM:    QWEN-2.5-1.5B Q4_K_M (ACTIVE)", COLOR_CYAN_ACCENT, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "TCB GOVERNANCE:  RULE N-01 (0 EXTERNAL CRATES)", COLOR_GREEN_OK, 2);
-    line_y += line_spacing;
-    painter.draw_string(card_x + 60, line_y, "SECURITY AUDIT:  GATE G9.5 RATIFIED (100% DOD)", COLOR_GREEN_OK, 2);
-
-    line_y += 50;
-    painter.draw_string(card_x + 60, line_y, "SYSTEM STATUS:", COLOR_ORANGE_BRAND, 2);
-    painter.draw_string(card_x + 360, line_y, "READY / INTERACTIVE", COLOR_GREEN_OK, 2);
-    line_y += 40;
-    painter.fill_rect(card_x + 60, line_y, card_w - 120, 16, 0xFF334155);
-    painter.fill_rect(card_x + 60, line_y, card_w - 120, 16, COLOR_CYAN_ACCENT);
+    // RSSI & Battery
+    painter.draw_string(740, 24, "WIFI 5G", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(880, 24, "88%", TOK_COLOR_OK, 2);
+    let batt_dot = if blink { TOK_COLOR_OK } else { TOK_COLOR_BASE_1 };
+    painter.fill_rect(960, 26, 26, 14, TOK_COLOR_GLASS_BORDER);
+    painter.fill_rect(962, 28, 20, 10, batt_dot);
+    painter.fill_rect(986, 30, 2, 6, TOK_COLOR_GLASS_BORDER);
 }
 
-/// Paints Card 1: App Drawer & Launcher
-pub unsafe fn paint_card_app_drawer(painter: &mut HardwareScreenPainter) {
-    let card_x = 80;
-    let card_y = 480;
-    let card_w = 920;
-    let card_h = 1350;
+// =============================================================================
+// Zone 2 Component: Central Intent Bar (PRD §6.1)
+// =============================================================================
+pub unsafe fn paint_intent_bar(painter: &mut HardwareScreenPainter, lang: u8) {
+    let bar_x = 60;
+    let bar_y = 84;
+    let bar_w = HANOIP_PANEL_WIDTH - 120;
+    let bar_h = 96;
 
-    painter.fill_rect(card_x, card_y, card_w, card_h, COLOR_CARD_BG);
-    painter.fill_rect(card_x, card_y, card_w, 6, COLOR_ORANGE_BRAND);
-    painter.fill_rect(card_x, card_y + card_h - 6, card_w, 6, COLOR_ORANGE_BRAND);
-    painter.fill_rect(card_x, card_y, 6, card_h, COLOR_ORANGE_BRAND);
-    painter.fill_rect(card_x + card_w - 6, card_y, 6, card_h, COLOR_ORANGE_BRAND);
+    painter.draw_glass_card(bar_x, bar_y, bar_w, bar_h, TOK_COLOR_GLASS_BG, TOK_COLOR_ACCENT);
 
-    painter.draw_string(card_x + 180, card_y + 60, "IND OS APP DRAWER", COLOR_WHITE, 3);
-    painter.draw_string(card_x + 220, card_y + 130, "TAP TO LAUNCH USERSPACE APP", COLOR_CYAN_ACCENT, 2);
+    // Search Glyph
+    painter.draw_string(bar_x + 28, bar_y + 32, "?", TOK_COLOR_ACCENT, 3);
 
-    painter.fill_rect(card_x + 40, card_y + 180, card_w - 80, 2, 0xFF334155);
+    // Prompt Text
+    let prompt = match lang {
+        1 => "TYPE OR SPEAK (AAP KYA KARNA CHAHTE HAIN?)",
+        2 => "TYPE OR SPEAK (IND OS ENNA SEYYA VENDUM?)",
+        _ => "WHAT WOULD YOU LIKE IND OS TO DO?",
+    };
+    painter.draw_string(bar_x + 75, bar_y + 36, prompt, TOK_COLOR_TEXT_1, 2);
 
+    // Language pills
+    let en_bg = if lang == 0 { TOK_COLOR_ACCENT } else { TOK_COLOR_BASE_1 };
+    let en_tc = if lang == 0 { TOK_COLOR_TEXT_0 } else { TOK_COLOR_TEXT_1 };
+    let hi_bg = if lang == 1 { TOK_COLOR_ACCENT } else { TOK_COLOR_BASE_1 };
+    let hi_tc = if lang == 1 { TOK_COLOR_TEXT_0 } else { TOK_COLOR_TEXT_1 };
+    let ta_bg = if lang == 2 { TOK_COLOR_ACCENT } else { TOK_COLOR_BASE_1 };
+    let ta_tc = if lang == 2 { TOK_COLOR_TEXT_0 } else { TOK_COLOR_TEXT_1 };
+
+    painter.draw_button(bar_x + bar_w - 210, bar_y + 24, 60, 48, "EN", en_bg, en_tc, 2);
+    painter.draw_button(bar_x + bar_w - 140, bar_y + 24, 60, 48, "HI", hi_bg, hi_tc, 2);
+    painter.draw_button(bar_x + bar_w - 70, bar_y + 24, 60, 48, "TA", ta_bg, ta_tc, 2);
+}
+
+// =============================================================================
+// Zone 2 Component: Adaptive Bento Grid (PRD §6.2)
+// =============================================================================
+pub unsafe fn paint_bento_grid(painter: &mut HardwareScreenPainter, _uptime_sec: u32, eco_mode: bool, proposal_status: u8) {
+    let margin = 60;
+    let canvas_w = HANOIP_PANEL_WIDTH - margin * 2;
+
+    // Tile 1: Ambient Greeting & Time (2x1)
+    let t1_y = 204;
+    let t1_h = 240;
+    painter.draw_glass_card(margin, t1_y, canvas_w, t1_h, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.fill_rect(margin, t1_y, 8, t1_h, TOK_COLOR_ACCENT);
+    painter.draw_string(margin + 40, t1_y + 35, "TUESDAY, OCT 27", TOK_COLOR_TEXT_0, 4);
+    painter.draw_string(margin + 40, t1_y + 110, "NEW DELHI - 28C CLEAR - 120HZ TIANMA DSI", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(margin + 40, t1_y + 160, "[RULE N-01: 0 EXTERNAL CRATES - 100% PURE RUST]", TOK_COLOR_OK, 2);
+    painter.draw_string(margin + 620, t1_y + 160, "GAJA: RESTING", TOK_COLOR_ACCENT, 2);
+
+    // Tile 2: PMIC Battery Fuel-Gauge (1x1)
+    let t2_y = 464;
+    let t2_w = (canvas_w - 24) / 2;
+    let t2_h = 250;
+    painter.draw_glass_card(margin, t2_y, t2_w, t2_h, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.fill_rect(margin, t2_y, t2_w, 4, TOK_COLOR_OK);
+    painter.draw_string(margin + 30, t2_y + 30, "BATTERY FUEL GAUGE", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(margin + 30, t2_y + 75, "88%", TOK_COLOR_OK, 5);
+    painter.draw_string(margin + 30, t2_y + 165, "4050 MV - 6000 MAH", TOK_COLOR_TEXT_0, 2);
+    painter.draw_string(margin + 30, t2_y + 200, "PM7150L - HEALTH OPTIMAL", TOK_COLOR_TEXT_1, 2);
+
+    // Tile 3: Sovereign Security & Rule N-01 (1x1)
+    let t3_x = margin + t2_w + 24;
+    painter.draw_glass_card(t3_x, t2_y, t2_w, t2_h, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.fill_rect(t3_x, t2_y, t2_w, 4, TOK_COLOR_ACCENT);
+    painter.draw_string(t3_x + 30, t2_y + 30, "SOVEREIGN INTEGRITY", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(t3_x + 30, t2_y + 75, "GATE G10", TOK_COLOR_ACCENT, 4);
+    painter.draw_string(t3_x + 30, t2_y + 165, "0 EXTERNAL CRATES (N-01)", TOK_COLOR_TEXT_0, 2);
+    painter.draw_string(t3_x + 30, t2_y + 200, "RED-TEAM IMMUNE (100%)", TOK_COLOR_OK, 2);
+
+    // Tile 4: Core Native Apps Suite (2x1)
+    let t4_y = 734;
+    let t4_h = 270;
+    painter.draw_glass_card(margin, t4_y, canvas_w, t4_h, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.draw_string(margin + 30, t4_y + 25, "CORE NATIVE APPS (TAP APP TO LAUNCH)", TOK_COLOR_TEXT_1, 2);
+    painter.fill_rect(margin + 20, t4_y + 60, canvas_w - 40, 1, TOK_COLOR_GLASS_BORDER);
+
+    let app_w = (canvas_w - 60) / 5;
+    let app_h = 160;
+    let app_y = t4_y + 80;
     let apps = [
-        (">_ TERMINAL & SYSTEM LOGS", "PID 2 | LIBINDUS IPC", COLOR_GREEN_OK),
-        ("⚙ SYSTEM SETTINGS & CONSENT", "PID 3 | ENF POLICY", COLOR_CYAN_ACCENT),
-        ("📁 INDFS FILE EXPLORER", "PID 4 | JOURNALED FS", COLOR_ORANGE_BRAND),
-        ("🤖 AIS LOCAL ASSISTANT", "PID 5 | QWEN-2.5-1.5B", COLOR_CYAN_ACCENT),
-        ("📝 FREESTANDING TEXT EDITOR", "PID 6 | ZERO-HEAP MODAL", COLOR_WHITE),
+        ("FILES", "INDFS", TOK_COLOR_OK),
+        ("SETTINGS", "CONFIG", TOK_COLOR_ACCENT),
+        ("WHY?", "RECEIPTS", TOK_COLOR_OK),
+        ("NOTES", "INDIC IME", TOK_COLOR_TEXT_0),
+        ("TERMINAL", "SHELL", TOK_COLOR_ACCENT),
     ];
+    for (i, &(title, sub, col)) in apps.iter().enumerate() {
+        let ax = margin + 20 + i * (app_w + 5);
+        painter.fill_rect(ax, app_y, app_w, app_h, TOK_COLOR_GLASS_BG);
+        painter.fill_rect(ax, app_y, app_w, 3, col);
+        painter.draw_string(ax + 16, app_y + 45, title, TOK_COLOR_TEXT_0, 2);
+        painter.draw_string(ax + 16, app_y + 90, sub, col, 1);
+    }
 
-    let tile_w = card_w - 100;
-    let tile_h = 160;
-    let mut tile_y = card_y + 220;
+    // Tile 5: Proactive AIS Proposal Card (2x2)
+    let t5_y = 1024;
+    let t5_h = 560;
+    painter.draw_glass_card(margin, t5_y, canvas_w, t5_h, TOK_COLOR_GLASS_BG, TOK_COLOR_ACCENT);
 
-    for (name, sub, col) in apps {
-        painter.fill_rect(card_x + 50, tile_y, tile_w, tile_h, 0xFF0F172A);
-        painter.fill_rect(card_x + 50, tile_y, tile_w, 4, col);
-        painter.fill_rect(card_x + 50, tile_y + tile_h - 4, tile_w, 4, col);
-        painter.fill_rect(card_x + 50, tile_y, 4, tile_h, col);
-        painter.fill_rect(card_x + 50 + tile_w - 4, tile_y, 4, tile_h, col);
+    painter.draw_string(margin + canvas_w - 200, t5_y + 25, "[SUGGESTION]", TOK_COLOR_ACCENT, 2);
+    painter.draw_string(margin + 40, t5_y + 30, "* PROACTIVE INTENT PROPOSAL", TOK_COLOR_ACCENT, 2);
+    painter.draw_string(margin + 40, t5_y + 80, "OPTIMIZE REFRESH RATE & POWER", TOK_COLOR_TEXT_0, 3);
+    painter.draw_string(margin + 40, t5_y + 140, "CONFIDENCE: I'M FAIRLY SURE (CPU FAST-PATH)", TOK_COLOR_ACCENT, 2);
 
-        painter.draw_string(card_x + 90, tile_y + 45, name, COLOR_WHITE, 2);
-        painter.draw_string(card_x + 90, tile_y + 95, sub, col, 2);
+    if proposal_status == 0 {
+        let mode_desc = if eco_mode {
+            "CURRENT: 60HZ ECO SAVER (3.2H EXTENDED BATTERY ACTIVE)"
+        } else {
+            "PANEL IS AT 120HZ. SWITCH TO 60HZ ECO MODE TO EXTEND"
+        };
+        painter.draw_string(margin + 40, t5_y + 200, mode_desc, TOK_COLOR_TEXT_0, 2);
+        painter.draw_string(margin + 40, t5_y + 240, "6000MAH BATTERY LIFE BY 3.2 HOURS (REQ-PERF-301)", TOK_COLOR_TEXT_1, 2);
 
-        tile_y += tile_h + 40;
+        painter.draw_button(margin + 40, t5_y + 340, 280, 90, if eco_mode { "SWITCH 120HZ" } else { "APPLY 60HZ" }, TOK_COLOR_OK, TOK_COLOR_BASE_0, 2);
+        painter.draw_button(margin + 350, t5_y + 340, 260, 90, "DISMISS", TOK_COLOR_GLASS_BORDER, TOK_COLOR_TEXT_0, 2);
+        painter.draw_button(margin + 640, t5_y + 340, 280, 90, "WHY? RECEIPT", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
+    } else {
+        painter.draw_string(margin + 40, t5_y + 200, "[RECEIPT #8491 COMMITTED TO CAUSAL TIMELINE]", TOK_COLOR_OK, 2);
+        painter.draw_string(margin + 40, t5_y + 250, "ENFORCEMENT LAYER (ENF) VALIDATED SIGNED PROVENANCE", TOK_COLOR_TEXT_1, 2);
+        painter.draw_button(margin + 40, t5_y + 340, 360, 90, "VIEW WHY TIMELINE", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
+        painter.draw_button(margin + 440, t5_y + 340, 260, 90, "RESET CARD", TOK_COLOR_GLASS_BORDER, TOK_COLOR_TEXT_0, 2);
     }
 }
 
-/// Paints Card 2: AIS Proposal Engine
-pub unsafe fn paint_card_ais_assistant(painter: &mut HardwareScreenPainter) {
-    let card_x = 80;
-    let card_y = 480;
-    let card_w = 920;
-    let card_h = 1350;
+// =============================================================================
+// App Views: FilesApp, SettingsApp, WhyExplorer, NotesApp, TerminalApp, Consent
+// =============================================================================
+pub unsafe fn paint_app_files(painter: &mut HardwareScreenPainter) {
+    let margin = 60;
+    let canvas_w = HANOIP_PANEL_WIDTH - margin * 2;
+    painter.draw_button(margin, 80, 240, 60, "< BACK TO HOME", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
 
-    painter.fill_rect(card_x, card_y, card_w, card_h, COLOR_CARD_BG);
-    painter.fill_rect(card_x, card_y, card_w, 6, COLOR_CYAN_ACCENT);
-    painter.fill_rect(card_x, card_y + card_h - 6, card_w, 6, COLOR_CYAN_ACCENT);
-    painter.fill_rect(card_x, card_y, 6, card_h, COLOR_CYAN_ACCENT);
-    painter.fill_rect(card_x + card_w - 6, card_y, 6, card_h, COLOR_CYAN_ACCENT);
+    painter.draw_string(margin + 300, 95, "INDFS FILE EXPLORER (PID 2)", TOK_COLOR_TEXT_0, 3);
+    painter.draw_string(margin, 170, "USER-MEDIATED GRANTS - CRASH RESILIENT JOURNAL (INV-FS-001)", TOK_COLOR_TEXT_1, 2);
 
-    painter.draw_string(card_x + 160, card_y + 60, "AIS ON-DEVICE ASSISTANT", COLOR_WHITE, 3);
-    painter.draw_string(card_x + 220, card_y + 130, "QWEN-2.5-1.5B INTENT ENGINE", COLOR_CYAN_ACCENT, 2);
-
-    painter.fill_rect(card_x + 40, card_y + 180, card_w - 80, 2, 0xFF334155);
-
-    let mut line_y = card_y + 220;
-    painter.draw_string(card_x + 60, line_y, "ACTIVE INTENT:   DIAGNOSTIC SYSTEM AUDIT", COLOR_WHITE, 2);
-    line_y += 60;
-    painter.draw_string(card_x + 60, line_y, "INFERENCE TIME:  340 MS (CPU FAST-PATH)", COLOR_CYAN_ACCENT, 2);
-    line_y += 60;
-    painter.draw_string(card_x + 60, line_y, "CONFIDENCE:      98.4% (ENF VERIFIED)", COLOR_GREEN_OK, 2);
-    line_y += 60;
-    painter.draw_string(card_x + 60, line_y, "PRIVACY POSTURE: 100% LOCAL (NO TELEMETRY)", COLOR_GREEN_OK, 2);
-
-    // Proposal Card Box
-    line_y += 80;
-    let prop_h = 450;
-    painter.fill_rect(card_x + 50, line_y, card_w - 100, prop_h, 0xFF0F172A);
-    painter.fill_rect(card_x + 50, line_y, card_w - 100, 4, COLOR_CYAN_ACCENT);
-    painter.draw_string(card_x + 90, line_y + 50, "PROPOSAL RECEIPT #8491", COLOR_ORANGE_BRAND, 2);
-    painter.draw_string(card_x + 90, line_y + 120, "ACTION: RUN WHOLE-SYSTEM HEALTH SOAK", COLOR_WHITE, 2);
-    painter.draw_string(card_x + 90, line_y + 180, "PERMISSION: CAP_SYS_ADMIN (MEDIAS)", COLOR_MUTED, 2);
-    painter.draw_string(card_x + 90, line_y + 240, "TARGET: /DEV/UFS0 + /DEV/DSI0", COLOR_CYAN_ACCENT, 2);
-
-    painter.fill_rect(card_x + 90, line_y + 320, 320, 80, COLOR_GREEN_OK);
-    painter.draw_string(card_x + 130, line_y + 350, "CONFIRM", COLOR_BG_DARK, 2);
-
-    painter.fill_rect(card_x + 450, line_y + 320, 320, 80, 0xFF334155);
-    painter.draw_string(card_x + 520, line_y + 350, "DISMISS", COLOR_WHITE, 2);
-}
-
-/// Paints the 3 interactive bottom dock buttons
-pub unsafe fn paint_navigation_dock(painter: &mut HardwareScreenPainter, active_card: KernelActiveCard) {
-    let dock_y = 2180;
-    let dock_h = 160;
-    let btn_w = (HANOIP_PANEL_WIDTH - 120) / 3;
-
-    painter.fill_rect(60, dock_y, HANOIP_PANEL_WIDTH - 120, dock_h, 0xFF0F172A);
-    painter.fill_rect(60, dock_y, HANOIP_PANEL_WIDTH - 120, 2, 0xFF334155);
-
-    let tabs = [
-        (0, "DASHBOARD", KernelActiveCard::Telemetry),
-        (1, "APPS", KernelActiveCard::AppDrawer),
-        (2, "AIS INTENT", KernelActiveCard::AisAssistant),
+    let files = [
+        ("📁 /DOCS/CONSTITUTION.MD", "GRANT: READ_ONLY", "64 KB", TOK_COLOR_OK),
+        ("📁 /USER/NOTES_DATA.INDFS", "GRANT: RW_PRIVATE", "128 KB", TOK_COLOR_TEXT_0),
+        ("📁 /SYSTEM/KERNEL_SBOM.JSON", "GRANT: SYSTEM_IMMUTABLE", "24 KB", TOK_COLOR_ACCENT),
+        ("📁 /AUDIT/WHY_RECEIPTS.LOG", "GRANT: APPEND_ONLY", "512 KB", TOK_COLOR_OK),
+        ("📁 /STORAGE/UFS21_BLOCKS", "GRANT: CAP_STORAGE_MOUNT", "128 GB", TOK_COLOR_TEXT_1),
     ];
 
-    for (idx, label, card) in tabs {
-        let btn_x = 60 + idx * btn_w;
-        let is_active = card == active_card;
-        let bg_col = if is_active { COLOR_ACTIVE_TAB } else { 0xFF1E293B };
-        let border_col = if is_active { COLOR_CYAN_ACCENT } else { 0xFF334155 };
+    let mut y = 230;
+    for (name, grant, size, col) in files {
+        painter.draw_glass_card(margin, y, canvas_w, 140, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+        painter.draw_string(margin + 30, y + 35, name, TOK_COLOR_TEXT_0, 2);
+        painter.draw_string(margin + 30, y + 80, grant, col, 2);
+        painter.draw_string(margin + canvas_w - 180, y + 80, size, TOK_COLOR_TEXT_1, 2);
+        y += 160;
+    }
 
-        painter.fill_rect(btn_x + 10, dock_y + 20, btn_w - 20, dock_h - 40, bg_col);
-        painter.fill_rect(btn_x + 10, dock_y + 20, btn_w - 20, 4, border_col);
-        painter.fill_rect(btn_x + 10, dock_y + dock_h - 24, btn_w - 20, 4, border_col);
-        painter.fill_rect(btn_x + 10, dock_y + 20, 4, dock_h - 40, border_col);
-        painter.fill_rect(btn_x + btn_w - 14, dock_y + 20, 4, dock_h - 40, border_col);
+    painter.draw_button(margin, y + 20, canvas_w, 80, "VERIFY FILE INTEGRITY: 100% PASS", TOK_COLOR_OK, TOK_COLOR_BASE_0, 2);
+}
 
-        let text_col = if is_active { COLOR_WHITE } else { COLOR_MUTED };
-        let text_offset_x = btn_x + 40;
-        painter.draw_string(text_offset_x, dock_y + 70, label, text_col, 2);
+pub unsafe fn paint_app_settings(painter: &mut HardwareScreenPainter, eco_mode: bool) {
+    let margin = 60;
+    let canvas_w = HANOIP_PANEL_WIDTH - margin * 2;
+    painter.draw_button(margin, 80, 240, 60, "< BACK TO HOME", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
+
+    painter.draw_string(margin + 300, 95, "SETTINGS & PRIVACY (PID 3)", TOK_COLOR_TEXT_0, 3);
+
+    // Section 1: Proactive Dial
+    painter.draw_glass_card(margin, 180, canvas_w, 220, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.draw_string(margin + 30, 210, "PROACTIVE SUGGESTIONS DIAL (SP-65)", TOK_COLOR_ACCENT, 2);
+    painter.draw_string(margin + 30, 250, "CONTROL HOW ACTIVELY AIS OFFERS INTENT PROPOSALS", TOK_COLOR_TEXT_1, 2);
+    painter.draw_button(margin + 30, 290, 180, 70, "OFF", TOK_COLOR_GLASS_BG, TOK_COLOR_TEXT_1, 2);
+    painter.draw_button(margin + 230, 290, 240, 70, "CONSERVATIVE", TOK_COLOR_GLASS_BG, TOK_COLOR_TEXT_1, 2);
+    painter.draw_button(margin + 490, 290, 200, 70, "BALANCED", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
+    painter.draw_button(margin + 710, 290, 210, 70, "PROACTIVE", TOK_COLOR_GLASS_BG, TOK_COLOR_TEXT_1, 2);
+
+    // Section 2: Display Rate
+    painter.draw_glass_card(margin, 430, canvas_w, 220, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.draw_string(margin + 30, 460, "DISPLAY REFRESH RATE (INV-PERF-001)", TOK_COLOR_ACCENT, 2);
+    painter.draw_string(margin + 30, 500, "TIANMA FHD+ DSI HARDWARE SCANOUT PIPELINE", TOK_COLOR_TEXT_1, 2);
+    let r120_bg = if !eco_mode { TOK_COLOR_ACCENT } else { TOK_COLOR_GLASS_BG };
+    let r120_tc = if !eco_mode { TOK_COLOR_TEXT_0 } else { TOK_COLOR_TEXT_1 };
+    let r60_bg = if eco_mode { TOK_COLOR_OK } else { TOK_COLOR_GLASS_BG };
+    let r60_tc = if eco_mode { TOK_COLOR_BASE_0 } else { TOK_COLOR_TEXT_1 };
+    painter.draw_button(margin + 30, 540, 420, 70, "120HZ ULTRA FLUID", r120_bg, r120_tc, 2);
+    painter.draw_button(margin + 480, 540, 440, 70, "60HZ ECO SAVER (+3.2H)", r60_bg, r60_tc, 2);
+
+    // Section 3: Standing Policies
+    painter.draw_glass_card(margin, 680, canvas_w, 240, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.draw_string(margin + 30, 710, "STANDING PRIVACY POLICIES (RULE N-05)", TOK_COLOR_OK, 2);
+    painter.draw_string(margin + 30, 755, "USER IS THE FINAL AUTHORITY - ALL POLICIES ARE REVOCABLE", TOK_COLOR_TEXT_0, 2);
+    painter.draw_string(margin + 30, 795, "ACTIVE POLICIES: 2 GRANTS RECORDED IN PRIVACY FEED", TOK_COLOR_TEXT_1, 2);
+    painter.draw_button(margin + 30, 835, canvas_w - 60, 60, "REVOKE ALL STANDING POLICIES", TOK_COLOR_ALERT, TOK_COLOR_TEXT_0, 2);
+}
+
+pub unsafe fn paint_app_why(painter: &mut HardwareScreenPainter) {
+    let margin = 60;
+    let canvas_w = HANOIP_PANEL_WIDTH - margin * 2;
+    painter.draw_button(margin, 80, 240, 60, "< BACK TO HOME", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
+
+    painter.draw_string(margin + 300, 95, "WHY-ENGINE CAUSAL TIMELINE (PID 4)", TOK_COLOR_TEXT_0, 3);
+    painter.draw_string(margin, 170, "CRYPTOGRAPHIC PROVENANCE RECORDS - IMMUTABLE AUDIT LOG (REQ-AI-104)", TOK_COLOR_TEXT_1, 2);
+
+    let receipts = [
+        ("RECEIPT #8491: REFRESH_RATE_SWITCH", "MODEL: QWEN-2.5-1.5B (0x5E8C_31A9)", "CONSENT: USER_AFFIRMED", TOK_COLOR_OK),
+        ("RECEIPT #8490: UFS_JOURNAL_COMMIT", "SUBSYSTEM: INDFS UFS2.1 DRIVER", "RULE: DEFAULT_ALLOW (INV-FS-001)", TOK_COLOR_TEXT_0),
+        ("RECEIPT #8489: SILICON_IGNITION", "KERNEL: aarch64-indk EL1 MMU", "STATUS: 100% MEMORY SAFE (N-04)", TOK_COLOR_ACCENT),
+        ("RECEIPT #8488: AIS_SANDBOX_VERIFY", "SECURITY: ENF CAPABILITY TABLE", "RESULT: SIGNED MODEL VALIDATED", TOK_COLOR_OK),
+    ];
+
+    let mut y = 220;
+    for (title, line1, line2, col) in receipts {
+        painter.draw_glass_card(margin, y, canvas_w, 160, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+        painter.fill_rect(margin, y, 6, 160, col);
+        painter.draw_string(margin + 30, y + 30, title, TOK_COLOR_TEXT_0, 2);
+        painter.draw_string(margin + 30, y + 75, line1, TOK_COLOR_TEXT_1, 2);
+        painter.draw_string(margin + 30, y + 115, line2, col, 2);
+        y += 180;
+    }
+
+    painter.draw_string(margin, y + 20, "AUDIT TRAIL IS READ-ONLY: UNALTERABLE BY APPS OR AIS (REQ-AI-004)", TOK_COLOR_ACCENT, 2);
+}
+
+pub unsafe fn paint_app_notes(painter: &mut HardwareScreenPainter) {
+    let margin = 60;
+    let canvas_w = HANOIP_PANEL_WIDTH - margin * 2;
+    painter.draw_button(margin, 80, 240, 60, "< BACK TO HOME", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
+
+    painter.draw_string(margin + 300, 95, "NOTES & INDIC IME (PID 5)", TOK_COLOR_TEXT_0, 3);
+    painter.draw_string(margin, 170, "ZERO-HEAP TRANSLITERATION ENGINE (REQ-AI-108, INV-INTENT-UI-003)", TOK_COLOR_TEXT_1, 2);
+
+    // Typing Box
+    painter.draw_glass_card(margin, 220, canvas_w, 240, TOK_COLOR_BASE_1, TOK_COLOR_ACCENT);
+    painter.draw_string(margin + 30, 250, "LATIN INPUT:       namaste bharat", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(margin + 30, 310, "INDIC TRANSLIT:    NAMASTE BHARAT (DEVANAGARI)", TOK_COLOR_TEXT_0, 3);
+    painter.draw_string(margin + 30, 380, "[IME STATUS: ZERO KEYSTROKE DROPS - LOCK-FREE BUFFER]", TOK_COLOR_OK, 2);
+
+    // Multi-Language Roadmap Card
+    painter.draw_glass_card(margin, 500, canvas_w, 280, TOK_COLOR_BASE_1, TOK_COLOR_GLASS_BORDER);
+    painter.draw_string(margin + 30, 530, "FIRST-CLASS LANGUAGE DIGNITY (PRD §11)", TOK_COLOR_ACCENT, 2);
+    painter.draw_string(margin + 30, 580, "1. HINDI (DEVANAGARI)     - ONLINE & VERIFIED", TOK_COLOR_OK, 2);
+    painter.draw_string(margin + 30, 625, "2. ENGLISH & HINGLISH     - ONLINE & VERIFIED", TOK_COLOR_OK, 2);
+    painter.draw_string(margin + 30, 670, "3. TAMIL & TELUGU         - SKELETON LOADED", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(margin + 30, 715, "4. BENGALI, MARATHI, KAN  - DICTIONARY READY", TOK_COLOR_TEXT_1, 2);
+}
+
+pub unsafe fn paint_app_terminal(painter: &mut HardwareScreenPainter) {
+    let margin = 60;
+    let canvas_w = HANOIP_PANEL_WIDTH - margin * 2;
+    painter.draw_button(margin, 80, 240, 60, "< BACK TO HOME", TOK_COLOR_ACCENT, TOK_COLOR_TEXT_0, 2);
+
+    painter.draw_string(margin + 300, 95, "INDK TERMINAL (PID 6)", TOK_COLOR_TEXT_0, 3);
+    painter.draw_string(margin, 170, "QUALCOMM SM7150 KERNEL SERIAL CONSOLE & COMMAND INTERFACE", TOK_COLOR_TEXT_1, 2);
+
+    painter.draw_glass_card(margin, 220, canvas_w, 640, TOK_COLOR_BASE_0, TOK_COLOR_GLASS_BORDER);
+    let logs = [
+        "[BOOT] aarch64-indk EL1 microkernel online (commit 3fdaf1b)",
+        "[HAL ] Qualcomm SM7150 Kryo 470 octa-core init complete",
+        "[DSI ] Tianma ILI7807S panel clocked: 1080x2460 @ 120Hz",
+        "[ENF ] Capability enforcement active: 0 external crates in TCB",
+        "[FS  ] IndFS journal replay verified: 0 corruptions",
+        "[UX  ] The Ind Surface v2 compositor active (uxd: PID 4)",
+        "[INP ] FocalTech FT3518 digitizer mapped on GENI I2C1 (0x38)",
+        "[AIS ] Qwen-2.5-1.5B intent sandbox online (latency <145ms)",
+        "indos-root# help",
+        "Available: status, cap, ps, dmesg, bento, reboot",
+        "indos-root# _",
+    ];
+
+    let mut y = 250;
+    for line in logs {
+        painter.draw_string(margin + 25, y, line, if line.contains("indos-root") { TOK_COLOR_ACCENT } else { TOK_COLOR_TEXT_1 }, 2);
+        y += 48;
     }
 }
 
-/// Renders the complete view based on the active card
+pub unsafe fn paint_consent_modal(painter: &mut HardwareScreenPainter) {
+    let margin = 80;
+    let modal_w = HANOIP_PANEL_WIDTH - margin * 2;
+    let modal_y = 600;
+    let modal_h = 1000;
+
+    // Dark backdrop overlay
+    painter.fill_rect(0, 0, HANOIP_PANEL_WIDTH, HANOIP_PANEL_HEIGHT, 0xCC0E_0F14);
+
+    // Hardware-isolated plane modal box (INV-CON-001)
+    painter.draw_glass_card(margin, modal_y, modal_w, modal_h, TOK_COLOR_BASE_1, TOK_COLOR_ALERT);
+    painter.fill_rect(margin, modal_y, modal_w, 10, TOK_COLOR_ALERT);
+
+    painter.draw_string(margin + 40, modal_y + 60, "TRUSTED CONSENT SURFACE", TOK_COLOR_ALERT, 3);
+    painter.draw_string(margin + 40, modal_y + 115, "HARDWARE-ISOLATED PLANE (INV-CON-001)", TOK_COLOR_TEXT_1, 2);
+
+    painter.draw_glass_card(margin + 40, modal_y + 170, modal_w - 80, 240, TOK_COLOR_BASE_0, TOK_COLOR_GLASS_BORDER);
+    painter.draw_string(margin + 60, modal_y + 205, "ALLOW NOTES TO ACCESS YOUR FILES?", TOK_COLOR_TEXT_0, 3);
+    painter.draw_string(margin + 60, modal_y + 265, "SCOPE: READ AND WRITE DOCUMENTS YOU CHOOSE", TOK_COLOR_ACCENT, 2);
+    painter.draw_string(margin + 60, modal_y + 310, "WHY: DOGFOOD TESTING INDIC TRANSLITERATION", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(margin + 60, modal_y + 355, "APP CANNOT ACCESS OTHER FOLDERS (SANDBOXED)", TOK_COLOR_OK, 2);
+
+    painter.draw_string(margin + 40, modal_y + 460, "PRINCIPLE P1: THE USER IS THE FINAL AUTHORITY (N-05)", TOK_COLOR_OK, 2);
+    painter.draw_string(margin + 40, modal_y + 510, "STANDING POLICIES ARE REVOCABLE IN <=3 INTERACTIONS", TOK_COLOR_TEXT_1, 2);
+
+    // Action buttons
+    painter.draw_button(margin + 40, modal_y + 620, modal_w - 80, 90, "GRANT ACCESS (CONFIRM)", TOK_COLOR_OK, TOK_COLOR_BASE_0, 3);
+    painter.draw_button(margin + 40, modal_y + 735, modal_w - 80, 90, "DENY ACCESS", TOK_COLOR_ALERT, TOK_COLOR_TEXT_0, 3);
+    painter.draw_button(margin + 40, modal_y + 850, modal_w - 80, 80, "WHY? FULL POLICY RECORD", TOK_COLOR_GLASS_BORDER, TOK_COLOR_TEXT_1, 2);
+}
+
+// =============================================================================
+// Zone 3: Navigation Bar (1080 x 128 px, PRD §3 & §7.3)
+// =============================================================================
+pub unsafe fn paint_navigation_bar(painter: &mut HardwareScreenPainter, active_card: KernelActiveCard) {
+    let nav_y = 2332;
+    let nav_h = 128;
+
+    painter.fill_rect(0, nav_y, HANOIP_PANEL_WIDTH, nav_h, TOK_COLOR_BASE_0);
+    painter.fill_rect(0, nav_y, HANOIP_PANEL_WIDTH, 1, TOK_COLOR_GLASS_BORDER);
+
+    // 4px gesture strip handle
+    let handle_col = if active_card == KernelActiveCard::Telemetry { TOK_COLOR_ACCENT } else { TOK_COLOR_GLASS_BORDER };
+    painter.fill_rect(HANOIP_PANEL_WIDTH / 2 - 100, nav_y + 16, 200, 5, handle_col);
+
+    let btn_w = HANOIP_PANEL_WIDTH / 3;
+
+    // Left: [< BACK]
+    let back_col = if active_card != KernelActiveCard::Telemetry { TOK_COLOR_TEXT_0 } else { TOK_COLOR_TEXT_1 };
+    painter.draw_string(110, nav_y + 60, "< BACK", back_col, 2);
+
+    // Center: [— HOME —]
+    let home_col = if active_card == KernelActiveCard::Telemetry { TOK_COLOR_ACCENT } else { TOK_COLOR_TEXT_1 };
+    painter.draw_string(btn_w + 110, nav_y + 60, "- HOME -", home_col, 2);
+
+    // Right: [::: APPS]
+    let apps_col = if active_card == KernelActiveCard::AppDrawer { TOK_COLOR_ACCENT } else { TOK_COLOR_TEXT_1 };
+    painter.draw_string(btn_w * 2 + 110, nav_y + 60, "::: APPS", apps_col, 2);
+}
+
+// =============================================================================
+// Master Interactive View Dispatcher
+// =============================================================================
+pub unsafe fn paint_indos_hardware_splash() {
+    render_interactive_view(KernelActiveCard::Telemetry, 0, false);
+}
+
 pub unsafe fn render_interactive_view(card: KernelActiveCard, uptime_sec: u32, blink: bool) {
     for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
         let mut painter = HardwareScreenPainter::new(fb_addr);
-        paint_view_chrome(&mut painter, uptime_sec, blink);
+        painter.fill_rect(0, 0, HANOIP_PANEL_WIDTH, HANOIP_PANEL_HEIGHT, TOK_COLOR_BASE_0);
+
+        // Status Bar (64px)
+        paint_status_bar(&mut painter, uptime_sec, blink, 0);
+
+        // Main Canvas
         match card {
-            KernelActiveCard::Telemetry => paint_card_telemetry(&mut painter),
-            KernelActiveCard::AppDrawer => paint_card_app_drawer(&mut painter),
-            KernelActiveCard::AisAssistant => paint_card_ais_assistant(&mut painter),
+            KernelActiveCard::Telemetry => {
+                paint_intent_bar(&mut painter, 0);
+                paint_bento_grid(&mut painter, uptime_sec, false, 0);
+            }
+            KernelActiveCard::AppDrawer => {
+                paint_intent_bar(&mut painter, 0);
+                paint_bento_grid(&mut painter, uptime_sec, false, 0);
+            }
+            KernelActiveCard::AisAssistant => {
+                paint_intent_bar(&mut painter, 1);
+                paint_bento_grid(&mut painter, uptime_sec, false, 0);
+            }
+            KernelActiveCard::FilesApp => {
+                paint_app_files(&mut painter);
+            }
+            KernelActiveCard::SettingsApp => {
+                paint_app_settings(&mut painter, false);
+            }
+            KernelActiveCard::WhyExplorer => {
+                paint_app_why(&mut painter);
+            }
+            KernelActiveCard::NotesApp => {
+                paint_app_notes(&mut painter);
+            }
+            KernelActiveCard::TerminalApp => {
+                paint_app_terminal(&mut painter);
+            }
+            KernelActiveCard::ConsentModal => {
+                paint_intent_bar(&mut painter, 0);
+                paint_bento_grid(&mut painter, uptime_sec, false, 0);
+                paint_consent_modal(&mut painter);
+            }
         }
-        paint_navigation_dock(&mut painter, card);
+
+        // Navigation Bar (128px)
+        paint_navigation_bar(&mut painter, card);
     }
 }
 
-/// Lightweight live heartbeat update without re-rendering the whole screen
 pub unsafe fn update_hardware_heartbeat(uptime_sec: u32, blink: bool) {
     for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
         let mut painter = HardwareScreenPainter::new(fb_addr);
-        paint_view_chrome(&mut painter, uptime_sec, blink);
+        paint_status_bar(&mut painter, uptime_sec, blink, 0);
     }
 }

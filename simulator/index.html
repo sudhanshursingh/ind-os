@@ -125,104 +125,172 @@
               </div>
             </div>
 
-            <!-- LAYER 3: Ind OS Shell v2 Interactive Surface -->
+            <!-- LAYER 3: Ind OS Shell v2 Interactive Surface (PRD-001 Compliant) -->
             <div class="screen-layer hidden" id="layer-shell">
-              <!-- System Status Bar -->
-              <div class="status-bar">
-                <span class="status-time" id="status-clock">12:30</span>
-                <div class="status-icons">
-                  <span class="status-icon" title="Sovereign Shield Active">🛡️</span>
-                  <span class="status-icon" title="5GHz Wi-Fi Connected">📶</span>
-                  <span class="status-icon" id="status-battery-icon" title="Battery 88%">🔋 88%</span>
+              <!-- Physical Zone 1: Status Bar (1080 x 64 px equivalent) -->
+              <div class="status-bar" id="shell-status-bar">
+                <div class="status-bar-left">
+                  <span class="gaja-status-glyph" id="gaja-status-indicator" title="Gaja State: Calm / Resting">🐘</span>
+                  <span class="status-time" id="status-clock">12:30</span>
+                </div>
+                <div class="status-bar-right">
+                  <span class="status-icon enf-beacon" id="status-enf-beacon" title="ENF Consent Beacon (Hardware Isolated)">🛡️</span>
+                  <span class="status-icon" title="5GHz Wi-Fi (WCN3990)">📶</span>
+                  <span class="status-icon status-battery" id="status-battery-icon" title="PMIC Fuel Gauge: 4050mV (88%)">🔋 88%</span>
                 </div>
               </div>
 
-              <!-- Main Shell Surface -->
-              <div class="shell-content">
-                <!-- Ambient Greeting & Date -->
-                <div class="ambient-header">
-                  <div class="ambient-date" id="ambient-date">Tuesday, Oct 27</div>
-                  <div class="ambient-location">New Delhi • 28°C Clear</div>
-                  <div class="constitutional-banner">
-                    <span class="banner-dot"></span>
-                    <span>Rule N-01 Enforced: Zero External Crates</span>
+              <!-- Physical Zone 2: Main Canvas (1080 x 2268 px equivalent) -->
+              <div class="shell-content" id="shell-canvas">
+                
+                <!-- Section 6.1: Central Intent Bar -->
+                <div class="intent-bar-wrapper">
+                  <div class="lang-selector-pill">
+                    <button class="lang-pill-btn active" data-lang="en">EN</button>
+                    <button class="lang-pill-btn" data-lang="hi">HI</button>
+                    <button class="lang-pill-btn" data-lang="ta">TA</button>
+                  </div>
+                  <div class="intent-capsule">
+                    <span class="intent-mic-icon" id="btn-intent-mic" title="Push-to-Talk (PTT Voice Intent)">🎙️</span>
+                    <input type="text" id="intent-input" placeholder="What would you like Ind OS to do?" autocomplete="off">
+                    <button id="btn-intent-send" class="intent-send-btn" title="Dispatch Intent">➔</button>
                   </div>
                 </div>
 
-                <!-- Indic Language Selector -->
-                <div class="lang-selector">
-                  <button class="lang-btn active" data-lang="en">English</button>
-                  <button class="lang-btn" data-lang="hi">हिन्दी</button>
-                  <button class="lang-btn" data-lang="ta">தமிழ்</button>
-                </div>
-
-                <!-- Natural-Language Intent Search Bar -->
-                <div class="intent-search-box">
-                  <span class="intent-search-icon">🔍</span>
-                  <input type="text" id="intent-input" placeholder="What would you like Ind OS to do?" autocomplete="off">
-                  <button id="btn-intent-send" class="intent-send-btn">➔</button>
-                </div>
-
-                <!-- Proactive Proposal Cards with Why-Receipts -->
-                <div class="proposal-cards-stack" id="proposals-container">
-                  <div class="proposal-card">
-                    <div class="card-header">
-                      <span class="card-icon">⚡</span>
-                      <span class="card-title" id="card-1-title">Optimize Refresh Rate</span>
-                      <span class="confidence-pill">94% match</span>
+                <!-- Section 6.2: Adaptive Bento Grid -->
+                <div class="bento-grid-container">
+                  
+                  <!-- Bento Tile 1 (2x1): Ambient Card -->
+                  <div class="bento-tile bento-span-2 ambient-tile">
+                    <div class="ambient-tile-header">
+                      <div>
+                        <div class="ambient-date" id="ambient-date">Tuesday, Oct 27</div>
+                        <div class="ambient-location">New Delhi • 28°C Clear</div>
+                      </div>
+                      <div class="gaja-mascot-card">
+                        <span class="gaja-avatar">🐘</span>
+                        <span class="gaja-badge">Gaja v2</span>
+                      </div>
                     </div>
-                    <p class="card-desc" id="card-1-desc">Panel is currently at 120Hz. Switch to 60Hz Eco Mode to extend 6000mAh battery life by 3.2 hours?</p>
-                    <div class="card-actions">
-                      <button class="card-btn primary" id="btn-card-action">Apply 60Hz</button>
-                      <button class="card-btn secondary" id="btn-card-dismiss">Dismiss</button>
-                      <button class="card-btn why-token-btn" id="btn-card-why" title="Cryptographic Why-Receipt">Why?</button>
+                    <div class="constitutional-banner">
+                      <span class="banner-dot"></span>
+                      <span>Rule N-01 Enforced: Zero External Crates</span>
                     </div>
                   </div>
-                </div>
 
-                <!-- Quick Hardware Toggles Grid -->
-                <div class="quick-toggles-grid">
-                  <button class="quick-tile active" id="tile-refresh"><span class="tile-icon">⚡</span><span class="tile-label">120Hz</span></button>
-                  <button class="quick-tile active" id="tile-wifi"><span class="tile-icon">📶</span><span class="tile-label">Wi-Fi</span></button>
-                  <button class="quick-tile active" id="tile-bt"><span class="tile-icon">🎧</span><span class="tile-label">Audio</span></button>
-                  <button class="quick-tile active" id="tile-shield"><span class="tile-icon">🛡️</span><span class="tile-label">Privacy</span></button>
-                </div>
+                  <!-- Bento Tile 2 (1x1): PMIC Battery Fuel Gauge -->
+                  <div class="bento-tile bento-span-1 battery-tile" id="tile-battery">
+                    <div class="tile-label-row">
+                      <span class="tile-icon">🔋</span>
+                      <span class="tile-header-text">Battery</span>
+                    </div>
+                    <div class="battery-metric-large">88%</div>
+                    <div class="tile-subtext">4050 mV • 6000mAh</div>
+                    <div class="tile-status-tag ok">Normal (36.8°C)</div>
+                  </div>
 
-                <!-- Core Apps Dock -->
-                <div class="apps-dock">
-                  <button class="dock-app-icon" id="app-terminal" title="Ind OS Interactive Terminal">
-                    <span class="app-glyph">💻</span>
-                    <span class="app-label">Terminal</span>
-                  </button>
-                  <button class="dock-app-icon" id="app-settings" title="Hardware Settings & PMIC">
-                    <span class="app-glyph">⚙️</span>
-                    <span class="app-label">Settings</span>
-                  </button>
-                  <button class="dock-app-icon" id="app-sensors" title="Unified Sensor Hub">
-                    <span class="app-glyph">🧭</span>
-                    <span class="app-label">Sensors</span>
-                  </button>
-                  <button class="dock-app-icon" id="app-why" title="Why-Engine Causal Explorer">
-                    <span class="app-glyph">🔍</span>
-                    <span class="app-label">Why</span>
-                  </button>
-                </div>
-              </div>
+                  <!-- Bento Tile 3 (1x1): Sovereign Security & Integrity -->
+                  <div class="bento-tile bento-span-1 security-tile" id="tile-security">
+                    <div class="tile-label-row">
+                      <span class="tile-icon">🛡️</span>
+                      <span class="tile-header-text">Sovereignty</span>
+                    </div>
+                    <div class="security-metric-large">G10</div>
+                    <div class="tile-subtext">0 TCB Crates (N-01)</div>
+                    <div class="tile-status-tag ok">EDL 9008 Verified</div>
+                  </div>
 
-              <!-- In-Device Interactive Modal (Terminal / Settings / Sensors / Why) -->
+                  <!-- Bento Tile 4 (2x1): Core Native Apps Row (§10) -->
+                  <div class="bento-tile bento-span-2 apps-tile">
+                    <div class="apps-grid-row" style="flex-wrap: wrap; gap: 8px;">
+                      <button class="core-app-btn" id="app-phone" title="PhoneApp (Voice Calls & Emergency - REQ-APP-PHONE-001)">
+                        <span class="app-icon-wrap" style="background: rgba(76, 217, 166, 0.2); color: #4CD9A6;">📞</span>
+                        <span class="app-btn-label">Phone</span>
+                      </button>
+                      <button class="core-app-btn" id="app-messages" title="MessagesApp (SMS/MMS Engine - REQ-APP-MSG-001)">
+                        <span class="app-icon-wrap" style="background: rgba(124, 108, 255, 0.2); color: #7C6CFF;">💬</span>
+                        <span class="app-btn-label">Messages</span>
+                      </button>
+                      <button class="core-app-btn" id="app-files" title="FilesApp (IndFS Explorer)">
+                        <span class="app-icon-wrap bg-blue">📁</span>
+                        <span class="app-btn-label">Files</span>
+                      </button>
+                      <button class="core-app-btn" id="app-settings" title="SettingsApp (Privacy & Proactive Dial)">
+                        <span class="app-icon-wrap bg-slate">⚙️</span>
+                        <span class="app-btn-label">Settings</span>
+                      </button>
+                      <button class="core-app-btn" id="app-why" title="WhyExplorerApp (Causal Timeline)">
+                        <span class="app-icon-wrap bg-purple">🔍</span>
+                        <span class="app-btn-label">Why?</span>
+                      </button>
+                      <button class="core-app-btn" id="app-notes" title="NotesApp (Indic IME Transliteration)">
+                        <span class="app-icon-wrap bg-amber">📝</span>
+                        <span class="app-btn-label">Notes</span>
+                      </button>
+                      <button class="core-app-btn" id="app-terminal" title="TerminalApp (Microkernel CLI)">
+                        <span class="app-icon-wrap bg-emerald">💻</span>
+                        <span class="app-btn-label">Terminal</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Bento Tile 5 (2x2): Proactive AIS Proposal Card with SUGGESTION Watermark -->
+                  <div class="bento-tile bento-span-2 proposal-bento-tile" id="proposal-card-container">
+                    <div class="suggestion-watermark">SUGGESTION</div>
+                    <div class="proposal-card-content">
+                      <div class="proposal-header">
+                        <div class="proposal-type-badge">
+                          <span class="proposal-icon">⚡</span>
+                          <span class="proposal-title" id="card-1-title">Optimize Refresh Rate</span>
+                        </div>
+                        <span class="confidence-pill" title="REQ-AI-002 Plain-Language Confidence">I'm fairly sure (94%)</span>
+                      </div>
+                      <p class="proposal-description" id="card-1-desc">
+                        Panel is currently running at 120Hz. Switching to 60Hz Eco Mode will extend the 6000mAh battery life by approximately 3.2 hours.
+                      </p>
+                      <div class="proposal-action-row">
+                        <button class="proposal-btn apply-btn" id="btn-card-action">Apply 60Hz</button>
+                        <button class="proposal-btn dismiss-btn" id="btn-card-dismiss">Dismiss</button>
+                        <button class="proposal-btn why-btn" id="btn-card-why" title="Inspect Cryptographic Why-Receipt">Why? Receipt</button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div><!-- /bento-grid-container -->
+
+              </div><!-- /shell-content -->
+
+              <!-- App Window Container with Standard AppChrome (REQ-APP-COMMON-006, INV-APP-CHROME-001) -->
               <div class="device-modal hidden" id="device-modal">
-                <div class="modal-header">
-                  <span class="modal-title" id="device-modal-title">Terminal</span>
-                  <button class="modal-close-btn" id="btn-close-device-modal">✕</button>
+                <div class="app-chrome-header" id="app-chrome">
+                  <div class="chrome-left-actions">
+                    <button class="chrome-back-btn" id="btn-chrome-back" title="Back (INV-APP-STACK-001)">
+                      <span>‹</span>
+                      <span>Back</span>
+                    </button>
+                    <div class="chrome-title-wrap">
+                      <span class="chrome-icon" id="device-modal-icon">⚙️</span>
+                      <span class="chrome-title" id="device-modal-title">App View</span>
+                      <span class="chrome-badge" id="device-modal-badge">Phase 11</span>
+                    </div>
+                  </div>
+                  <div class="chrome-action-tray">
+                    <button class="chrome-action-btn" id="btn-chrome-action" title="Window Info">ℹ️</button>
+                    <button class="modal-close-btn" id="btn-close-device-modal" title="Close Window (on_terminate)">✕</button>
+                  </div>
                 </div>
                 <div class="modal-body" id="device-modal-body">
                   <!-- Dynamic App View Content -->
                 </div>
               </div>
 
-              <!-- Virtual Android / Gesture Navigation Bar -->
-              <div class="nav-bar-pill">
-                <div class="nav-pill-handle" id="nav-home-handle"></div>
+              <!-- Physical Zone 3: Navigation Bar (1080 x 128 px equivalent) -->
+              <div class="navigation-bar" id="shell-nav-bar">
+                <button class="nav-key" id="btn-nav-back" title="Go Back">◀ BACK</button>
+                <div class="nav-home-pill-wrap" id="nav-home-wrap" title="Go Home">
+                  <div class="nav-pill-handle"></div>
+                </div>
+                <button class="nav-key" id="btn-nav-consent" title="Trigger Consent Modal">🛡️ CONSENT</button>
               </div>
             </div>
 

@@ -70,27 +70,34 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
             let current_second = cntpct / 19_200_000;
             let blink = ((cntpct / 9_600_000) % 2) == 1;
 
+            // Actively poll physical hardware touch registers with 15ms debouncing and 200ms cooldown
+            let is_touching = touch_harness.poll_hardware(PLATFORM == "hanoip", cntpct, current_card);
+            unsafe {
+                hal::platform::hanoip_display::set_hardware_touch_indicator(is_touching);
+            }
+
+            // Process normalized touch events
+            if let Some(touch_pt) = touch_harness.pop_event() {
+                if touch_pt.action == hal::KernelTouchAction::Down || touch_pt.action == hal::KernelTouchAction::Up {
+                    if let Ok(Some(_action)) = shell_engine.handle_tap(touch_pt.x, touch_pt.y, hal::KERNEL_CAP_INTERACTIVE_SHELL) {
+                        let new_card = shell_engine.active_card();
+                        if new_card != current_card {
+                            current_card = new_card;
+                            unsafe {
+                                hal::platform::hanoip_display::render_interactive_view(current_card, current_second as u32, blink);
+                            }
+                        }
+                    }
+                }
+            }
+
             if current_second != last_second {
                 last_second = current_second;
                 shell_engine.tick_heartbeat(current_second as u32);
 
-                // Auto-advance through interactive cards every 8 seconds if no touch
-                let card_idx = ((current_second / 8) % 3) as u8;
-                let next_card = match card_idx {
-                    0 => hal::KernelActiveCard::Telemetry,
-                    1 => hal::KernelActiveCard::AppDrawer,
-                    _ => hal::KernelActiveCard::AisAssistant,
-                };
-
-                if next_card != current_card {
-                    current_card = next_card;
-                    unsafe {
-                        hal::platform::hanoip_display::render_interactive_view(current_card, current_second as u32, blink);
-                    }
-                } else {
-                    unsafe {
-                        hal::platform::hanoip_display::update_hardware_heartbeat(current_second as u32, blink);
-                    }
+                // Live heartbeat update in status bar (zero screen flicker)
+                unsafe {
+                    hal::platform::hanoip_display::update_hardware_heartbeat(current_second as u32, blink);
                 }
             }
 

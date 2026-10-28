@@ -26,7 +26,13 @@ pub use intent_ui::{
 pub use app_framework::{
     AppFrameworkError, AppFrameworkEngine, AppManifest, SandboxedApp, UserMediationGrant,
     DEFAULT_APP_MEMORY_BUDGET_KB, MAX_SANDBOXED_APPS,
-};pub mod accessibility;
+};
+pub mod app_framework_ext;
+pub use app_framework_ext::{
+    AppBackStack, AppChrome, AppFrameworkExtEngine, AppLifecycleError, AppLifecycleEvent,
+    AppLifecycleState, AppWindowContext, MAX_ACTIVE_WINDOWS, MAX_BACK_STACK_DEPTH,
+};
+pub mod accessibility;
 pub use accessibility::{
     A11yError, A11yNode, A11yRole, AccessibilitySubsystem, MagnifierService, ScreenReaderEngine,
     SwitchAccessEngine, MAX_A11Y_NODES, MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT,
@@ -123,6 +129,99 @@ pub mod beta_telemetry;
 pub use beta_telemetry::{
     BetaTelemetryEngine, LocalTelemetryEvent, TelemetryConsentStatus, TelemetryError,
     MAX_LOCAL_EVENTS,
+};
+
+pub mod share_sheet;
+pub use share_sheet::{
+    BuiltinTarget, MimeType, PendingShare, ShareError, SharePayload, ShareSheetEngine, ShareTarget,
+    CAP_SHARE_RECEIVE, CAP_SHARE_SEND, MAX_INLINE_PAYLOAD, MAX_MIME_LEN,
+    MAX_SHARE_SESSIONS, MAX_SHARE_TARGETS,
+};
+
+pub mod intent_registry;
+pub use intent_registry::{
+    Intent, IntentHandler, IntentRegistry, IntentRegistryError, IntentType, PendingIntent,
+    MAX_INTENT_HANDLERS, MAX_INTENT_URI_LEN, MAX_PENDING_INTENTS,
+};
+
+pub mod clipboard;
+pub use clipboard::{
+    ClipReadRequest, ClipSensitivity, ClipboardEntry, ClipboardError, ClipboardStore,
+    CAP_CLIPBOARD_READ, CAP_CLIPBOARD_WRITE, MAX_CLIP_PAYLOAD, MAX_CLIP_READ_REQUESTS,
+    MAX_CLIPBOARD_ENTRIES, SENSITIVE_TIMEOUT_TICKS,
+};
+
+pub mod global_search;
+pub use global_search::{
+    GlobalSearchEngine, SearchEntry, SearchError, SearchOptIn, SearchResult, SearchSourceKind,
+    CAP_SEARCH_INDEX, CAP_SEARCH_QUERY, MAX_INDEX_ENTRIES, MAX_OPT_INS, MAX_QUERY_RESULTS,
+    MAX_TERM_LEN,
+};
+
+pub mod lock_screen;
+pub use lock_screen::{
+    AisKillSwitchState, ConsentCard, ConsentVerdict, LockClock, LockScreenEngine, LockScreenError,
+    LockState, MediaPlayState, MediaSession, PlaneId, MAX_CONSENT_CARDS,
+};
+
+pub mod notification_center;
+pub use notification_center::{
+    AppGroup, ConsentReceipt, DndState, NcNotification, NotifCenterError, NotifPriority,
+    NotificationCenterEngine, ShadeState, CAP_NOTIFY_POST, CAP_NOTIFY_READ, MAX_APP_GROUPS,
+    MAX_CONSENT_RECEIPTS, MAX_NC_NOTIFICATIONS, MAX_NOTIF_BODY_LEN, MAX_NOTIF_TITLE_LEN,
+};
+
+pub mod quick_settings;
+pub use quick_settings::{
+    QsAisMode, QsError, QsExpansionState, QsPowerMode, QsToggleId, QuickSettingsEngine,
+    QuickSettingsState, CAP_QUICK_SETTINGS_READ, CAP_QUICK_SETTINGS_WRITE, SENSOR_CAM_ACTIVE,
+    SENSOR_LOC_ACTIVE, SENSOR_MIC_ACTIVE,
+};
+
+pub mod recents;
+pub use recents::{
+    RecentsCarouselEngine, RecentsError, RecentsTask, ThumbnailDescriptor, CAP_RECENTS_MANAGE,
+    MAX_RECENTS_TASKS,
+};
+
+pub mod notification_discipline;
+pub use notification_discipline::{
+    AisSystemState, DisciplineError, KillSwitchOrigin, NotificationDisciplineEngine,
+    NotificationRule, NotificationVerdict, CAP_NOTIFY_RULE_WRITE, MAX_NOTIFICATION_RULES,
+};
+
+pub mod phone_call;
+pub use phone_call::{
+    AudioRoute, CallState, InCallSession, PhoneCallEngine, PhoneCallError, CAP_APP_PHONE_CALLS,
+    EMERGENCY_NUMBERS, MAX_DTMF_BUFFER, MAX_PHONE_NUMBER_LEN,
+};
+
+pub mod phone_mgmt;
+pub use phone_mgmt::{
+    CallDirection, CallLogRecord, CallProposalCard, DualSimConfig, PhoneMgmtEngine,
+    PhoneMgmtError, ScamShieldVerdict, SimSlot, SpeedDialEntry, CAP_PHONE_HISTORY_READ,
+    CAP_PHONE_HISTORY_WRITE, MAX_BLOCKLIST_ENTRIES, MAX_CALL_LOG_ENTRIES, MAX_SPEED_DIAL_SLOTS,
+};
+
+pub mod phone_audio;
+pub use phone_audio::{
+    CellularAudioEngine, CellularPcmStats, DspFilterConfig, PcmCodecFormat, PhoneAudioError,
+    StressTestReport, VoicemailConfig, VoicemailMwi, DEFAULT_VOICEMAIL_NUMBER,
+    MAX_VOICEMAIL_NUM_LEN,
+};
+
+pub mod messages_core;
+pub use messages_core::{
+    ConversationThread, DeliveryStatus, MessageDirection, MessagesCoreError, MessagesEngine,
+    SmsMessage, CAP_APP_SMS_RECEIVE, CAP_APP_SMS_SEND, MAX_ADDRESS_LEN, MAX_MESSAGES_PER_THREAD,
+    MAX_RETRY_ATTEMPTS, MAX_SMS_BODY_LEN, MAX_THREADS,
+};
+
+pub mod messages_suraksha;
+pub use messages_suraksha::{
+    AttachmentDescriptor, DeviceCipherEnvelope, MessagesSurakshaEngine, MessagesSurakshaError,
+    OtpDescriptor, SmsScamVerdict, CAP_ATTACHMENT_MEDIATE, MAX_ENVELOPE_LEN,
+    SCREEN_SHARE_BLACKOUT_STR,
 };
 
 pub mod boot_animation;

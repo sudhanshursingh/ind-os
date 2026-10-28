@@ -8,9 +8,15 @@ pub const CAP_INTERACTIVE_SHELL: u64 = 0x0000_0000_0000_0800;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActiveCard {
-    Telemetry,
-    AppDrawer,
-    AisAssistant,
+    Telemetry,    // Bento Home
+    AppDrawer,    // Core Apps
+    AisAssistant, // AIS Intent
+    FilesApp,
+    SettingsApp,
+    WhyExplorer,
+    NotesApp,
+    TerminalApp,
+    ConsentModal,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -20,6 +26,12 @@ pub enum AppAction {
     LaunchFilesystem,
     LaunchAis,
     LaunchEditor,
+    OpenWhyExplorer,
+    OpenConsentModal,
+    ReturnHome,
+    ApplyEco60Hz,
+    DismissProposal,
+    SwitchLanguage(u8),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
