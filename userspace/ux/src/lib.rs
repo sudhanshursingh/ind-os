@@ -224,6 +224,23 @@ pub use messages_suraksha::{
     SCREEN_SHARE_BLACKOUT_STR,
 };
 
+pub mod messages_mms;
+pub use messages_mms::{
+    GroupConversation, GroupReplyMode, MessagesMmsEngine, MessagesMmsError,
+    MessageTransportProtocol, MmsMessage, MmsPart, RcsSessionState, CAP_APP_MMS_RECEIVE,
+    CAP_APP_MMS_SEND, MAX_GROUPS, MAX_GROUP_PARTICIPANTS, MAX_MMS_MESSAGES, MAX_MMS_PARTS,
+    MAX_MMS_PART_DATA_LEN, MAX_SUBJECT_LEN,
+};
+
+pub mod messages_search;
+pub use messages_search::{
+    IndexedMessage, MessageProposalCard, MessagesSearchEngine, MessagesSearchError,
+    OfflineQueueItem, ProposalCardState, SearchResultEntry, SearchResultSet,
+    CAP_AIS_MSG_PROPOSAL, CAP_APP_MSG_SEARCH, MAX_INDEXED_MESSAGES,
+    MAX_OFFLINE_QUEUE_ENTRIES, MAX_PROPOSAL_CARDS, MAX_SEARCH_RESULTS,
+    MAX_SEARCH_SNIPPET_LEN, SEARCH_LATENCY_BUDGET_US,
+};
+
 pub mod boot_animation;
 pub use boot_animation::{
     BootAnimStage, BootAnimationEngine, MascotTransform, COLOR_ANIM_BG, COLOR_CYAN_CIRCUIT,
