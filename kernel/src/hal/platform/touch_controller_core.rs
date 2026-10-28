@@ -12,18 +12,35 @@ pub const KERNEL_TOUCH_I2C_SLAVE_ADDR: u8 = 0x38;
 pub const KERNEL_TOUCH_QUEUE_CAPACITY: usize = 32;
 
 // Physical hardware TLMM GPIO registers for Motorola Moto G60 (Qualcomm SM7150 / hanoip)
-// TLMM Base: 0x0340_0000.
-// GPIO 8: Touchscreen Reset Line (ts_reset)
-pub const TLMM_GPIO_CFG_8: usize = 0x0340_8000;
-pub const TLMM_GPIO_IN_OUT_8: usize = 0x0340_8004;
-pub const TLMM_GPIO_INTR_CFG_8: usize = 0x0340_8008;
-pub const TLMM_GPIO_INTR_STATUS_8: usize = 0x0340_800C;
+// Architectural Reference: Linux drivers/pinctrl/qcom/pinctrl-sm7150.c & sm7150.dtsi
+// North Tile Base: 0x0390_0000 (Pins 8, 9, etc.)
+// West Tile Base:  0x0350_0000 (Pin 58 assist_key, etc.)
+// Downstream Legacy Flat Alias: 0x0340_0000
 
-// GPIO 9: Touchscreen Interrupt Line (ts_int, active-low / edge-falling)
-pub const TLMM_GPIO_CFG_9: usize = 0x0340_9000;
-pub const TLMM_GPIO_IN_OUT_9: usize = 0x0340_9004;
-pub const TLMM_GPIO_INTR_CFG_9: usize = 0x0340_9008;
-pub const TLMM_GPIO_INTR_STATUS_9: usize = 0x0340_900C;
+// North Tile: GPIO 8 (Touchscreen Reset line)
+pub const TLMM_NORTH_GPIO_CFG_8: usize = 0x0390_8000;
+pub const TLMM_NORTH_GPIO_IN_OUT_8: usize = 0x0390_8004;
+pub const TLMM_NORTH_GPIO_INTR_CFG_8: usize = 0x0390_8008;
+pub const TLMM_NORTH_GPIO_INTR_STATUS_8: usize = 0x0390_800C;
+
+// North Tile: GPIO 9 (Touchscreen Interrupt line, active-low / edge-falling)
+pub const TLMM_NORTH_GPIO_CFG_9: usize = 0x0390_9000;
+pub const TLMM_NORTH_GPIO_IN_OUT_9: usize = 0x0390_9004;
+pub const TLMM_NORTH_GPIO_INTR_CFG_9: usize = 0x0390_9008;
+pub const TLMM_NORTH_GPIO_INTR_STATUS_9: usize = 0x0390_900C;
+
+// West Tile: GPIO 58 (Google Assistant Key - physical hardware button)
+pub const TLMM_WEST_GPIO_CFG_58: usize = 0x0353_A000;
+pub const TLMM_WEST_GPIO_IN_OUT_58: usize = 0x0353_A004;
+pub const TLMM_WEST_GPIO_INTR_CFG_58: usize = 0x0353_A008;
+pub const TLMM_WEST_GPIO_INTR_STATUS_58: usize = 0x0353_A00C;
+
+// Downstream Legacy Flat Alias (for environments mapping flat 0x0340_0000 aperture)
+pub const TLMM_LEGACY_GPIO_CFG_8: usize = 0x0340_8000;
+pub const TLMM_LEGACY_GPIO_IN_OUT_8: usize = 0x0340_8004;
+pub const TLMM_LEGACY_GPIO_CFG_9: usize = 0x0340_9000;
+pub const TLMM_LEGACY_GPIO_IN_OUT_9: usize = 0x0340_9004;
+pub const TLMM_LEGACY_GPIO_INTR_STATUS_9: usize = 0x0340_900C;
 
 // Live hardware register telemetry for on-screen HUD diagnostics
 pub static mut TELEM_GPIO8_VAL: u32 = 0;
@@ -176,34 +193,43 @@ impl KernelTouchControllerHarness {
     /// - Drive GPIO 8 (TS_RESET) HIGH so the Tianma ILI7807S TDDI touch controller stays active.
     ///   (Asserting low reset without a complete SPI reload puts TDDI into dead bootloader state).
     /// - Configure GPIO 9 (TS_INT) as input with internal Pull-Up and Dual-Edge interrupt detection.
+    /// - Configure GPIO 58 (Assist Key) as input with internal Pull-Up and edge interrupt detection.
     pub fn init_hardware_pins(&mut self) {
         #[cfg(target_arch = "aarch64")]
         unsafe {
             // 1. Configure GPIO 8 (Touch Reset line):
-            // Output mode (OE=1), 8mA drive strength (DRV=3), Pull-Up (pull=2), GPIO function (func=0)
-            let cfg8 = (1u32 << 9) | (3u32 << 6) | 2u32;
-            core::ptr::write_volatile(TLMM_GPIO_CFG_8 as *mut u32, cfg8);
-            core::ptr::write_volatile(TLMM_GPIO_IN_OUT_8 as *mut u32, 2); // Deassert reset (HIGH, bit 1)
+            // Output mode (OE=1, bit 9), 8mA drive (DRV=3, bits 8..6), Pull-Up (pull=3, bits 1..0), GPIO func (func=0)
+            let cfg8 = (1u32 << 9) | (3u32 << 6) | 3u32;
+            core::ptr::write_volatile(TLMM_NORTH_GPIO_CFG_8 as *mut u32, cfg8);
+            core::ptr::write_volatile(TLMM_NORTH_GPIO_IN_OUT_8 as *mut u32, 2); // Deassert reset (HIGH, bit 1)
+            core::ptr::write_volatile(TLMM_LEGACY_GPIO_CFG_8 as *mut u32, cfg8);
+            core::ptr::write_volatile(TLMM_LEGACY_GPIO_IN_OUT_8 as *mut u32, 2);
 
             // 2. Configure GPIO 9 (Touch Interrupt line):
-            // Input mode (OE=0), 8mA drive strength (DRV=3), Pull-Up (pull=2), GPIO function (func=0)
-            let cfg9 = (0u32 << 9) | (3u32 << 6) | 2u32;
-            core::ptr::write_volatile(TLMM_GPIO_CFG_9 as *mut u32, cfg9);
+            // Input mode (OE=0, bit 9), 8mA drive (DRV=3, bits 8..6), Pull-Up (pull=3, bits 1..0), GPIO func (func=0)
+            let cfg9 = (0u32 << 9) | (3u32 << 6) | 3u32;
+            core::ptr::write_volatile(TLMM_NORTH_GPIO_CFG_9 as *mut u32, cfg9);
+            core::ptr::write_volatile(TLMM_LEGACY_GPIO_CFG_9 as *mut u32, cfg9);
 
             // 3. Configure GPIO 9 Interrupt for edge detection:
-            // INTR_CFG: Bit 0 = enable (1), Bits 4..5 = detect (4 for dual-edge, 2 for falling-edge)
-            let intr_cfg = (4u32 << 4) | 1u32;
-            core::ptr::write_volatile(TLMM_GPIO_INTR_CFG_9 as *mut u32, intr_cfg);
+            // target=3 (bits 7..5), falling edge detect=2 (bits 3..2), enable=1 (bit 0) -> (3 << 5) | (2 << 2) | 1 = 0x69
+            let intr_cfg = (3u32 << 5) | (2u32 << 2) | 1u32;
+            core::ptr::write_volatile(TLMM_NORTH_GPIO_INTR_CFG_9 as *mut u32, intr_cfg);
+            core::ptr::write_volatile(TLMM_NORTH_GPIO_INTR_STATUS_9 as *mut u32, 0);
+            core::ptr::write_volatile(TLMM_LEGACY_GPIO_INTR_STATUS_9 as *mut u32, 0);
 
-            // Clear any stale interrupt latch
-            core::ptr::write_volatile(TLMM_GPIO_INTR_STATUS_9 as *mut u32, 0);
+            // 4. Configure GPIO 58 (Google Assistant Key - physical button):
+            let cfg58 = (0u32 << 9) | (3u32 << 6) | 3u32;
+            core::ptr::write_volatile(TLMM_WEST_GPIO_CFG_58 as *mut u32, cfg58);
+            core::ptr::write_volatile(TLMM_WEST_GPIO_INTR_CFG_58 as *mut u32, intr_cfg);
+            core::ptr::write_volatile(TLMM_WEST_GPIO_INTR_STATUS_58 as *mut u32, 0);
         }
         self.hardware_initialized = true;
     }
 
     /// Polls physical touch hardware on Qualcomm SM7150 (Moto G60 / hanoip)
     /// Reads TLMM GPIO 8 and GPIO 9 with edge detection, debouncing, and dead-lock guard.
-    /// Returns true if the screen is currently being touched.
+    /// Complies strictly with INV-TOUCH-NO-GHOST: Zero / dead registers never generate fake touches.
     pub fn poll_hardware(
         &mut self,
         is_hanoip: bool,
@@ -219,10 +245,25 @@ impl KernelTouchControllerHarness {
         }
 
         #[cfg(target_arch = "aarch64")]
-        let (line_low, _edge_latched) = {
-            let io8 = unsafe { core::ptr::read_volatile(TLMM_GPIO_IN_OUT_8 as *const u32) };
-            let io9 = unsafe { core::ptr::read_volatile(TLMM_GPIO_IN_OUT_9 as *const u32) };
-            let irq9 = unsafe { core::ptr::read_volatile(TLMM_GPIO_INTR_STATUS_9 as *const u32) };
+        let (is_active, _edge_latched) = {
+            // Read North Tile registers (upstream pinctrl layout)
+            let io8_north = unsafe { core::ptr::read_volatile(TLMM_NORTH_GPIO_IN_OUT_8 as *const u32) };
+            let io9_north = unsafe { core::ptr::read_volatile(TLMM_NORTH_GPIO_IN_OUT_9 as *const u32) };
+            let irq9_north = unsafe { core::ptr::read_volatile(TLMM_NORTH_GPIO_INTR_STATUS_9 as *const u32) };
+
+            // Read Legacy Flat Alias
+            let io8_leg = unsafe { core::ptr::read_volatile(TLMM_LEGACY_GPIO_IN_OUT_8 as *const u32) };
+            let io9_leg = unsafe { core::ptr::read_volatile(TLMM_LEGACY_GPIO_IN_OUT_9 as *const u32) };
+            let irq9_leg = unsafe { core::ptr::read_volatile(TLMM_LEGACY_GPIO_INTR_STATUS_9 as *const u32) };
+
+            // Read West Tile (GPIO 58 assistant button)
+            let io58_west = unsafe { core::ptr::read_volatile(TLMM_WEST_GPIO_IN_OUT_58 as *const u32) };
+            let irq58_west = unsafe { core::ptr::read_volatile(TLMM_WEST_GPIO_INTR_STATUS_58 as *const u32) };
+
+            // Select active telemetry values
+            let io8 = if io8_north != 0 { io8_north } else { io8_leg };
+            let io9 = if io9_north != 0 { io9_north } else { io9_leg };
+            let irq9 = if irq9_north != 0 { irq9_north } else { irq9_leg };
 
             unsafe {
                 TELEM_GPIO8_VAL = io8;
@@ -230,22 +271,36 @@ impl KernelTouchControllerHarness {
                 TELEM_GPIO9_IRQ = irq9;
             }
 
-            let edge = (irq9 & 1) != 0;
-            if edge {
-                // Clear the latched interrupt by writing 0
-                unsafe {
-                    core::ptr::write_volatile(TLMM_GPIO_INTR_STATUS_9 as *mut u32, 0);
-                }
+            // Latched edge interrupt check
+            let mut edge = false;
+            if (irq9_north & 1) != 0 {
+                edge = true;
+                unsafe { core::ptr::write_volatile(TLMM_NORTH_GPIO_INTR_STATUS_9 as *mut u32, 0); }
+            }
+            if (irq9_leg & 1) != 0 {
+                edge = true;
+                unsafe { core::ptr::write_volatile(TLMM_LEGACY_GPIO_INTR_STATUS_9 as *mut u32, 0); }
+            }
+            if (irq58_west & 1) != 0 {
+                edge = true;
+                unsafe { core::ptr::write_volatile(TLMM_WEST_GPIO_INTR_STATUS_58 as *mut u32, 0); }
             }
 
-            // Bit 0 is 0 when line is low (touch active)
-            let low = (io9 & 1) == 0;
-            (low, edge)
+            // Invariant INV-TOUCH-NO-GHOST:
+            // An uninitialized, disconnected, or zero register (0x00000000) is NEVER treated as touch!
+            // Touch or button contact is only recognized when:
+            // 1. Bit 0 of IO register is 0 AND the register is non-zero (pull-up active and pulled down), OR
+            // 2. An edge interrupt was latched in hardware.
+            let touch_down = (io9 != 0) && ((io9 & 1) == 0);
+            let btn58_down = (io58_west != 0) && ((io58_west & 1) == 0);
+
+            let active = touch_down || btn58_down || edge;
+            (active, edge)
         };
         #[cfg(not(target_arch = "aarch64"))]
-        let (line_low, _edge_latched) = (false, false);
+        let (is_active, _edge_latched) = (false, false);
 
-        self.process_hardware_state(line_low, current_tick, active_card);
+        self.process_hardware_state(is_active, current_tick, active_card);
         self.is_touch_down
     }
 

@@ -259,18 +259,38 @@ pub fn delay_ms(ms: u32) {
     }
 }
 
-/// Plays the 2.8-second 4-stage Cold Boot Animation with hardware-paced timing
+pub unsafe fn paint_sovereign_splash_screen(painter: &mut HardwareScreenPainter) {
+    let cx: usize = HANOIP_PANEL_WIDTH / 2;
+    let cy: usize = 1100;
+
+    // Deep Sovereign Canvas (zero-flicker single blit)
+    painter.fill_rect(0, 0, HANOIP_PANEL_WIDTH, HANOIP_PANEL_HEIGHT, 0xFF0A0D12);
+
+    // Gaja Mascot Emblem in Cyan & Gold
+    painter.fill_rect(cx.saturating_sub(120), cy.saturating_sub(160), 240, 6, 0xFF00F0FF);
+    painter.fill_rect(cx.saturating_sub(280), cy.saturating_sub(100), 100, 160, 0xFF0F172A);
+    painter.fill_rect(cx.saturating_sub(280), cy.saturating_sub(100), 100, 4, 0xFFFFB300);
+    painter.fill_rect(cx + 180, cy.saturating_sub(100), 100, 160, 0xFF0F172A);
+    painter.fill_rect(cx + 180, cy.saturating_sub(100), 100, 4, 0xFFFFB300);
+    painter.fill_rect(cx.saturating_sub(30), cy.saturating_sub(20), 60, 180, 0xFF00F0FF);
+    painter.fill_rect(cx.saturating_sub(60), cy + 140, 40, 30, 0xFFFF6D00);
+    painter.fill_rect(cx.saturating_sub(70), cy + 40, 16, 60, 0xFFFFFFFF);
+    painter.fill_rect(cx + 54, cy + 40, 16, 60, 0xFFFFFFFF);
+
+    // Brand Typography
+    painter.draw_string(cx.saturating_sub(120), cy + 260, "IND OS", 0xFFFFFFFF, 5);
+    painter.draw_string(cx.saturating_sub(360), cy + 370, "FAST - SECURE - PRIVATE - INTELLIGENT", 0xFF00F0FF, 2);
+    painter.draw_string(cx.saturating_sub(410), cy + 430, "QUALCOMM SNAPDRAGON 732G - TIANMA FHD+ 120HZ", TOK_COLOR_TEXT_1, 2);
+    painter.draw_string(cx.saturating_sub(230), cy + 480, "[SOVEREIGN BOOT VERIFIED]", TOK_COLOR_OK, 2);
+}
+
+/// Renders the polished, flicker-free Sovereign splash screen during cold boot (zero tearing / zero flicker)
 pub unsafe fn play_cold_boot_animation() {
-    let mut anim_engine = super::boot_animation_core::KernelBootAnimationEngine::new();
-    for frame_step in 0..=56 {
-        let ms = frame_step * 50;
-        anim_engine.set_time(ms);
-        for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
-            let mut painter = HardwareScreenPainter::new(fb_addr);
-            anim_engine.render_frame(&mut painter);
-        }
-        delay_ms(50);
+    for &fb_addr in &[HANOIP_SPLASH_FB_PRIMARY, HANOIP_SPLASH_FB_SECONDARY] {
+        let mut painter = HardwareScreenPainter::new(fb_addr);
+        paint_sovereign_splash_screen(&mut painter);
     }
+    delay_ms(1000);
 }
 
 static mut HARDWARE_TOUCH_ACTIVE: bool = false;

@@ -56,6 +56,7 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
         let _ = touch_harness.map_bus(hal::KERNEL_HANOIP_GENI_I2C1_BASE, hal::KERNEL_TOUCH_I2C_SLAVE_ADDR);
 
         let mut last_second = 0u64;
+        let mut was_touching = false;
         let mut current_card = hal::KernelActiveCard::Telemetry;
 
         // Interactive hardware event loop: maintains active display & live heartbeat!
@@ -72,8 +73,12 @@ pub extern "C" fn kernel_main(dtb_addr: usize) -> ! {
 
             // Actively poll physical hardware touch registers with 15ms debouncing and 200ms cooldown
             let is_touching = touch_harness.poll_hardware(PLATFORM == "hanoip", cntpct, current_card);
-            unsafe {
-                hal::platform::hanoip_display::set_hardware_touch_indicator(is_touching);
+            if is_touching != was_touching {
+                was_touching = is_touching;
+                unsafe {
+                    hal::platform::hanoip_display::set_hardware_touch_indicator(is_touching);
+                    hal::platform::hanoip_display::update_hardware_heartbeat(current_second as u32, blink);
+                }
             }
 
             // Process normalized touch events
